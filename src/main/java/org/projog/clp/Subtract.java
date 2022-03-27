@@ -22,39 +22,44 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** The difference of two {@code Expression}s. */
 public final class Subtract implements Expression {
    private final Expression left;
    private final Expression right;
 
+   /**
+    * @param left the expression to subtract {@code right} from
+    * @param right the expression to subtract from {@code left}
+    */
    public Subtract(Expression left, Expression right) {
       this.left = Objects.requireNonNull(left);
       this.right = Objects.requireNonNull(right);
    }
 
    @Override
-   public long getMin(Variables m) {
-      return safeSubtract(left.getMin(m), right.getMax(m));
+   public long getMin(ConstraintStore s) {
+      return safeSubtract(left.getMin(s), right.getMax(s));
    }
 
    @Override
-   public long getMax(Variables m) {
-      return safeSubtract(left.getMax(m), right.getMin(m));
+   public long getMax(ConstraintStore s) {
+      return safeSubtract(left.getMax(s), right.getMin(s));
    }
 
    @Override
-   public ExpressionResult setMin(Variables m, long min) {
-      long leftMax = left.getMax(m);
-      long rightMin = right.getMin(m);
+   public ExpressionResult setMin(ConstraintStore s, long min) {
+      long leftMax = left.getMax(s);
+      long rightMin = right.getMin(s);
       if (safeSubtract(leftMax, rightMin) < min) {
          return ExpressionResult.FAILED;
       }
 
-      ExpressionResult r1 = left.setMin(m, safeAdd(rightMin, min));
+      ExpressionResult r1 = left.setMin(s, safeAdd(rightMin, min));
       if (r1 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
 
-      ExpressionResult r2 = right.setMax(m, safeSubtract(leftMax, min));
+      ExpressionResult r2 = right.setMax(s, safeSubtract(leftMax, min));
       if (r2 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
@@ -63,19 +68,19 @@ public final class Subtract implements Expression {
    }
 
    @Override
-   public ExpressionResult setMax(Variables m, long max) {
-      long leftMin = left.getMin(m);
-      long rightMax = right.getMax(m);
+   public ExpressionResult setMax(ConstraintStore s, long max) {
+      long leftMin = left.getMin(s);
+      long rightMax = right.getMax(s);
       if (safeSubtract(leftMin, rightMax) > max) {
          return ExpressionResult.FAILED;
       }
 
-      ExpressionResult r1 = left.setMax(m, safeAdd(rightMax, max));
+      ExpressionResult r1 = left.setMax(s, safeAdd(rightMax, max));
       if (r1 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
 
-      ExpressionResult r2 = right.setMin(m, safeSubtract(leftMin, max));
+      ExpressionResult r2 = right.setMin(s, safeSubtract(leftMin, max));
       if (r2 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
@@ -84,9 +89,11 @@ public final class Subtract implements Expression {
    }
 
    @Override
-   public ExpressionResult setNot(Variables m, long not) {
-      if (getMax(m) == not && getMin(m) == not) {
-         return ExpressionResult.FAILED;
+   public ExpressionResult setNot(ConstraintStore s, long not) {
+      if (getMax(s) == not) {
+         return setMax(s, safeSubtract(not, 1));
+      } else if (getMin(s) == not) {
+         return setMin(s, safeAdd(not, 1));
       } else {
          return ExpressionResult.NO_CHANGE;
       }

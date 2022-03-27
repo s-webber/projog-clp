@@ -1,1 +1,1 @@
-A Java library which was created to add [constraint logic programming](https://en.wikipedia.org/wiki/Constraint_logic_programming) funtionality to [Projog](http://projog.org "Prolog interpreter for Java").
+A Java library which was created to add [constraint logic programming](https://en.wikipedia.org/wiki/Constraint_logic_programming) functionality to [Projog](http://projog.org "Prolog interpreter for Java").

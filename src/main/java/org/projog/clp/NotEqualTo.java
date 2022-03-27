@@ -18,6 +18,7 @@ package org.projog.clp;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** Enforces that two {@code Expression}s do not have the same value. */
 public final class NotEqualTo implements Constraint {
    private final Expression left;
    private final Expression right;
@@ -28,7 +29,7 @@ public final class NotEqualTo implements Constraint {
    }
 
    @Override
-   public ConstraintResult fire(Variables m) {
+   public ConstraintResult enforce(ConstraintStore m) {
       long minLeft = left.getMin(m);
       long maxLeft = left.getMax(m);
 

@@ -18,6 +18,7 @@ package org.projog.clp;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** Represents a single immutable number. */
 public final class FixedValue implements Expression {
    private final long value;
 
@@ -26,17 +27,17 @@ public final class FixedValue implements Expression {
    }
 
    @Override
-   public long getMin(Variables m) {
+   public long getMin(ConstraintStore s) {
       return value;
    }
 
    @Override
-   public long getMax(Variables m) {
+   public long getMax(ConstraintStore s) {
       return value;
    }
 
    @Override
-   public ExpressionResult setNot(Variables m, long not) {
+   public ExpressionResult setNot(ConstraintStore s, long not) {
       if (value == not) {
          return ExpressionResult.FAILED;
       }
@@ -44,7 +45,7 @@ public final class FixedValue implements Expression {
    }
 
    @Override
-   public ExpressionResult setMin(Variables m, long min) {
+   public ExpressionResult setMin(ConstraintStore s, long min) {
       if (min > value) {
          return ExpressionResult.FAILED;
       }
@@ -52,7 +53,7 @@ public final class FixedValue implements Expression {
    }
 
    @Override
-   public ExpressionResult setMax(Variables m, long max) {
+   public ExpressionResult setMax(ConstraintStore s, long max) {
       if (max < value) {
          return ExpressionResult.FAILED;
       }

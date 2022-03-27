@@ -29,20 +29,20 @@ final class DummyExpression implements Expression {
    }
 
    @Override
-   public long getMin(Variables m) {
-      Objects.requireNonNull(m);
+   public long getMin(ConstraintStore s) {
+      Objects.requireNonNull(s);
       return min;
    }
 
    @Override
-   public long getMax(Variables m) {
-      Objects.requireNonNull(m);
+   public long getMax(ConstraintStore s) {
+      Objects.requireNonNull(s);
       return max;
    }
 
    @Override
-   public ExpressionResult setMin(Variables m, long min) {
-      Objects.requireNonNull(m);
+   public ExpressionResult setMin(ConstraintStore s, long min) {
+      Objects.requireNonNull(s);
       if (min > max) {
          return ExpressionResult.FAILED;
       } else if (min > this.min) {
@@ -54,9 +54,8 @@ final class DummyExpression implements Expression {
    }
 
    @Override
-   public ExpressionResult setMax(Variables m, long max) {
-      Objects.requireNonNull(m);
-      Objects.requireNonNull(m);
+   public ExpressionResult setMax(ConstraintStore s, long max) {
+      Objects.requireNonNull(s);
       if (max < min) {
          return ExpressionResult.FAILED;
       } else if (max < this.max) {
@@ -68,7 +67,7 @@ final class DummyExpression implements Expression {
    }
 
    @Override
-   public ExpressionResult setNot(Variables m, long not) {
+   public ExpressionResult setNot(ConstraintStore s, long not) {
       throw new UnsupportedOperationException();
    }
 

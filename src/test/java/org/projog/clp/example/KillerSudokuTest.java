@@ -15,185 +15,110 @@
  */
 package org.projog.clp.example;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertArrayEquals;
+import static org.projog.clp.example.ExpressionUtils.add;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
-import org.projog.clp.Add;
-import org.projog.clp.BruteForceSearch;
-import org.projog.clp.ClpEnvironment;
-import org.projog.clp.Expression;
 import org.projog.clp.Variable;
 
 public class KillerSudokuTest {
    @Test
    public void test() {
-      ClpEnvironment.Builder v = new ClpEnvironment.Builder();
-      Variable[][] grid = new Variable[9][9];
-      for (int x = 0; x < 9; x++) {
-         for (int y = 0; y < 9; y++) {
-            grid[x][y] = v.createVariable(x + "_" + y);
-            v.enforce(grid[x][y]).between(1, 9);
+      Sudoku sudoku = new Sudoku();
+
+      // define groups of cells and the required total sum of the values in those cells
+      Group aa = new Group(10);
+      Group ab = new Group(16);
+      Group ac = new Group(15);
+      Group ad = new Group(3);
+      Group ae = new Group(6);
+      Group af = new Group(15);
+      Group ag = new Group(16);
+      Group ah = new Group(4);
+      Group ai = new Group(3);
+      Group aj = new Group(8);
+      Group ak = new Group(3);
+      Group al = new Group(12);
+      Group am = new Group(4);
+      Group an = new Group(8);
+      Group ao = new Group(9);
+      Group ap = new Group(15);
+      Group aq = new Group(17);
+      Group ar = new Group(5);
+      Group as = new Group(11);
+      Group at = new Group(13);
+      Group au = new Group(6);
+      Group av = new Group(3);
+      Group aw = new Group(13);
+      Group ax = new Group(7);
+      Group ay = new Group(9);
+      Group az = new Group(2);
+      Group ba = new Group(7);
+      Group bb = new Group(9);
+      Group bc = new Group(7);
+      Group bd = new Group(9);
+      Group be = new Group(12);
+      Group bf = new Group(8);
+      Group bg = new Group(5);
+      Group bh = new Group(9);
+      Group bi = new Group(8);
+      Group bj = new Group(12);
+      Group bk = new Group(7);
+      Group bl = new Group(6);
+      Group bm = new Group(17);
+      Group bn = new Group(18);
+      Group bo = new Group(3);
+      Group bp = new Group(17);
+      Group bq = new Group(6);
+      Group br = new Group(5);
+      Group bs = new Group(7);
+
+      Group[][] grid = {
+                  {aa, ab, ac, ac, ad, ae, ae, af, af},
+                  {aa, ab, ab, ag, ah, ai, aj, aj, ak},
+                  {al, am, am, ag, an, ai, ao, ao, ap},
+                  {al, aq, aq, ar, ar, as, as, at, ap},
+                  {al, au, av, aw, ax, ay, az, at, at},
+                  {ba, bb, bb, aw, bc, bc, bd, be, be},
+                  {ba, bf, bf, bg, bh, bi, bj, bj, be},
+                  {bk, bl, bl, bg, bm, bm, bm, bn, bo},
+                  {bp, bp, bq, bq, br, bs, bn, bn, bo}};
+
+      Map<Group, List<Variable>> groups = new HashMap<>();
+      for (int x = 0; x < Sudoku.MAX_VALUE; x++) {
+         for (int y = 0; y < Sudoku.MAX_VALUE; y++) {
+            groups.computeIfAbsent(grid[x][y], g -> new ArrayList<>()).add(sudoku.get(x, y));
          }
       }
 
-      //@formatter:off
-      int[][] groups = {
-                  {0, 1, 2, 2, 3, 4, 4, 5, 5},
-                  {0, 1, 1, 6, 7, 8, 9, 9, 10},
-                  {11, 12, 12, 6, 13, 8, 14, 14, 15},
-                  {11, 16, 16, 17, 17, 18, 18, 19, 15},
-                  {11, 20, 21, 22, 23, 24, 25, 19, 19},
-                  {26, 27, 27, 22, 28, 28, 29, 30, 30},
-                  {26, 31, 31, 32, 33, 34, 35, 35, 30},
-                  {36, 37, 37, 32, 38, 38, 38, 39, 40},
-                  {41, 41, 42, 42, 43, 44, 39, 39, 40}};
-      //@formatter:on
-      int[] totals = {10, 16, 15, 3, 6, 15, 16, 4, 3, 8, 3, 12, 4, 8, 9, 15, 17, 5, 11, 13, 6, 3, 13, 7, 9, 2, 7, 9, 7, 9, 12, 8, 5, 9, 8, 12, 7, 6, 17, 18, 3, 17, 6, 5, 7};
-
-      List<Variable>[] c = new List[totals.length];
-      for (int x = 0; x < 9; x++) {
-         for (int y = 0; y < 9; y++) {
-            List<Variable> ccc = c[groups[x][y]];
-            if (ccc == null) {
-               ccc = new ArrayList<>();
-               c[groups[x][y]] = ccc;
-            }
-            ccc.add(grid[x][y]);
-         }
+      // add constraint for each group
+      for (Map.Entry<Group, List<Variable>> e : groups.entrySet()) {
+         sudoku.enforce(e.getKey().total).equalTo(add(e.getValue()));
       }
 
-      for (int x = 0; x < 9; x++) {
-         Variable xxx[] = new Variable[9];
-         Variable yyy[] = new Variable[9];
-         for (int y = 0; y < 9; y++) {
-            xxx[y] = grid[x][y];
-            yyy[y] = grid[y][x];
-         }
-         v.enforce(xxx).distinct();
-         v.enforce(yyy).distinct();
-      }
-      for (int x = 0; x < 3; x++) {
-         for (int y = 0; y < 3; y++) {
-            List<Variable> aaa = new ArrayList<>();
-            for (int q = 0; q < 3; q++) {
-               for (int z = 0; z < 3; z++) {
-                  aaa.add(grid[(x * 3) + q][(y * 3) + z]);
-               }
-            }
-            v.enforce(aaa.toArray(new Variable[0])).distinct();
-         }
-      }
-
-      for (int i = 0; i < totals.length; i++) {
-         v.enforce(totals[i]).equalTo(add(c[i].toArray(new Variable[0])));
-      }
-
-      ClpEnvironment x = v.build();
-
-      x.resolve();
-
-      BruteForceSearch f = new BruteForceSearch(x);
-
-      ClpEnvironment q = f.next();
-
-      assertEquals(2, q.getValue(grid[0][0]));
-      assertEquals(4, q.getValue(grid[0][1]));
-      assertEquals(9, q.getValue(grid[0][2]));
-      assertEquals(6, q.getValue(grid[0][3]));
-      assertEquals(3, q.getValue(grid[0][4]));
-      assertEquals(5, q.getValue(grid[0][5]));
-      assertEquals(1, q.getValue(grid[0][6]));
-      assertEquals(8, q.getValue(grid[0][7]));
-      assertEquals(7, q.getValue(grid[0][8]));
-      assertEquals(8, q.getValue(grid[1][0]));
-      assertEquals(5, q.getValue(grid[1][1]));
-      assertEquals(7, q.getValue(grid[1][2]));
-      assertEquals(9, q.getValue(grid[1][3]));
-      assertEquals(4, q.getValue(grid[1][4]));
-      assertEquals(1, q.getValue(grid[1][5]));
-      assertEquals(6, q.getValue(grid[1][6]));
-      assertEquals(2, q.getValue(grid[1][7]));
-      assertEquals(3, q.getValue(grid[1][8]));
-      assertEquals(6, q.getValue(grid[2][0]));
-      assertEquals(3, q.getValue(grid[2][1]));
-      assertEquals(1, q.getValue(grid[2][2]));
-      assertEquals(7, q.getValue(grid[2][3]));
-      assertEquals(8, q.getValue(grid[2][4]));
-      assertEquals(2, q.getValue(grid[2][5]));
-      assertEquals(4, q.getValue(grid[2][6]));
-      assertEquals(5, q.getValue(grid[2][7]));
-      assertEquals(9, q.getValue(grid[2][8]));
-      assertEquals(5, q.getValue(grid[3][0]));
-      assertEquals(9, q.getValue(grid[3][1]));
-      assertEquals(8, q.getValue(grid[3][2]));
-      assertEquals(3, q.getValue(grid[3][3]));
-      assertEquals(2, q.getValue(grid[3][4]));
-      assertEquals(4, q.getValue(grid[3][5]));
-      assertEquals(7, q.getValue(grid[3][6]));
-      assertEquals(1, q.getValue(grid[3][7]));
-      assertEquals(6, q.getValue(grid[3][8]));
-      assertEquals(1, q.getValue(grid[4][0]));
-      assertEquals(6, q.getValue(grid[4][1]));
-      assertEquals(3, q.getValue(grid[4][2]));
-      assertEquals(5, q.getValue(grid[4][3]));
-      assertEquals(7, q.getValue(grid[4][4]));
-      assertEquals(9, q.getValue(grid[4][5]));
-      assertEquals(2, q.getValue(grid[4][6]));
-      assertEquals(4, q.getValue(grid[4][7]));
-      assertEquals(8, q.getValue(grid[4][8]));
-      assertEquals(4, q.getValue(grid[5][0]));
-      assertEquals(7, q.getValue(grid[5][1]));
-      assertEquals(2, q.getValue(grid[5][2]));
-      assertEquals(8, q.getValue(grid[5][3]));
-      assertEquals(1, q.getValue(grid[5][4]));
-      assertEquals(6, q.getValue(grid[5][5]));
-      assertEquals(9, q.getValue(grid[5][6]));
-      assertEquals(3, q.getValue(grid[5][7]));
-      assertEquals(5, q.getValue(grid[5][8]));
-      assertEquals(3, q.getValue(grid[6][0]));
-      assertEquals(2, q.getValue(grid[6][1]));
-      assertEquals(6, q.getValue(grid[6][2]));
-      assertEquals(1, q.getValue(grid[6][3]));
-      assertEquals(9, q.getValue(grid[6][4]));
-      assertEquals(8, q.getValue(grid[6][5]));
-      assertEquals(5, q.getValue(grid[6][6]));
-      assertEquals(7, q.getValue(grid[6][7]));
-      assertEquals(4, q.getValue(grid[6][8]));
-      assertEquals(7, q.getValue(grid[7][0]));
-      assertEquals(1, q.getValue(grid[7][1]));
-      assertEquals(5, q.getValue(grid[7][2]));
-      assertEquals(4, q.getValue(grid[7][3]));
-      assertEquals(6, q.getValue(grid[7][4]));
-      assertEquals(3, q.getValue(grid[7][5]));
-      assertEquals(8, q.getValue(grid[7][6]));
-      assertEquals(9, q.getValue(grid[7][7]));
-      assertEquals(2, q.getValue(grid[7][8]));
-      assertEquals(9, q.getValue(grid[8][0]));
-      assertEquals(8, q.getValue(grid[8][1]));
-      assertEquals(4, q.getValue(grid[8][2]));
-      assertEquals(2, q.getValue(grid[8][3]));
-      assertEquals(5, q.getValue(grid[8][4]));
-      assertEquals(7, q.getValue(grid[8][5]));
-      assertEquals(3, q.getValue(grid[8][6]));
-      assertEquals(6, q.getValue(grid[8][7]));
-      assertEquals(1, q.getValue(grid[8][8]));
-
-      assertNull(f.next());
+      // find and check solution
+      int[][] solution = sudoku.findSolution();
+      assertArrayEquals(solution[0], new int[] {2, 4, 9, 6, 3, 5, 1, 8, 7});
+      assertArrayEquals(solution[1], new int[] {8, 5, 7, 9, 4, 1, 6, 2, 3});
+      assertArrayEquals(solution[2], new int[] {6, 3, 1, 7, 8, 2, 4, 5, 9});
+      assertArrayEquals(solution[3], new int[] {5, 9, 8, 3, 2, 4, 7, 1, 6});
+      assertArrayEquals(solution[4], new int[] {1, 6, 3, 5, 7, 9, 2, 4, 8});
+      assertArrayEquals(solution[5], new int[] {4, 7, 2, 8, 1, 6, 9, 3, 5});
+      assertArrayEquals(solution[6], new int[] {3, 2, 6, 1, 9, 8, 5, 7, 4});
+      assertArrayEquals(solution[7], new int[] {7, 1, 5, 4, 6, 3, 8, 9, 2});
+      assertArrayEquals(solution[8], new int[] {9, 8, 4, 2, 5, 7, 3, 6, 1});
    }
 
-   private static Expression add(Expression... args) {
-      Expression result = null;
-      for (Expression e : args) {
-         if (result == null) {
-            result = e;
-         } else {
-            result = new Add(result, e);
-         }
+   static final class Group {
+      final int total;
+
+      Group(int total) {
+         this.total = total;
       }
-      return result;
    }
 }

@@ -18,10 +18,26 @@ package org.projog.clp;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** A rule that restricts the numeric values that can be used to solve a problem. */
 public interface Constraint {
-   ConstraintResult fire(Variables m);
+   /** Attempts to enforce this constraint using the given {@code ConstraintStore}. */
+   ConstraintResult enforce(ConstraintStore constraintStore);
 
-   void walk(Consumer<Expression> r);
+   /**
+    * Traverse this constraint.
+    *
+    * @param consumer will be called for each {@code Expression} contained within this {@code Constraint}.
+    */
+   void walk(Consumer<Expression> consumer);
 
-   Constraint replace(Function<Expression, Expression> r);
+   /**
+    * Returns new {@code Constraint} with {@code Expression}s in this {@code Constraint} replaced with values returned
+    * from the given function.
+    *
+    * @param function returns the {@code Expression} to use as a replacement for the {@code Expression} it is called
+    * with, or {@code null} if the original {@code Expression} should continue to be used.
+    * @return a new {@code Constraint} with {@code Expression}s in this {@code Constraint} replaced with versions
+    * returned from {@code function}.
+    */
+   Constraint replace(Function<Expression, Expression> function);
 }

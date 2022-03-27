@@ -65,11 +65,11 @@ public class MultiplyTest {
    }
 
    private void assertGetMinMax(Range leftRange, Range rightRange, Range expectedRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
+      TestUtils environment = new TestUtils(leftRange, rightRange);
       Multiply m = new Multiply(environment.getLeft(), environment.getRight());
 
-      assertEquals(expectedRange.min(), m.getMin(environment.getVariables()));
-      assertEquals(expectedRange.max(), m.getMax(environment.getVariables()));
+      assertEquals(expectedRange.min(), m.getMin(environment.getConstraintStore()));
+      assertEquals(expectedRange.max(), m.getMax(environment.getConstraintStore()));
    }
 
    @Test
@@ -91,16 +91,16 @@ public class MultiplyTest {
    }
 
    private void assertSetMin(Range inputLeftRange, Range inputRightRange, long min, Range outputLeftRange, Range outputRightRange) {
-      Bdd environment = new Bdd(inputLeftRange, inputRightRange);
+      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
       Multiply m = new Multiply(left, right);
 
-      assertNotEquals(ExpressionResult.FAILED, m.setMin(environment.getVariables(), min));
-      assertEquals(outputLeftRange.min(), left.getMin(environment.getVariables()));
-      assertEquals(outputLeftRange.max(), left.getMax(environment.getVariables()));
-      assertEquals(outputRightRange.min(), right.getMin(environment.getVariables()));
-      assertEquals(outputRightRange.max(), right.getMax(environment.getVariables()));
+      assertNotEquals(ExpressionResult.FAILED, m.setMin(environment.getConstraintStore(), min));
+      assertEquals(outputLeftRange.min(), left.getMin(environment.getConstraintStore()));
+      assertEquals(outputLeftRange.max(), left.getMax(environment.getConstraintStore()));
+      assertEquals(outputRightRange.min(), right.getMin(environment.getConstraintStore()));
+      assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
    }
 
    @Test
@@ -111,12 +111,12 @@ public class MultiplyTest {
    }
 
    private void assertSetMinFailed(Range inputLeftRange, Range inputRightRange, long min) {
-      Bdd environment = new Bdd(inputLeftRange, inputRightRange);
+      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
       Multiply m = new Multiply(left, right);
 
-      assertEquals(ExpressionResult.FAILED, m.setMin(environment.getVariables(), min));
+      assertEquals(ExpressionResult.FAILED, m.setMin(environment.getConstraintStore(), min));
    }
 
    @Test
@@ -141,16 +141,16 @@ public class MultiplyTest {
    }
 
    private void assertSetMax(Range inputLeftRange, Range inputRightRange, long min, Range outputLeftRange, Range outputRightRange) {
-      Bdd environment = new Bdd(inputLeftRange, inputRightRange);
+      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
       Multiply m = new Multiply(left, right);
 
-      assertNotEquals(ExpressionResult.FAILED, m.setMax(environment.getVariables(), min));
-      assertEquals(outputLeftRange.min(), left.getMin(environment.getVariables()));
-      assertEquals(outputLeftRange.max(), left.getMax(environment.getVariables()));
-      assertEquals(outputRightRange.min(), right.getMin(environment.getVariables()));
-      assertEquals(outputRightRange.max(), right.getMax(environment.getVariables()));
+      assertNotEquals(ExpressionResult.FAILED, m.setMax(environment.getConstraintStore(), min));
+      assertEquals(outputLeftRange.min(), left.getMin(environment.getConstraintStore()));
+      assertEquals(outputLeftRange.max(), left.getMax(environment.getConstraintStore()));
+      assertEquals(outputRightRange.min(), right.getMin(environment.getConstraintStore()));
+      assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
    }
 
    @Test
@@ -161,22 +161,22 @@ public class MultiplyTest {
    }
 
    private void assertSetMaxFailed(Range inputLeftRange, Range inputRightRange, long min) {
-      Bdd environment = new Bdd(inputLeftRange, inputRightRange);
+      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
       Multiply m = new Multiply(left, right);
 
-      assertEquals(ExpressionResult.FAILED, m.setMax(environment.getVariables(), min));
+      assertEquals(ExpressionResult.FAILED, m.setMax(environment.getConstraintStore(), min));
    }
 
    @Test
-   public void testSetNot() {
+   public void testSetNotNoChange() {
       Range leftRange = parseRange("2:4");
       Range rightRange = parseRange("3:5");
-      Bdd environment = new Bdd(leftRange, rightRange);
+      TestUtils environment = new TestUtils(leftRange, rightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
-      Variables variables = environment.getVariables();
+      ConstraintStore variables = environment.getConstraintStore();
       Multiply m = new Multiply(environment.getLeft(), environment.getRight());
       for (long i = m.getMin(variables) - 1; i <= m.getMax(variables) + 1; i++) {
          assertEquals(ExpressionResult.NO_CHANGE, m.setNot(variables, i));
@@ -188,9 +188,41 @@ public class MultiplyTest {
    }
 
    @Test
+   public void testSetNotUpdatedMin() {
+      Range leftRange = parseRange("3");
+      Range rightRange = parseRange("3:5");
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      Variable left = environment.getLeft();
+      Variable right = environment.getRight();
+      ConstraintStore variables = environment.getConstraintStore();
+      Multiply m = new Multiply(environment.getLeft(), environment.getRight());
+      assertEquals(ExpressionResult.UPDATED, m.setNot(variables, m.getMin(variables)));
+      assertEquals(leftRange.min(), left.getMin(variables));
+      assertEquals(leftRange.max(), left.getMax(variables));
+      assertEquals(rightRange.min() + 1, right.getMin(variables));
+      assertEquals(rightRange.max(), right.getMax(variables));
+   }
+
+   @Test
+   public void testSetNotUpdatedMax() {
+      Range leftRange = parseRange("3");
+      Range rightRange = parseRange("3:5");
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      Variable left = environment.getLeft();
+      Variable right = environment.getRight();
+      ConstraintStore variables = environment.getConstraintStore();
+      Multiply m = new Multiply(environment.getLeft(), environment.getRight());
+      assertEquals(ExpressionResult.UPDATED, m.setNot(variables, m.getMax(variables)));
+      assertEquals(leftRange.min(), left.getMin(variables));
+      assertEquals(leftRange.max(), left.getMax(variables));
+      assertEquals(rightRange.min(), right.getMin(variables));
+      assertEquals(rightRange.max() - 1, right.getMax(variables));
+   }
+
+   @Test
    public void testSetNotFailed() {
-      Bdd environment = new Bdd(parseRange("3"), parseRange("5"));
-      Variables variables = environment.getVariables();
+      TestUtils environment = new TestUtils(parseRange("3"), parseRange("5"));
+      ConstraintStore variables = environment.getConstraintStore();
       Multiply m = new Multiply(environment.getLeft(), environment.getRight());
       assertEquals(ExpressionResult.FAILED, m.setNot(variables, m.getMax(variables)));
    }
@@ -198,6 +230,7 @@ public class MultiplyTest {
    @Test
    public void testWalk() {
       // given
+      @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);
@@ -216,6 +249,7 @@ public class MultiplyTest {
    @Test
    public void testReplace() {
       // given
+      @SuppressWarnings("unchecked")
       Function<Expression, Expression> function = mock(Function.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);

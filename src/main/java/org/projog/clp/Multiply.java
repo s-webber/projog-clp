@@ -15,11 +15,14 @@
  */
 package org.projog.clp;
 
+import static org.projog.clp.MathUtils.safeAdd;
 import static org.projog.clp.MathUtils.safeMultiply;
+import static org.projog.clp.MathUtils.safeSubtract;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** The product of two {@code Expression}s. */
 public final class Multiply implements Expression {
    private final Expression left;
    private final Expression right;
@@ -30,11 +33,11 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public long getMin(Variables m) {
-      long leftMin = left.getMin(m);
-      long leftMax = left.getMax(m);
-      long rightMin = right.getMin(m);
-      long rightMax = right.getMax(m);
+   public long getMin(ConstraintStore s) {
+      long leftMin = left.getMin(s);
+      long leftMax = left.getMax(s);
+      long rightMin = right.getMin(s);
+      long rightMax = right.getMax(s);
       long r = safeMultiply(leftMin, rightMin);
       long r1 = safeMultiply(leftMin, rightMax);
       if (r1 < r) {
@@ -52,11 +55,11 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public long getMax(Variables m) {
-      long leftMin = left.getMin(m);
-      long leftMax = left.getMax(m);
-      long rightMin = right.getMin(m);
-      long rightMax = right.getMax(m);
+   public long getMax(ConstraintStore s) {
+      long leftMin = left.getMin(s);
+      long leftMax = left.getMax(s);
+      long rightMin = right.getMin(s);
+      long rightMax = right.getMax(s);
       long r = safeMultiply(leftMin, rightMin);
       long r1 = safeMultiply(leftMin, rightMax);
       if (r1 > r) {
@@ -74,11 +77,11 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public ExpressionResult setMin(Variables m, long min) {
-      long leftMin = left.getMin(m);
-      long leftMax = left.getMax(m);
-      long rightMin = right.getMin(m);
-      long rightMax = right.getMax(m);
+   public ExpressionResult setMin(ConstraintStore s, long min) {
+      long leftMin = left.getMin(s);
+      long leftMax = left.getMax(s);
+      long rightMin = right.getMin(s);
+      long rightMax = right.getMax(s);
 
       if (min == 0 || leftMin < 1 || rightMin < 1) {
          // TODO currently ignore anything where either arg is negative or min is 0
@@ -86,13 +89,13 @@ public final class Multiply implements Expression {
       }
 
       long newMinLeft = Math.min(divideWhole(min, rightMin), divideWhole(min, rightMax));
-      ExpressionResult r1 = newMinLeft > leftMin ? left.setMin(m, newMinLeft) : ExpressionResult.NO_CHANGE;
+      ExpressionResult r1 = newMinLeft > leftMin ? left.setMin(s, newMinLeft) : ExpressionResult.NO_CHANGE;
       if (r1 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
 
       long newMinRight = Math.min(divideWhole(min, leftMin), divideWhole(min, leftMax));
-      ExpressionResult r2 = newMinRight > rightMin ? right.setMin(m, newMinRight) : ExpressionResult.NO_CHANGE;
+      ExpressionResult r2 = newMinRight > rightMin ? right.setMin(s, newMinRight) : ExpressionResult.NO_CHANGE;
       if (r2 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
@@ -110,11 +113,11 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public ExpressionResult setMax(Variables m, long max) {
-      long leftMin = left.getMin(m);
-      long leftMax = left.getMax(m);
-      long rightMin = right.getMin(m);
-      long rightMax = right.getMax(m);
+   public ExpressionResult setMax(ConstraintStore s, long max) {
+      long leftMin = left.getMin(s);
+      long leftMax = left.getMax(s);
+      long rightMin = right.getMin(s);
+      long rightMax = right.getMax(s);
 
       if (max == 0 || leftMin < 1 || rightMin < 1) {
          // TODO currently ignore anything where either arg is negative or min is 0
@@ -122,13 +125,13 @@ public final class Multiply implements Expression {
       }
 
       long newMaxLeft = Math.max(max / rightMin, max / rightMax);
-      ExpressionResult r1 = newMaxLeft < leftMax ? left.setMax(m, newMaxLeft) : ExpressionResult.NO_CHANGE;
+      ExpressionResult r1 = newMaxLeft < leftMax ? left.setMax(s, newMaxLeft) : ExpressionResult.NO_CHANGE;
       if (r1 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
 
       long newMaxRight = Math.max(max / leftMin, max / leftMax);
-      ExpressionResult r2 = newMaxRight < rightMax ? right.setMax(m, newMaxRight) : ExpressionResult.NO_CHANGE;
+      ExpressionResult r2 = newMaxRight < rightMax ? right.setMax(s, newMaxRight) : ExpressionResult.NO_CHANGE;
       if (r2 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
@@ -137,9 +140,11 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public ExpressionResult setNot(Variables m, long not) {
-      if (getMax(m) == not && getMin(m) == not) {
-         return ExpressionResult.FAILED;
+   public ExpressionResult setNot(ConstraintStore s, long not) {
+      if (getMax(s) == not) {
+         return setMax(s, safeSubtract(not, 1));
+      } else if (getMin(s) == not) {
+         return setMin(s, safeAdd(not, 1));
       } else {
          return ExpressionResult.NO_CHANGE;
       }

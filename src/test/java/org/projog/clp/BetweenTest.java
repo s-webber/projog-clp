@@ -35,33 +35,34 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 public class BetweenTest {
    @Test
    @DataProvider({"30,40,30,40", "20,42,30,40", "33,38,33,38", "27,39,30,39", "31,42,31,40"})
-   public void testFireMatched(long inputMin, long inputMax, long outputMin, long outputMax) {
-      ClpEnvironment.Builder builder = new ClpEnvironment.Builder();
-      Variable e = builder.createVariable("x");
-      Variables variables = builder.build();
+   public void testEnforceMatched(long inputMin, long inputMax, long outputMin, long outputMax) {
+      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
+      Variable e = builder.createVariable();
+      ConstraintStore variables = builder.build();
       e.setMin(variables, inputMin);
       e.setMax(variables, inputMax);
       Between b = new Between(e, 30, 40);
-      assertEquals(ConstraintResult.MATCHED, b.fire(variables));
+      assertEquals(ConstraintResult.MATCHED, b.enforce(variables));
       assertEquals(outputMin, e.getMin(variables));
       assertEquals(outputMax, e.getMax(variables));
    }
 
    @Test
    @DataProvider({"0,29", "41,50"})
-   public void testFireFailed(long inputMin, long inputMax) {
-      ClpEnvironment.Builder builder = new ClpEnvironment.Builder();
-      Variable e = builder.createVariable("x");
-      Variables variables = builder.build();
+   public void testEnforceFailed(long inputMin, long inputMax) {
+      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
+      Variable e = builder.createVariable();
+      ConstraintStore variables = builder.build();
       e.setMin(variables, inputMin);
       e.setMax(variables, inputMax);
       Between b = new Between(e, 30, 40);
-      assertEquals(ConstraintResult.FAILED, b.fire(variables));
+      assertEquals(ConstraintResult.FAILED, b.enforce(variables));
    }
 
    @Test
    public void testWalk() {
       // given
+      @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
       Expression expression = mock(Expression.class);
       Between testObject = new Between(expression, 7, 42);
@@ -77,6 +78,7 @@ public class BetweenTest {
    @Test
    public void testReplace() {
       // given
+      @SuppressWarnings("unchecked")
       Function<Expression, Expression> function = mock(Function.class);
       Expression expression = mock(Expression.class);
       Between testObject = new Between(expression, 7, 42);

@@ -108,11 +108,11 @@ public class SubtractTest {
                "-7:12,-6:13,-20:18", // neg:positive,neg:positive
    })
    public void testGetMinMax(String leftRange, String rightRange, String range) {
-      Bdd environment = new Bdd(parseRange(leftRange), parseRange(rightRange));
+      TestUtils environment = new TestUtils(parseRange(leftRange), parseRange(rightRange));
       Subtract s = new Subtract(environment.getLeft(), environment.getRight());
 
-      assertEquals(parseRange(range).min(), s.getMin(environment.getVariables()));
-      assertEquals(parseRange(range).max(), s.getMax(environment.getVariables()));
+      assertEquals(parseRange(range).min(), s.getMin(environment.getConstraintStore()));
+      assertEquals(parseRange(range).max(), s.getMax(environment.getConstraintStore()));
    }
 
    @Test
@@ -218,10 +218,10 @@ public class SubtractTest {
    }
 
    private void assertSetMin(Range inputLeftRange, Range inputRightRange, long min, Range outputLeftRange, Range outputRightRange) {
-      Bdd environment = new Bdd(inputLeftRange, inputRightRange);
+      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
-      Variables variables = environment.getVariables();
+      ConstraintStore variables = environment.getConstraintStore();
       Subtract s = new Subtract(left, right);
 
       assertNotEquals(ExpressionResult.FAILED, s.setMin(variables, min));
@@ -334,10 +334,10 @@ public class SubtractTest {
    }
 
    private void assertSetMax(Range inputLeftRange, Range inputRightRange, long max, Range outputLeftRange, Range outputRightRange) {
-      Bdd environment = new Bdd(inputLeftRange, inputRightRange);
+      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
-      Variables variables = environment.getVariables();
+      ConstraintStore variables = environment.getConstraintStore();
       Subtract s = new Subtract(left, right);
 
       assertNotEquals(ExpressionResult.FAILED, s.setMax(variables, max));
@@ -370,8 +370,8 @@ public class SubtractTest {
    }
 
    private void assertSetMinSuccess(Range leftRange, Range rightRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
-      Variables variables = environment.getVariables();
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      ConstraintStore variables = environment.getConstraintStore();
       Subtract s = new Subtract(environment.getLeft(), environment.getRight());
 
       long min = s.getMin(variables);
@@ -387,8 +387,8 @@ public class SubtractTest {
    }
 
    private void assertSetMaxSuccess(Range leftRange, Range rightRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
-      Variables variables = environment.getVariables();
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      ConstraintStore variables = environment.getConstraintStore();
       Subtract s = new Subtract(environment.getLeft(), environment.getRight());
 
       long min = s.getMin(variables);
@@ -405,12 +405,12 @@ public class SubtractTest {
 
    private void assertSetMinFailed(Range leftRange, Range rightRange) {
       for (int i = 1; i < 4; i++) {
-         Bdd environment = new Bdd(leftRange, rightRange);
+         TestUtils environment = new TestUtils(leftRange, rightRange);
          Subtract s = new Subtract(environment.getLeft(), environment.getRight());
 
-         long max = s.getMax(environment.getVariables());
+         long max = s.getMax(environment.getConstraintStore());
          long newMax = max + i;
-         assertEquals(ExpressionResult.FAILED, s.setMin(environment.getVariables(), newMax));
+         assertEquals(ExpressionResult.FAILED, s.setMin(environment.getConstraintStore(), newMax));
       }
    }
 
@@ -422,12 +422,12 @@ public class SubtractTest {
 
    private void assertSetMaxFailed(Range leftRange, Range rightRange) {
       for (int i = 1; i < 4; i++) {
-         Bdd environment = new Bdd(leftRange, rightRange);
+         TestUtils environment = new TestUtils(leftRange, rightRange);
          Subtract s = new Subtract(environment.getLeft(), environment.getRight());
 
-         long min = s.getMin(environment.getVariables());
+         long min = s.getMin(environment.getConstraintStore());
          long newMin = min - i;
-         assertEquals(ExpressionResult.FAILED, s.setMax(environment.getVariables(), newMin));
+         assertEquals(ExpressionResult.FAILED, s.setMax(environment.getConstraintStore(), newMin));
       }
    }
 
@@ -438,10 +438,10 @@ public class SubtractTest {
    }
 
    private void assertSetMaxOverflow(Range leftRange, Range rightRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
+      TestUtils environment = new TestUtils(leftRange, rightRange);
       Subtract s = new Subtract(environment.getLeft(), environment.getRight());
 
-      assertEquals(ExpressionResult.FAILED, s.setMax(environment.getVariables(), s.getMin(environment.getVariables())));
+      assertEquals(ExpressionResult.FAILED, s.setMax(environment.getConstraintStore(), s.getMin(environment.getConstraintStore())));
    }
 
    @Test
@@ -451,20 +451,20 @@ public class SubtractTest {
    }
 
    private void assertSetMinOverflow(Range leftRange, Range rightRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
+      TestUtils environment = new TestUtils(leftRange, rightRange);
       Subtract s = new Subtract(environment.getLeft(), environment.getRight());
 
-      assertEquals(ExpressionResult.FAILED, s.setMin(environment.getVariables(), s.getMax(environment.getVariables())));
+      assertEquals(ExpressionResult.FAILED, s.setMin(environment.getConstraintStore(), s.getMax(environment.getConstraintStore())));
    }
 
    @Test
-   public void testSetNot() {
+   public void testSetNotNoChange() {
       Range leftRange = parseRange("2:4");
       Range rightRange = parseRange("3:5");
-      Bdd environment = new Bdd(leftRange, rightRange);
+      TestUtils environment = new TestUtils(leftRange, rightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
-      Variables variables = environment.getVariables();
+      ConstraintStore variables = environment.getConstraintStore();
       Subtract s = new Subtract(environment.getLeft(), environment.getRight());
       for (long i = s.getMin(variables) - 1; i <= s.getMax(variables) + 1; i++) {
          assertEquals(ExpressionResult.NO_CHANGE, s.setNot(variables, i));
@@ -476,9 +476,41 @@ public class SubtractTest {
    }
 
    @Test
+   public void testSetNotUpdatedMin() {
+      Range leftRange = parseRange("3");
+      Range rightRange = parseRange("3:5");
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      Variable left = environment.getLeft();
+      Variable right = environment.getRight();
+      ConstraintStore variables = environment.getConstraintStore();
+      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
+      assertEquals(ExpressionResult.UPDATED, s.setNot(variables, s.getMin(variables)));
+      assertEquals(leftRange.min(), left.getMin(variables));
+      assertEquals(leftRange.max(), left.getMax(variables));
+      assertEquals(rightRange.min(), right.getMin(variables));
+      assertEquals(rightRange.max() - 1, right.getMax(variables));
+   }
+
+   @Test
+   public void testSetNotUpdatedMax() {
+      Range leftRange = parseRange("3");
+      Range rightRange = parseRange("3:5");
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      Variable left = environment.getLeft();
+      Variable right = environment.getRight();
+      ConstraintStore variables = environment.getConstraintStore();
+      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
+      assertEquals(ExpressionResult.UPDATED, s.setNot(variables, s.getMax(variables)));
+      assertEquals(leftRange.min(), left.getMin(variables));
+      assertEquals(leftRange.max(), left.getMax(variables));
+      assertEquals(rightRange.min() + 1, right.getMin(variables));
+      assertEquals(rightRange.max(), right.getMax(variables));
+   }
+
+   @Test
    public void testSetNotFailed() {
-      Bdd environment = new Bdd(parseRange("3"), parseRange("5"));
-      Variables variables = environment.getVariables();
+      TestUtils environment = new TestUtils(parseRange("3"), parseRange("5"));
+      ConstraintStore variables = environment.getConstraintStore();
       Subtract s = new Subtract(environment.getLeft(), environment.getRight());
       assertEquals(ExpressionResult.FAILED, s.setNot(variables, s.getMax(variables)));
    }
@@ -486,6 +518,7 @@ public class SubtractTest {
    @Test
    public void testWalk() {
       // given
+      @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);
@@ -504,6 +537,7 @@ public class SubtractTest {
    @Test
    public void testReplace() {
       // given
+      @SuppressWarnings("unchecked")
       Function<Expression, Expression> function = mock(Function.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);

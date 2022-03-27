@@ -17,89 +17,79 @@ package org.projog.clp.example;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.projog.clp.example.ExpressionUtils.add;
 
 import org.junit.Test;
-import org.projog.clp.Add;
 import org.projog.clp.BruteForceSearch;
-import org.projog.clp.ClpEnvironment;
-import org.projog.clp.Expression;
-import org.projog.clp.FixedValue;
+import org.projog.clp.ClpConstraintStore;
 import org.projog.clp.Variable;
 
 public class SimpleExampleTest {
    @Test
    public void test() {
-      ClpEnvironment.Builder b = new ClpEnvironment.Builder();
-      Variable x = b.createVariable("x");
-      Variable y = b.createVariable("y");
-      Variable z = b.createVariable("z");
+      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
+      Variable x = builder.createVariable();
+      Variable y = builder.createVariable();
+      Variable z = builder.createVariable();
 
-      b.enforce(x).between(1, 5);
-      b.enforce(y).between(0, 4);
-      b.enforce(x).lessThan(y);
-      b.enforce(z).equalTo(add(x, y, new FixedValue(1)));
+      // x in 1..5
+      // y in 0..4
+      // x < y
+      // z = 1 + x + y
+      builder.enforce(x).between(1, 5);
+      builder.enforce(y).between(0, 4);
+      builder.enforce(x).lessThan(y);
+      builder.enforce(z).equalTo(add(1, x, y));
 
-      ClpEnvironment v = b.build();
-      assertEquals(Long.MIN_VALUE, x.getMin(v));
-      assertEquals(Long.MAX_VALUE, x.getMax(v));
-      assertEquals(Long.MIN_VALUE, y.getMin(v));
-      assertEquals(Long.MAX_VALUE, y.getMax(v));
-      assertEquals(Long.MIN_VALUE, z.getMin(v));
-      assertEquals(Long.MAX_VALUE, z.getMax(v));
+      ClpConstraintStore environment = builder.build();
+      assertEquals(Long.MIN_VALUE, x.getMin(environment));
+      assertEquals(Long.MAX_VALUE, x.getMax(environment));
+      assertEquals(Long.MIN_VALUE, y.getMin(environment));
+      assertEquals(Long.MAX_VALUE, y.getMax(environment));
+      assertEquals(Long.MIN_VALUE, z.getMin(environment));
+      assertEquals(Long.MAX_VALUE, z.getMax(environment));
 
-      v.resolve();
+      environment.resolve();
 
-      assertEquals(1, x.getMin(v));
-      assertEquals(3, x.getMax(v));
-      assertEquals(2, y.getMin(v));
-      assertEquals(4, y.getMax(v));
-      assertEquals(4, z.getMin(v));
-      assertEquals(8, z.getMax(v));
+      assertEquals(1, x.getMin(environment));
+      assertEquals(3, x.getMax(environment));
+      assertEquals(2, y.getMin(environment));
+      assertEquals(4, y.getMax(environment));
+      assertEquals(4, z.getMin(environment));
+      assertEquals(8, z.getMax(environment));
 
-      BruteForceSearch f = new BruteForceSearch(v);
+      BruteForceSearch bruteForceSearch = new BruteForceSearch(environment);
 
-      ClpEnvironment q = f.next();
-      assertEquals(1, q.getValue(x));
-      assertEquals(2, q.getValue(y));
-      assertEquals(4, q.getValue(z));
+      ClpConstraintStore solution = bruteForceSearch.next();
+      assertEquals(1, solution.getValue(x));
+      assertEquals(2, solution.getValue(y));
+      assertEquals(4, solution.getValue(z));
 
-      q = f.next();
-      assertEquals(1, q.getValue(x));
-      assertEquals(3, q.getValue(y));
-      assertEquals(5, q.getValue(z));
+      solution = bruteForceSearch.next();
+      assertEquals(1, solution.getValue(x));
+      assertEquals(3, solution.getValue(y));
+      assertEquals(5, solution.getValue(z));
 
-      q = f.next();
-      assertEquals(1, q.getValue(x));
-      assertEquals(4, q.getValue(y));
-      assertEquals(6, q.getValue(z));
+      solution = bruteForceSearch.next();
+      assertEquals(1, solution.getValue(x));
+      assertEquals(4, solution.getValue(y));
+      assertEquals(6, solution.getValue(z));
 
-      q = f.next();
-      assertEquals(2, q.getValue(x));
-      assertEquals(3, q.getValue(y));
-      assertEquals(6, q.getValue(z));
+      solution = bruteForceSearch.next();
+      assertEquals(2, solution.getValue(x));
+      assertEquals(3, solution.getValue(y));
+      assertEquals(6, solution.getValue(z));
 
-      q = f.next();
-      assertEquals(2, q.getValue(x));
-      assertEquals(4, q.getValue(y));
-      assertEquals(7, q.getValue(z));
+      solution = bruteForceSearch.next();
+      assertEquals(2, solution.getValue(x));
+      assertEquals(4, solution.getValue(y));
+      assertEquals(7, solution.getValue(z));
 
-      q = f.next();
-      assertEquals(3, q.getValue(x));
-      assertEquals(4, q.getValue(y));
-      assertEquals(8, q.getValue(z));
+      solution = bruteForceSearch.next();
+      assertEquals(3, solution.getValue(x));
+      assertEquals(4, solution.getValue(y));
+      assertEquals(8, solution.getValue(z));
 
-      assertNull(f.next());
-   }
-
-   private static Expression add(Expression... args) {
-      Expression result = null;
-      for (Expression e : args) {
-         if (result == null) {
-            result = e;
-         } else {
-            result = new Add(result, e);
-         }
-      }
-      return result;
+      assertNull(bruteForceSearch.next());
    }
 }

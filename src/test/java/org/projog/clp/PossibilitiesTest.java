@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class PossibilitiesTest {
    @Test
-   public void test() {
+   public void testWithoutBitSet() {
       int min = 3;
       int max = 10;
       Possibilities p = new Possibilities(min, max, null);
@@ -35,15 +35,13 @@ public class PossibilitiesTest {
    }
 
    @Test
-   public void testBitSet() {
-      MyBitSet b = new MyBitSet(3, 10);
+   public void testWithBitSet() {
+      NumberSet b = new NumberSet(3, 10);
       int min = 3;
       int max = 10;
-      b.set(min, min + 1);
-      b.set(5,6);
-      b.set(6,7);
-      b.set(8,9);
-      b.set(max, max + 1);
+      b.clear(4);
+      b.clear(7);
+      b.clear(9);
 
       Possibilities p = new Possibilities(min, max, b);
       assertTrue(p.hasNext());
@@ -60,12 +58,11 @@ public class PossibilitiesTest {
    }
 
    @Test
-   public void testBitSetNegative() {
-      MyBitSet b = new MyBitSet(-5, 3);
+   public void testWithBitSetNegative() {
+      NumberSet b = new NumberSet(-5, 3);
       int min = -5;
       int max = 3;
-      b.set(-4, -3);
-      b.set(-2, max + 1);
+      b.clear(-3);
 
       Possibilities p = new Possibilities(min, max, b);
       assertTrue(p.hasNext());

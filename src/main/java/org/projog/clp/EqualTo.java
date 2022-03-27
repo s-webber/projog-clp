@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** Enforces that two {@code Expression}s have the same value. */
 public final class EqualTo implements Constraint {
    private final Expression left;
    private final Expression right;
@@ -29,7 +30,7 @@ public final class EqualTo implements Constraint {
    }
 
    @Override
-   public ConstraintResult fire(Variables m) {
+   public ConstraintResult enforce(ConstraintStore m) {
       final long minLeft = left.getMin(m);
       final long maxLeft = left.getMax(m);
       final long minRight = right.getMin(m);

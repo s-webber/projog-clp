@@ -15,17 +15,26 @@
  */
 package org.projog.clp;
 
+/**
+ * Performs a brute force search.
+ * <p>
+ * Tries all possible values in search of a valid solution. When a solution is found it backtracks to find alternative
+ * solutions.
+ */
 public final class BruteForceSearch {
-   private final ClpEnvironment original;
-   private final ClpEnvironment[] copies;
+   private final ClpConstraintStore original;
+   private final ClpConstraintStore[] copies;
    private final Possibilities[] p;
    private final int[] indexes;
    private int idx = 0;
 
-   public BruteForceSearch(ClpEnvironment v) {
-      this.original = v.copy(); //TODO required?
-      int variablesCount = v.getVariablesCount();
-      this.copies = new ClpEnvironment[variablesCount];
+   public BruteForceSearch(ClpConstraintStore environment) {
+      this.original = environment;
+      int variablesCount = environment.getVariablesCount();
+      if (variablesCount == 0) {
+         throw new IllegalStateException();
+      }
+      this.copies = new ClpConstraintStore[variablesCount];
       this.p = new Possibilities[variablesCount];
       this.indexes = new int[variablesCount];
       for (int i = 0; i < variablesCount; i++) {
@@ -33,9 +42,17 @@ public final class BruteForceSearch {
       }
    }
 
-   public ClpEnvironment next() {
+   /**
+    * Finds a valid solution.
+    * <p>
+    * If a valid solution was found on a previous call then it will backtrack in an attempt to find an alternative
+    * solution.
+    *
+    * @return the next solution or, if no remaining solutions, {@code null}
+    */
+   public ClpConstraintStore next() {
       Possibilities current;
-      while ((current = getcurrent()) != null) {
+      while ((current = getCurrent()) != null) {
          long next = current.next();
          copies[idx] = (idx == 0 ? original : copies[idx - 1]).copy();
          if (copies[idx].getVariable(indexes[idx]).setValue(copies[idx], next) == ExpressionResult.FAILED) {
@@ -51,14 +68,14 @@ public final class BruteForceSearch {
       return null;
    }
 
-   private Possibilities getcurrent() {
+   private Possibilities getCurrent() {
       if (idx == -1) {
          return null;
       }
 
-      Possibilities current = p[idx];
-      if (current == null) {
-         ClpEnvironment copy = (idx == 0 ? original : copies[idx - 1]).copy();
+      Possibilities result = p[idx];
+      if (result == null) {
+         ClpConstraintStore copy = (idx == 0 ? original : copies[idx - 1]).copy();
          copies[idx] = copy;
 
          // sort in ascending order of least possibilities
@@ -71,26 +88,31 @@ public final class BruteForceSearch {
                minIdx = i;
             }
          }
+         if (min > Integer.MAX_VALUE) {
+            // exit to avoid thread spending long time in search
+            // TODO what max value to use? TODO throw projog-clp specific subclass of IllegalStateException
+            throw new IllegalStateException("Variables not sufficiently bound. Too many possibilities.");
+         }
          if (idx != minIdx) {
             int tmp = indexes[idx];
             indexes[idx] = indexes[minIdx];
             indexes[minIdx] = tmp;
          }
 
-         current = copy.getVariableState(indexes[idx]).getPossibilities();
-         p[idx] = current;
+         result = copy.getVariableState(indexes[idx]).getPossibilities();
+         p[idx] = result;
       }
 
-      while (!current.hasNext()) {
+      while (!result.hasNext()) {
          p[idx] = null;
          copies[idx] = null;
          idx--;
          if (idx == -1) {
             return null;
          }
-         current = p[idx];
+         result = p[idx];
       }
 
-      return current;
+      return result;
    }
 }

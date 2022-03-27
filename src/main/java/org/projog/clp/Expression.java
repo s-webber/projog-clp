@@ -18,18 +18,40 @@ package org.projog.clp;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Represents something that can have a range of numeric values.
+ * <p>
+ * Could be a single immutable value (see {@link FixedValue}), a variable that can have one or more possible values (see
+ * {@link Variable}) or a composite that contains other {@code Expression} objects (e.g. {@link Add}).
+ */
 public interface Expression {
-   long getMin(Variables m);
+   long getMin(ConstraintStore constraintStore);
 
-   long getMax(Variables m);
+   long getMax(ConstraintStore constraintStore);
 
-   ExpressionResult setNot(Variables m, long not);
+   ExpressionResult setNot(ConstraintStore constraintStore, long not);
 
-   ExpressionResult setMin(Variables m, long min);
+   ExpressionResult setMin(ConstraintStore constraintStore, long min);
 
-   ExpressionResult setMax(Variables m, long max);
+   ExpressionResult setMax(ConstraintStore constraintStore, long max);
 
-   void walk(Consumer<Expression> r);
+   /**
+    * Traverse this expression.
+    * <p>
+    * If this expression is a composite then all its sub-expressions will be traversed.
+    *
+    * @param consumer will be called for each {@code Expression} contained within this {@code Expression}.
+    */
+   void walk(Consumer<Expression> consumer);
 
-   Expression replace(Function<Expression, Expression> r);
+   /**
+    * Returns a {@code Expression} with {@code Expression}s in this {@code Expression} replaced with values returned
+    * from the given function.
+    *
+    * @param function returns the {@code Expression} to use as a replacement for the {@code Expression} it is called
+    * with, or {@code null} if the original {@code Expression} should continue to be used.
+    * @return a new {@code Expression} with {@code Expression}s in this {@code Expression} replaced with versions
+    * returned from {@code function}.
+    */
+   Expression replace(Function<Expression, Expression> function);
 }

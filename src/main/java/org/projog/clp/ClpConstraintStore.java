@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-public final class ClpEnvironment implements Variables {
+/** A collection of constraints and variables that represent a problem domain. */
+public final class ClpConstraintStore implements ConstraintStore {
    // variables
    private final int variableCtr;
    private final Variable[] variables;
@@ -35,7 +36,7 @@ public final class ClpEnvironment implements Variables {
    private final Map<Variable, List<Integer>> constraintsByVariable;
    private final Queue<Integer> constraintQueue;
 
-   private ClpEnvironment(Builder b) {
+   private ClpConstraintStore(Builder b) {
       this.variableCtr = b.variables.size();
       this.variables = b.variables.toArray(new Variable[variableCtr]);
       this.variableStates = new VariableState[variableCtr];
@@ -52,7 +53,7 @@ public final class ClpEnvironment implements Variables {
       }
    }
 
-   private ClpEnvironment(ClpEnvironment original) {
+   private ClpConstraintStore(ClpConstraintStore original) {
       this.variableCtr = original.variableCtr;
       this.variables = original.variables; // TODO copy?
       this.variableStates = new VariableState[variableCtr];
@@ -69,8 +70,8 @@ public final class ClpEnvironment implements Variables {
       this.constraintQueue = new LinkedList<>();
    }
 
-   ClpEnvironment copy() {
-      return new ClpEnvironment(this);
+   ClpConstraintStore copy() {
+      return new ClpConstraintStore(this);
    }
 
    public int getVariablesCount() {
@@ -114,7 +115,7 @@ public final class ClpEnvironment implements Variables {
          Integer next = constraintQueue.poll();
          Constraint c = constraints[next];
          if (c != null) {
-            ConstraintResult result = c.fire(this);
+            ConstraintResult result = c.enforce(this);
             if (result == ConstraintResult.FAILED) {
                return false;
             }
@@ -161,17 +162,16 @@ public final class ClpEnvironment implements Variables {
    }
 
    public static class Builder {
-      private List<Variable> variables = new ArrayList<>();
-      private List<Constraint> constraints = new ArrayList<>();
-      private Map<Variable, List<Integer>> constraintsByVariable = new HashMap<>();
+      private final List<Variable> variables = new ArrayList<>();
+      private final List<Constraint> constraints = new ArrayList<>();
+      private final Map<Variable, List<Integer>> constraintsByVariable = new HashMap<>();
 
-      public ClpEnvironment build() {
-         return new ClpEnvironment(this);
+      public ClpConstraintStore build() {
+         return new ClpConstraintStore(this);
       }
 
-      public Variable createVariable(String name) {
-         // TODO ensure name is unique?
-         Variable v = new Variable(variables.size(), name);
+      public Variable createVariable() {
+         Variable v = new Variable(variables.size());
          variables.add(v);
          return v;
       }
@@ -195,11 +195,15 @@ public final class ClpEnvironment implements Variables {
          }
       }
 
+      public EnforceAll enforce(List<Variable> e) {
+         return new EnforceAll(this, e.toArray(new Variable[e.size()]));
+      }
+
       public EnforceAll enforce(Variable... e) {
          return new EnforceAll(this, e);
       }
 
-      public Enforce enforce(int i) {
+      public Enforce enforce(long i) {
          return new Enforce(this, new FixedValue(i));
       }
 
@@ -209,42 +213,69 @@ public final class ClpEnvironment implements Variables {
    }
 
    public static class EnforceAll {
-      private final Builder b;
-      private final Variable[] v;
+      private final Builder builder;
+      private final Variable[] variables;
 
-      private EnforceAll(Builder b, Variable[] v) {
-         this.b = b;
-         this.v = v;
+      private EnforceAll(Builder builder, Variable[] variables) {
+         this.builder = builder;
+         this.variables = variables;
       }
 
-      public void distinct() {
-         for (int i1 = 0; i1 < v.length - 1; i1++) {
-            for (int i2 = i1 + 1; i2 < v.length; i2++) {
-               b.addConstraint(new NotEqualTo(v[i1], v[i2]));
+      public EnforceAll distinct() {
+         for (int i1 = 0; i1 < variables.length - 1; i1++) {
+            for (int i2 = i1 + 1; i2 < variables.length; i2++) {
+               builder.addConstraint(new NotEqualTo(variables[i1], variables[i2]));
             }
          }
+         return this;
+      }
+
+      public EnforceAll notEqualTo(long opposite) {
+         return notEqualTo(new FixedValue(opposite));
+      }
+
+      public EnforceAll notEqualTo(Expression opposite) {
+         for (Variable v : variables) {
+            builder.addConstraint(new NotEqualTo(v, opposite));
+         }
+         return this;
+      }
+
+      public EnforceAll between(long min, long max) {
+         for (Variable v : variables) {
+            builder.addConstraint(new Between(v, min, max));
+         }
+         return this;
       }
    }
 
    public static class Enforce {
-      private final Builder b;
-      private final Expression e;
+      private final Builder builder;
+      private final Expression expression;
 
-      private Enforce(Builder b, Expression e) {
-         this.b = b;
-         this.e = e;
+      private Enforce(Builder builder, Expression expression) {
+         this.builder = builder;
+         this.expression = expression;
       }
 
       public void equalTo(Expression opposite) {
-         b.addConstraint(new EqualTo(e, opposite));
+         builder.addConstraint(new EqualTo(expression, opposite));
+      }
+
+      public void notEqualTo(Expression opposite) {
+         builder.addConstraint(new NotEqualTo(expression, opposite));
       }
 
       public void lessThan(Expression opposite) {
-         b.addConstraint(new LessThan(e, opposite));
+         builder.addConstraint(new LessThan(expression, opposite));
       }
 
-      public void between(int min, int max) {
-         b.addConstraint(new Between(e, min, max));
+      public void lessThanOrEqualTo(Expression opposite) {
+         builder.addConstraint(new LessThanOrEqualTo(expression, opposite));
+      }
+
+      public void between(long min, long max) {
+         builder.addConstraint(new Between(expression, min, max));
       }
    }
 }

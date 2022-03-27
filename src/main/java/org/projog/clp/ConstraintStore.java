@@ -15,7 +15,7 @@
  */
 package org.projog.clp;
 
-public interface Variables {
+public interface ConstraintStore {
    long getMin(Expression id);
 
    long getMax(Expression id);

@@ -58,10 +58,21 @@ public class FixedValueTest {
    }
 
    @Test
+   public void testSetNot() {
+      int value = 7;
+      FixedValue f = new FixedValue(value);
+
+      assertSame(ExpressionResult.NO_CHANGE, f.setNot(null, value - 1));
+      assertSame(ExpressionResult.NO_CHANGE, f.setNot(null, value + 1));
+      assertSame(ExpressionResult.FAILED, f.setNot(null, value));
+   }
+
+   @Test
    public void testWalk() {
       // given
-      Consumer<Expression> consumer = mock(Consumer.class);
       FixedValue testObject = new FixedValue(7);
+      @SuppressWarnings("unchecked")
+      Consumer<Expression> consumer = mock(Consumer.class);
 
       // when
       testObject.walk(consumer);
@@ -75,6 +86,7 @@ public class FixedValueTest {
    public void testReplace_null() {
       // given
       FixedValue testObject = new FixedValue(7);
+      @SuppressWarnings("unchecked")
       Function<Expression, Expression> function = mock(Function.class);
       when(testObject.replace(function)).thenReturn(null);
 
@@ -91,7 +103,8 @@ public class FixedValueTest {
    public void testReplace_replacement() {
       // given
       FixedValue testObject = new FixedValue(7);
-      FixedValue expectedReplacement = new FixedValue(180);
+      Expression expectedReplacement = mock(Expression.class);
+      @SuppressWarnings("unchecked")
       Function<Expression, Expression> function = mock(Function.class);
       when(testObject.replace(function)).thenReturn(expectedReplacement);
 
@@ -101,6 +114,6 @@ public class FixedValueTest {
 
       // then
       verify(function).apply(testObject);
-      verifyNoMoreInteractions(function);
+      verifyNoMoreInteractions(expectedReplacement, function);
    }
 }

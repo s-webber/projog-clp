@@ -107,11 +107,11 @@ public class AddTest {
    }
 
    private void assertGetMinMax(Range leftRange, Range rightRange, Range expectedRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
+      TestUtils environment = new TestUtils(leftRange, rightRange);
       Add a = new Add(environment.getLeft(), environment.getRight());
 
-      assertEquals(expectedRange.min(), a.getMin(environment.getVariables()));
-      assertEquals(expectedRange.max(), a.getMax(environment.getVariables()));
+      assertEquals(expectedRange.min(), a.getMin(environment.getConstraintStore()));
+      assertEquals(expectedRange.max(), a.getMax(environment.getConstraintStore()));
    }
 
    @Test
@@ -218,16 +218,16 @@ public class AddTest {
    }
 
    private void assertSetMin(Range inputLeftRange, Range inputRightRange, long min, Range outputLeftRange, Range outputRightRange) {
-      Bdd environment = new Bdd(inputLeftRange, inputRightRange);
+      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
       Add a = new Add(left, right);
 
-      assertNotEquals(ExpressionResult.FAILED, a.setMin(environment.getVariables(), min));
-      assertEquals(outputLeftRange.min(), left.getMin(environment.getVariables()));
-      assertEquals(outputLeftRange.max(), left.getMax(environment.getVariables()));
-      assertEquals(outputRightRange.min(), right.getMin(environment.getVariables()));
-      assertEquals(outputRightRange.max(), right.getMax(environment.getVariables()));
+      assertNotEquals(ExpressionResult.FAILED, a.setMin(environment.getConstraintStore(), min));
+      assertEquals(outputLeftRange.min(), left.getMin(environment.getConstraintStore()));
+      assertEquals(outputLeftRange.max(), left.getMax(environment.getConstraintStore()));
+      assertEquals(outputRightRange.min(), right.getMin(environment.getConstraintStore()));
+      assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
    }
 
    @Test
@@ -334,16 +334,16 @@ public class AddTest {
    }
 
    private void assertSetMax(Range inputLeftRange, Range inputRightRange, long max, Range outputLeftRange, Range outputRightRange) {
-      Bdd environment = new Bdd(inputLeftRange, inputRightRange);
+      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
       Add a = new Add(left, right);
 
-      assertNotEquals(ExpressionResult.FAILED, a.setMax(environment.getVariables(), max));
-      assertEquals(outputLeftRange.min(), left.getMin(environment.getVariables()));
-      assertEquals(outputLeftRange.max(), left.getMax(environment.getVariables()));
-      assertEquals(outputRightRange.min(), right.getMin(environment.getVariables()));
-      assertEquals(outputRightRange.max(), right.getMax(environment.getVariables()));
+      assertNotEquals(ExpressionResult.FAILED, a.setMax(environment.getConstraintStore(), max));
+      assertEquals(outputLeftRange.min(), left.getMin(environment.getConstraintStore()));
+      assertEquals(outputLeftRange.max(), left.getMax(environment.getConstraintStore()));
+      assertEquals(outputRightRange.min(), right.getMin(environment.getConstraintStore()));
+      assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
    }
 
    @DataProvider
@@ -370,8 +370,8 @@ public class AddTest {
    }
 
    private void assertSetMinSuccess(Range leftRange, Range rightRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
-      Variables variables = environment.getVariables();
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
 
       long min = a.getMin(variables);
@@ -388,8 +388,8 @@ public class AddTest {
    }
 
    private void assertSetMaxSuccess(Range leftRange, Range rightRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
-      Variables variables = environment.getVariables();
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
 
       long min = a.getMin(variables);
@@ -407,12 +407,12 @@ public class AddTest {
 
    private void assertSetMinFailed(Range leftRange, Range rightRange) {
       for (int i = 1; i < 4; i++) {
-         Bdd environment = new Bdd(leftRange, rightRange);
+         TestUtils environment = new TestUtils(leftRange, rightRange);
          Add a = new Add(environment.getLeft(), environment.getRight());
 
-         long max = a.getMax(environment.getVariables());
+         long max = a.getMax(environment.getConstraintStore());
          long newMax = max + i;
-         assertEquals(ExpressionResult.FAILED, a.setMin(environment.getVariables(), newMax));
+         assertEquals(ExpressionResult.FAILED, a.setMin(environment.getConstraintStore(), newMax));
       }
    }
 
@@ -425,12 +425,12 @@ public class AddTest {
 
    private void assertSetMaxFailed(Range leftRange, Range rightRange) {
       for (int i = 1; i < 4; i++) {
-         Bdd environment = new Bdd(leftRange, rightRange);
+         TestUtils environment = new TestUtils(leftRange, rightRange);
          Add a = new Add(environment.getLeft(), environment.getRight());
 
-         long min = a.getMin(environment.getVariables());
+         long min = a.getMin(environment.getConstraintStore());
          long newMin = min - i;
-         assertEquals(ExpressionResult.FAILED, a.setMax(environment.getVariables(), newMin));
+         assertEquals(ExpressionResult.FAILED, a.setMax(environment.getConstraintStore(), newMin));
       }
    }
 
@@ -442,34 +442,20 @@ public class AddTest {
    }
 
    private void assertSetMaxOverflow(Range leftRange, Range rightRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
+      TestUtils environment = new TestUtils(leftRange, rightRange);
       Add a = new Add(environment.getLeft(), environment.getRight());
 
-      assertEquals(ExpressionResult.FAILED, a.setMax(environment.getVariables(), a.getMin(environment.getVariables())));
+      assertEquals(ExpressionResult.FAILED, a.setMax(environment.getConstraintStore(), a.getMin(environment.getConstraintStore())));
    }
 
    @Test
-   @DataProvider({"MIN,MIN", "MIN,-1", "MIN+1,-2", "MIN+1,-3", "MIN+2,-3", "MIN+3,-4",})
-   public void testSetMinOverflow(String leftRange, String rightRange) {
-      assertSetMinOverflow(parseRange(leftRange), parseRange(rightRange));
-      assertSetMinOverflow(parseRange(rightRange), parseRange(leftRange));
-   }
-
-   private void assertSetMinOverflow(Range leftRange, Range rightRange) {
-      Bdd environment = new Bdd(leftRange, rightRange);
-      Add a = new Add(environment.getLeft(), environment.getRight());
-
-      assertEquals(ExpressionResult.FAILED, a.setMin(environment.getVariables(), a.getMax(environment.getVariables())));
-   }
-
-   @Test
-   public void testSetNot() {
+   public void testSetNotNoChange() {
       Range leftRange = parseRange("2:4");
       Range rightRange = parseRange("3:5");
-      Bdd environment = new Bdd(leftRange, rightRange);
+      TestUtils environment = new TestUtils(leftRange, rightRange);
       Variable left = environment.getLeft();
       Variable right = environment.getRight();
-      Variables variables = environment.getVariables();
+      ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
       for (long i = a.getMin(variables) - 1; i <= a.getMax(variables) + 1; i++) {
          assertEquals(ExpressionResult.NO_CHANGE, a.setNot(variables, i));
@@ -481,9 +467,41 @@ public class AddTest {
    }
 
    @Test
+   public void testSetNotUpdatedMin() {
+      Range leftRange = parseRange("3");
+      Range rightRange = parseRange("3:5");
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      Variable left = environment.getLeft();
+      Variable right = environment.getRight();
+      ConstraintStore variables = environment.getConstraintStore();
+      Add a = new Add(environment.getLeft(), environment.getRight());
+      assertEquals(ExpressionResult.UPDATED, a.setNot(variables, a.getMin(variables)));
+      assertEquals(leftRange.min(), left.getMin(variables));
+      assertEquals(leftRange.max(), left.getMax(variables));
+      assertEquals(rightRange.min() + 1, right.getMin(variables));
+      assertEquals(rightRange.max(), right.getMax(variables));
+   }
+
+   @Test
+   public void testSetNotUpdatedMax() {
+      Range leftRange = parseRange("3");
+      Range rightRange = parseRange("3:5");
+      TestUtils environment = new TestUtils(leftRange, rightRange);
+      Variable left = environment.getLeft();
+      Variable right = environment.getRight();
+      ConstraintStore variables = environment.getConstraintStore();
+      Add a = new Add(environment.getLeft(), environment.getRight());
+      assertEquals(ExpressionResult.UPDATED, a.setNot(variables, a.getMax(variables)));
+      assertEquals(leftRange.min(), left.getMin(variables));
+      assertEquals(leftRange.max(), left.getMax(variables));
+      assertEquals(rightRange.min(), right.getMin(variables));
+      assertEquals(rightRange.max() - 1, right.getMax(variables));
+   }
+
+   @Test
    public void testSetNotFailed() {
-      Bdd environment = new Bdd(parseRange("3"), parseRange("5"));
-      Variables variables = environment.getVariables();
+      TestUtils environment = new TestUtils(parseRange("3"), parseRange("5"));
+      ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
       assertEquals(ExpressionResult.FAILED, a.setNot(variables, a.getMax(variables)));
    }
@@ -491,6 +509,7 @@ public class AddTest {
    @Test
    public void testWalk() {
       // given
+      @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);
@@ -509,6 +528,7 @@ public class AddTest {
    @Test
    public void testReplace() {
       // given
+      @SuppressWarnings("unchecked")
       Function<Expression, Expression> function = mock(Function.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);

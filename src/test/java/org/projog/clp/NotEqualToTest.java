@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.projog.clp.Bdd.given;
+import static org.projog.clp.TestUtils.given;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -34,44 +34,46 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
 @RunWith(DataProviderRunner.class)
 public class NotEqualToTest {
-   private static final Bdd.Action FIRE = (v, x, y) -> new NotEqualTo(x, y).fire(v);
+   private static final TestUtils.Action ENFORCE = (v, x, y) -> new NotEqualTo(x, y).enforce(v);
 
    @Test
-   @DataProvider({"1,2", "1:3,4:6", "-8:-1,1:8"})
-   public void testFireMatched(String inputLeft, String inputRight) {
-      assertFireMatched(inputLeft, inputRight);
-      assertFireMatched(inputRight, inputLeft);
+   @DataProvider({"1,2,1,2", "1:3,4:6,1:3,4:6", "-8:-1,1:8,-8:-1,1:8", "1,1:3,1,2:3", "3,1:3,3,1:2"})
+   public void testEnforceMatched(String inputLeft, String inputRight, String outputLeft, String outputRight) {
+      assertEnforceMatched(inputLeft, inputRight, outputLeft, outputRight);
+      assertEnforceMatched(inputRight, inputLeft, outputRight, outputLeft);
    }
 
-   private void assertFireMatched(String inputLeft, String inputRight) {
-      given(inputLeft, inputRight).when(FIRE).then(ConstraintResult.MATCHED, inputLeft, inputRight);
+   private void assertEnforceMatched(String inputLeft, String inputRight, String outputLeft, String outputRight) {
+      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.MATCHED, outputLeft, outputRight);
    }
 
    @Test
-   @DataProvider({"0:9,0:9", "-8:14,12:42"})
-   public void testFireUnresolved(String inputLeft, String inputRight) {
-      assertFireUnresolved(inputLeft, inputRight);
-      assertFireUnresolved(inputRight, inputLeft);
+   @DataProvider({"0:9,0:9", "-8:14,12:42", "2,1:3"})
+   public void testEnforceUnresolved(String inputLeft, String inputRight) {
+      // TODO for "2,1:3" should check that result "can only be 1 or 3 (not 2)", not just "min is 1 and max is 3".
+      assertEnforceUnresolved(inputLeft, inputRight);
+      assertEnforceUnresolved(inputRight, inputLeft);
    }
 
-   private void assertFireUnresolved(String inputLeft, String inputRight) {
-      given(inputLeft, inputRight).when(FIRE).then(ConstraintResult.UNRESOLVED, inputLeft, inputRight);
+   private void assertEnforceUnresolved(String inputLeft, String inputRight) {
+      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.UNRESOLVED, inputLeft, inputRight);
    }
 
    @Test
    @DataProvider({"1,1", "-1,-1", "0,0"})
-   public void testFireFailed(String inputLeft, String inputRight) {
-      assertFireFailed(inputLeft, inputRight);
-      assertFireFailed(inputRight, inputLeft);
+   public void testEnforceFailed(String inputLeft, String inputRight) {
+      assertEnforceFailed(inputLeft, inputRight);
+      assertEnforceFailed(inputRight, inputLeft);
    }
 
-   private void assertFireFailed(String inputLeft, String inputRight) {
-      given(inputLeft, inputRight).when(FIRE).then(ConstraintResult.FAILED);
+   private void assertEnforceFailed(String inputLeft, String inputRight) {
+      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.FAILED);
    }
 
    @Test
    public void testWalk() {
       // given
+      @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);
@@ -89,6 +91,7 @@ public class NotEqualToTest {
    @Test
    public void testReplace() {
       // given
+      @SuppressWarnings("unchecked")
       Function<Expression, Expression> function = mock(Function.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);

@@ -15,8 +15,31 @@
  */
 package org.projog.clp;
 
+/**
+ * Indicates the outcome of attempting to satisfy a constraint.
+ *
+ * @see Constraint#enforce(ConstraintStore)
+ */
 public enum ConstraintResult {
+   /**
+    * The constraint was satisfied - it has been proven to be true.
+    * <p>
+    * e.g. Given X has a minimum value of 4 and a maximum value of 7, this result would be returned when attempting to
+    * satisfy the constraint "X>3".
+    */
    MATCHED,
+   /**
+    * The constraint cannot be satisfied - it has been proven to be false.
+    * <p>
+    * e.g. Given X has a minimum value of 4 and a maximum value of 7, this result would be returned when attempting to
+    * satisfy the constraint "X<4".
+    */
    FAILED,
+   /**
+    * It was not possible to determine if the constraint is satisfied or not.
+    * <p>
+    * e.g. Given X has a minimum value of 4 and a maximum value of 7, this result would be returned when attempting to
+    * satisfy the constraint "X<6".
+    */
    UNRESOLVED
 }

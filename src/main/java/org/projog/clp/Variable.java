@@ -18,50 +18,46 @@ package org.projog.clp;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** An expression that can have one or more possible numeric values. */
 public final class Variable implements Expression {
-   private final String name;
-   private final int id; // TODO rename to index
+   private final int id;
 
-   public Variable(int id) {
-      this(id, null);
-   }
-
-   public Variable(int id, String name) {
+   /** @see ClpConstraintStore.Builder#createVariable() */
+   Variable(int id) {
       this.id = id;
-      this.name = name;
    }
 
-   public int getId() {
+   int getId() {
       return id;
    }
 
    @Override
-   public long getMin(Variables m) {
-      return m.getMin(this);
+   public long getMin(ConstraintStore s) {
+      return s.getMin(this);
    }
 
    @Override
-   public long getMax(Variables m) {
-      return m.getMax(this);
+   public long getMax(ConstraintStore s) {
+      return s.getMax(this);
    }
 
-   public ExpressionResult setValue(Variables m, long value) {
-      return m.setValue(this, value);
-   }
-
-   @Override
-   public ExpressionResult setNot(Variables m, long not) {
-      return m.setNot(this, not);
+   public ExpressionResult setValue(ConstraintStore s, long value) {
+      return s.setValue(this, value);
    }
 
    @Override
-   public ExpressionResult setMin(Variables m, long min) {
-      return m.setMin(this, min);
+   public ExpressionResult setNot(ConstraintStore s, long not) {
+      return s.setNot(this, not);
    }
 
    @Override
-   public ExpressionResult setMax(Variables m, long max) {
-      return m.setMax(this, max);
+   public ExpressionResult setMin(ConstraintStore s, long min) {
+      return s.setMin(this, min);
+   }
+
+   @Override
+   public ExpressionResult setMax(ConstraintStore s, long max) {
+      return s.setMax(this, max);
    }
 
    @Override
@@ -70,16 +66,16 @@ public final class Variable implements Expression {
    }
 
    @Override
-   public Expression replace(Function<Expression, Expression> r) {
-      Expression r2 = r.apply(this);
-      if (r2 != null) {
-         return r2;
+   public Expression replace(Function<Expression, Expression> function) {
+      Expression r = function.apply(this);
+      if (r != null) {
+         return r;
       }
       return this;
    }
 
    @Override
    public String toString() {
-      return name == null ? "_" : name;
+      return "Variable [id=" + id + "]";
    }
 }

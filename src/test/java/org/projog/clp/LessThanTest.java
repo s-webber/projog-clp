@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.projog.clp.Bdd.given;
+import static org.projog.clp.TestUtils.given;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -34,29 +34,30 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
 @RunWith(DataProviderRunner.class)
 public class LessThanTest {
-   private static final Bdd.Action FIRE = (v, x, y) -> new LessThan(x, y).fire(v);
+   private static final TestUtils.Action ENFORCE = (v, x, y) -> new LessThan(x, y).enforce(v);
 
    @Test
    @DataProvider({"3,4,3,4", "2,4,2,4", "-4,4,-4,4", "2:5,3,2,3", "2:5,4,2:3,4", "2:5,5,2:4,5", "2,2:5,2,3:5", "3,2:5,3,4:5", "4,2:5,4,5"})
-   public void testFireMatched(String inputLeft, String inputRight, String expectedLeft, String expectedRight) {
-      given(inputLeft, inputRight).when(FIRE).then(ConstraintResult.MATCHED, expectedLeft, expectedRight);
+   public void testEnforceMatched(String inputLeft, String inputRight, String expectedLeft, String expectedRight) {
+      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.MATCHED, expectedLeft, expectedRight);
    }
 
    @Test
    @DataProvider({"0:9,0:9,0:8,1:9", "0:10,-1:9,0:8,1:9", "-8:14,12:42,-8:14,12:42"})
-   public void testFireUnresolved(String inputLeft, String inputRight, String expectedLeft, String expectedRight) {
-      given(inputLeft, inputRight).when(FIRE).then(ConstraintResult.UNRESOLVED, expectedLeft, expectedRight);
+   public void testEnforceUnresolved(String inputLeft, String inputRight, String expectedLeft, String expectedRight) {
+      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.UNRESOLVED, expectedLeft, expectedRight);
    }
 
    @Test
    @DataProvider({"8,7", "7,7", "9,7", "9,-7", "8:11,4:7", "8:11,4:6"})
-   public void testFireFailed(String inputLeft, String inputRight) {
-      given(inputLeft, inputRight).when(FIRE).then(ConstraintResult.FAILED);
+   public void testEnforceFailed(String inputLeft, String inputRight) {
+      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.FAILED);
    }
 
    @Test
    public void testWalk() {
       // given
+      @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);
@@ -74,6 +75,7 @@ public class LessThanTest {
    @Test
    public void testReplace() {
       // given
+      @SuppressWarnings("unchecked")
       Function<Expression, Expression> function = mock(Function.class);
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);

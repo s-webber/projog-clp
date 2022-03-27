@@ -15,8 +15,31 @@
  */
 package org.projog.clp;
 
+/**
+ * Indicates the outcome of attempting to restrict the possible values of an expression.
+ *
+ * @see Expression
+ */
 public enum ExpressionResult {
+   /**
+    * The possible values of the expression were updated.
+    * <p>
+    * e.g. Given X has a minimum value of 4 and a maximum value of 7, this result would be returned when attempting to
+    * set the maximum value to 6.
+    */
    UPDATED,
+   /**
+    * Applying the restriction would leave the expression with no possible values.
+    * <p>
+    * e.g. Given X has a minimum value of 4 and a maximum value of 7, this result would be returned when attempting to
+    * set the maximum value to 3.
+    */
    FAILED,
+   /**
+    * The expression already conformed to the restriction.
+    * <p>
+    * e.g. Given X has a minimum value of 4 and a maximum value of 7, this result would be returned when attempting to
+    * set the maximum value to 8.
+    */
    NO_CHANGE
 }

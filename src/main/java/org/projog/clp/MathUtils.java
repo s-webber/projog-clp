@@ -15,10 +15,23 @@
  */
 package org.projog.clp;
 
+/**
+ * Contains methods for performing basic numeric operations which handle overflow errors by rounding down to
+ * {@link Long.MAX_VALUE} or up to {@link Long.MIN_VALUE}.
+ */
 final class MathUtils {
    private MathUtils() {
    }
 
+   /**
+    * Returns the sum of the arguments, rounding up or down if the result overflows a long.
+    * <p>
+    * e.g.:<br>
+    * {@code safeAdd(Long.MAX_Value, 1)} returns {@link Long.MAX_VALUE}.<br>
+    * {@code safeAdd(Long.MIN_Value, -1)} returns {@link Long.MIN_VALUE}.
+    *
+    * @see java.lang.Math#addExact(long, long)
+    */
    static long safeAdd(long x, long y) {
       long r = x + y;
       if (((x ^ r) & (y ^ r)) < 0) {
@@ -27,6 +40,15 @@ final class MathUtils {
       return r;
    }
 
+   /**
+    * Returns the difference of the arguments, rounding up or down if the result overflows a long.
+    * <p>
+    * e.g.:<br>
+    * {@code safeSubtract(Long.MAX_Value, -1)} returns {@link Long.MAX_VALUE}.<br>
+    * {@code safeSubtract(Long.MIN_Value, 1)} returns {@link Long.MIN_VALUE}.
+    *
+    * @see java.lang.Math#subtractExact(long, long)
+    */
    static long safeSubtract(long x, long y) {
       long r = x - y;
       if (((x ^ y) & (x ^ r)) < 0) {
@@ -35,6 +57,15 @@ final class MathUtils {
       return r;
    }
 
+   /**
+    * Returns the product of the arguments, rounding up or down if the result overflows a long.
+    * <p>
+    * e.g.:<br>
+    * {@code safeMultiply(Long.MAX_Value, 1)} returns {@link Long.MAX_VALUE}.<br>
+    * {@code safeMultiply(Long.MIN_Value, 1)} returns {@link Long.MIN_VALUE}.
+    *
+    * @see java.lang.Math#multiplyExact(long, long)
+    */
    static long safeMultiply(long x, long y) {
       long r = x * y;
       long ax = Math.abs(x);

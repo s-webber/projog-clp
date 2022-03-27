@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** The sum of two {@code Expression}s. */
 public final class Add implements Expression {
    private final Expression left;
    private final Expression right;
@@ -32,28 +33,28 @@ public final class Add implements Expression {
    }
 
    @Override
-   public long getMin(Variables m) {
-      return safeAdd(left.getMin(m), right.getMin(m));
+   public long getMin(ConstraintStore s) {
+      return safeAdd(left.getMin(s), right.getMin(s));
    }
 
    @Override
-   public long getMax(Variables m) {
-      return safeAdd(left.getMax(m), right.getMax(m));
+   public long getMax(ConstraintStore s) {
+      return safeAdd(left.getMax(s), right.getMax(s));
    }
 
    @Override
-   public ExpressionResult setMin(Variables m, long min) {
-      long leftMax = left.getMax(m);
-      long rightMax = right.getMax(m);
+   public ExpressionResult setMin(ConstraintStore s, long min) {
+      long leftMax = left.getMax(s);
+      long rightMax = right.getMax(s);
       if (safeAdd(leftMax, rightMax) < min) {
          return ExpressionResult.FAILED;
       }
 
-      ExpressionResult r1 = left.setMin(m, safeSubtract(min, rightMax));
+      ExpressionResult r1 = left.setMin(s, safeSubtract(min, rightMax));
       if (r1 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
-      ExpressionResult r2 = right.setMin(m, safeSubtract(min, leftMax));
+      ExpressionResult r2 = right.setMin(s, safeSubtract(min, leftMax));
       if (r2 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
@@ -61,29 +62,30 @@ public final class Add implements Expression {
    }
 
    @Override
-   public ExpressionResult setMax(Variables m, long max) {
-      long leftMin = left.getMin(m);
-      long rightMin = right.getMin(m);
+   public ExpressionResult setMax(ConstraintStore s, long max) {
+      long leftMin = left.getMin(s);
+      long rightMin = right.getMin(s);
       if (safeAdd(leftMin, rightMin) > max) {
          return ExpressionResult.FAILED;
       }
 
-      ExpressionResult r1 = left.setMax(m, safeSubtract(max, rightMin));
+      ExpressionResult r1 = left.setMax(s, safeSubtract(max, rightMin));
       if (r1 == ExpressionResult.FAILED) {
          return ExpressionResult.FAILED;
       }
-      ExpressionResult r2 = right.setMax(m, safeSubtract(max, leftMin));
+      ExpressionResult r2 = right.setMax(s, safeSubtract(max, leftMin));
       if (r2 == ExpressionResult.FAILED) {
-         // TODO never gets here?
          return ExpressionResult.FAILED;
       }
       return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
    }
 
    @Override
-   public ExpressionResult setNot(Variables m, long not) {
-      if (getMax(m) == not && getMin(m) == not) {
-         return ExpressionResult.FAILED;
+   public ExpressionResult setNot(ConstraintStore s, long not) {
+      if (getMax(s) == not) {
+         return setMax(s, safeSubtract(not, 1));
+      } else if (getMin(s) == not) {
+         return setMin(s, safeAdd(not, 1));
       } else {
          return ExpressionResult.NO_CHANGE;
       }

@@ -18,17 +18,24 @@ package org.projog.clp;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** Enforces that the value of one {@code Expression} is less than or equal to another. */
 public final class LessThanOrEqualTo implements Constraint {
    private final Expression left;
    private final Expression right;
 
+   /**
+    * Enforces that the value of {@code left} is less than or equal to the value of {@code right}.
+    *
+    * @param left the expression whose value must be less than or equal to {@code right}
+    * @param right the expression whose value must be greater than or equal to {@code left}
+    */
    public LessThanOrEqualTo(Expression left, Expression right) {
       this.left = left;
       this.right = right;
    }
 
    @Override
-   public ConstraintResult fire(Variables m) {
+   public ConstraintResult enforce(ConstraintStore m) {
       long min = left.getMin(m);
       long max = right.getMax(m);
       if (min > max) {

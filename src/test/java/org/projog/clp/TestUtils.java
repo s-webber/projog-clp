@@ -18,19 +18,19 @@ package org.projog.clp;
 import static org.junit.Assert.assertEquals;
 import static org.projog.clp.TestDataParser.parseRange;
 
-final class Bdd {
-   static Bdd given(String left, String right) {
-      return new Bdd(parseRange(left), parseRange(right));
+final class TestUtils {
+   static TestUtils given(String left, String right) {
+      return new TestUtils(parseRange(left), parseRange(right));
    }
 
    private final Variable left;
    private final Variable right;
-   private final Variables v;
+   private final ConstraintStore v;
 
-   Bdd(Range leftRange, Range rightRange) {
-      ClpEnvironment.Builder b = new ClpEnvironment.Builder();
-      this.left = b.createVariable("x");
-      this.right = b.createVariable("y");
+   TestUtils(Range leftRange, Range rightRange) {
+      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
+      this.left = b.createVariable();
+      this.right = b.createVariable();
       this.v = b.build();
       left.setMin(v, leftRange.min());
       left.setMax(v, leftRange.max());
@@ -46,7 +46,7 @@ final class Bdd {
       return right;
    }
 
-   Variables getVariables() {
+   ConstraintStore getConstraintStore() {
       return v;
    }
 
@@ -57,7 +57,7 @@ final class Bdd {
 
    @FunctionalInterface
    interface Action {
-      Object action(Variables v, Variable x, Variable y);
+      Object action(ConstraintStore v, Variable x, Variable y);
    }
 
    class When {

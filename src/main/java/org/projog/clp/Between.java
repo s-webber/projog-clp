@@ -18,11 +18,19 @@ package org.projog.clp;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/** Enforces that the possible values of a given {@code Expression} are within the given range. */
 public final class Between implements Constraint {
    private final Expression e;
    private final long min;
    private final long max;
 
+   /**
+    * Enforces that the possible values of the given {@code Expression} are within the given range (inclusive).
+    *
+    * @param e
+    * @param min the minimum possible value (inclusive) for the expression
+    * @param max the maximum possible value (inclusive) for the expression
+    */
    public Between(Expression e, long min, long max) {
       if (max < min) {
          throw new IllegalArgumentException(max + " < " + min);
@@ -33,7 +41,7 @@ public final class Between implements Constraint {
    }
 
    @Override
-   public ConstraintResult fire(Variables m) {
+   public ConstraintResult enforce(ConstraintStore m) {
       if (e.setMin(m, min) == ExpressionResult.FAILED || e.setMax(m, max) == ExpressionResult.FAILED) {
          return ConstraintResult.FAILED;
       }

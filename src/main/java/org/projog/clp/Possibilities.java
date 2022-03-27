@@ -15,13 +15,14 @@
  */
 package org.projog.clp;
 
-public final class Possibilities {
+/** Used to iterate over a range of possible values. */
+final class Possibilities {
    private final long min;
    private final long max;
-   private final MyBitSet bitset;
+   private final NumberSet bitset;
    private long next;
 
-   public Possibilities(long min, long max, MyBitSet bitset) {
+   Possibilities(long min, long max, NumberSet bitset) {
       if (min > max) {
          throw new IllegalStateException();
       }
@@ -31,11 +32,11 @@ public final class Possibilities {
       this.next = min;
    }
 
-   public boolean hasNext() {
+   boolean hasNext() {
       return next >= min && next <= max;
    }
 
-   public long next() {
+   long next() {
       long c = next;
       if (bitset == null) {
          next++;
@@ -43,7 +44,7 @@ public final class Possibilities {
          if (next < min) {
             throw new IllegalStateException();
          }
-         next = bitset.nextSetBit(next + 1);
+         next = bitset.nextSetValue(next + 1);
       }
       return c;
    }
