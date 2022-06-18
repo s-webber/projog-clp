@@ -25,9 +25,9 @@ import java.util.function.Function;
  * {@link Variable}) or a composite that contains other {@code Expression} objects (e.g. {@link Add}).
  */
 public interface Expression {
-   long getMin(ConstraintStore constraintStore);
+   long getMin(ReadConstraintStore constraintStore);
 
-   long getMax(ConstraintStore constraintStore);
+   long getMax(ReadConstraintStore constraintStore);
 
    ExpressionResult setNot(ConstraintStore constraintStore, long not);
 

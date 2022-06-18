@@ -27,12 +27,12 @@ public final class FixedValue implements Expression {
    }
 
    @Override
-   public long getMin(ConstraintStore s) {
+   public long getMin(ReadConstraintStore s) {
       return value;
    }
 
    @Override
-   public long getMax(ConstraintStore s) {
+   public long getMax(ReadConstraintStore s) {
       return value;
    }
 

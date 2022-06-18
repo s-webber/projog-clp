@@ -32,12 +32,12 @@ public final class Variable implements Expression {
    }
 
    @Override
-   public long getMin(ConstraintStore s) {
+   public long getMin(ReadConstraintStore s) {
       return s.getMin(this);
    }
 
    @Override
-   public long getMax(ConstraintStore s) {
+   public long getMax(ReadConstraintStore s) {
       return s.getMax(this);
    }
 

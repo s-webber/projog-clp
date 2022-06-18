@@ -33,12 +33,12 @@ public final class Add implements Expression {
    }
 
    @Override
-   public long getMin(ConstraintStore s) {
+   public long getMin(ReadConstraintStore s) {
       return safeAdd(left.getMin(s), right.getMin(s));
    }
 
    @Override
-   public long getMax(ConstraintStore s) {
+   public long getMax(ReadConstraintStore s) {
       return safeAdd(left.getMax(s), right.getMax(s));
    }
 

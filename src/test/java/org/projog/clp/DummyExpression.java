@@ -29,13 +29,13 @@ final class DummyExpression implements Expression {
    }
 
    @Override
-   public long getMin(ConstraintStore s) {
+   public long getMin(ReadConstraintStore s) {
       Objects.requireNonNull(s);
       return min;
    }
 
    @Override
-   public long getMax(ConstraintStore s) {
+   public long getMax(ReadConstraintStore s) {
       Objects.requireNonNull(s);
       return max;
    }

@@ -51,6 +51,27 @@ public final class NotEqualTo implements Constraint {
    }
 
    @Override
+   public ConstraintResult reify(ReadConstraintStore constraintStore) {
+      final long minLeft = left.getMin(constraintStore);
+      final long maxLeft = left.getMax(constraintStore);
+      final long minRight = right.getMin(constraintStore);
+      final long maxRight = right.getMax(constraintStore);
+
+      if (minLeft > maxRight || minRight > maxLeft) {
+         return ConstraintResult.MATCHED;
+      } else if (minLeft == maxLeft && minRight == maxRight && minLeft == minRight) {
+         return ConstraintResult.FAILED;
+      } else {
+         return ConstraintResult.UNRESOLVED;
+      }
+   }
+
+   @Override
+   public ConstraintResult prevent(ConstraintStore constraintStore) {
+      return new EqualTo(left, right).enforce(constraintStore);
+   }
+
+   @Override
    public void walk(Consumer<Expression> r) {
       left.walk(r);
       right.walk(r);

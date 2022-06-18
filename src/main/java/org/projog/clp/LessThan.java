@@ -49,6 +49,22 @@ public final class LessThan implements Constraint {
    }
 
    @Override
+   public ConstraintResult reify(ReadConstraintStore constraintStore) {
+      if (left.getMax(constraintStore) < right.getMin(constraintStore)) {
+         return ConstraintResult.MATCHED;
+      } else if (left.getMin(constraintStore) >= right.getMax(constraintStore)) {
+         return ConstraintResult.FAILED;
+      } else {
+         return ConstraintResult.UNRESOLVED;
+      }
+   }
+
+   @Override
+   public ConstraintResult prevent(ConstraintStore constraintStore) {
+      return new LessThanOrEqualTo(right, left).enforce(constraintStore);
+   }
+
+   @Override
    public void walk(Consumer<Expression> r) {
       left.walk(r);
       right.walk(r);

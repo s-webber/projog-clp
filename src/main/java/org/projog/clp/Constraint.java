@@ -23,6 +23,11 @@ public interface Constraint {
    /** Attempts to enforce this constraint using the given {@code ConstraintStore}. */
    ConstraintResult enforce(ConstraintStore constraintStore);
 
+   /** Attempts to prevent this constraint using the given {@code ConstraintStore}. */
+   ConstraintResult prevent(ConstraintStore constraintStore);
+
+   ConstraintResult reify(ReadConstraintStore constraintStore);
+
    /**
     * Traverse this constraint.
     *

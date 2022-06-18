@@ -31,9 +31,15 @@ import org.junit.Test;
 
 abstract class AbstractConstraintTest {
    private final BiFunction<Expression, Expression, Constraint> factory;
+   protected final TestUtils.Action enforce;
+   protected final TestUtils.Action prevent;
+   protected final TestUtils.Action reify;
 
    AbstractConstraintTest(BiFunction<Expression, Expression, Constraint> factory) {
       this.factory = factory;
+      this.enforce = (v, x, y) -> factory.apply(x, y).enforce(v);
+      this.prevent = (v, x, y) -> factory.apply(x, y).prevent(v);
+      this.reify = (v, x, y) -> factory.apply(x, y).reify(v);
    }
 
    @Test

@@ -35,7 +35,7 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public long getMin(ConstraintStore s) {
+   public long getMin(ReadConstraintStore s) {
       long leftMin = left.getMin(s);
       long leftMax = left.getMax(s);
       long rightMin = right.getMin(s);
@@ -57,7 +57,7 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public long getMax(ConstraintStore s) {
+   public long getMax(ReadConstraintStore s) {
       long leftMin = left.getMin(s);
       long leftMax = left.getMax(s);
       long rightMin = right.getMin(s);

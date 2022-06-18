@@ -41,7 +41,9 @@ public class BetweenTest {
       ConstraintStore variables = builder.build();
       e.setMin(variables, inputMin);
       e.setMax(variables, inputMax);
+
       Between b = new Between(e, 30, 40);
+
       assertEquals(ConstraintResult.MATCHED, b.enforce(variables));
       assertEquals(outputMin, e.getMin(variables));
       assertEquals(outputMax, e.getMax(variables));
@@ -55,8 +57,52 @@ public class BetweenTest {
       ConstraintStore variables = builder.build();
       e.setMin(variables, inputMin);
       e.setMax(variables, inputMax);
+
       Between b = new Between(e, 30, 40);
+
       assertEquals(ConstraintResult.FAILED, b.enforce(variables));
+   }
+
+   @Test
+   @DataProvider({ //
+               "30,40,MATCHED",
+               "34,36,MATCHED",
+               "29,40,UNRESOLVED",
+               "30,41,UNRESOLVED",
+               "29,41,UNRESOLVED",
+               "0,29,FAILED",
+               "41,50,FAILED"})
+   public void testReify(long inputMin, long inputMax, ConstraintResult expected) {
+      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
+      Variable e = builder.createVariable();
+      ConstraintStore variables = builder.build();
+      e.setMin(variables, inputMin);
+      e.setMax(variables, inputMax);
+
+      Between b = new Between(e, 30, 40);
+
+      assertEquals(expected, b.reify(variables));
+   }
+
+   @Test
+   @DataProvider({ //
+               "30,40,FAILED",
+               "34,36,FAILED",
+               "29,40,UNRESOLVED",
+               "30,41,UNRESOLVED",
+               "29,41,UNRESOLVED",
+               "0,29,MATCHED",
+               "41,50,MATCHED"})
+   public void testPrevent(long inputMin, long inputMax, ConstraintResult expected) {
+      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
+      Variable e = builder.createVariable();
+      ConstraintStore variables = builder.build();
+      e.setMin(variables, inputMin);
+      e.setMax(variables, inputMax);
+
+      Between b = new Between(e, 30, 40);
+
+      assertEquals(expected, b.prevent(variables));
    }
 
    @Test

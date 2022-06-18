@@ -15,12 +15,8 @@
  */
 package org.projog.clp;
 
-public interface ConstraintStore extends ReadConstraintStore {
-   ExpressionResult setValue(Expression id, long value);
+public interface ReadConstraintStore {
+   long getMin(Expression id);
 
-   ExpressionResult setMin(Expression id, long min);
-
-   ExpressionResult setMax(Expression id, long max);
-
-   ExpressionResult setNot(Expression id, long not);
+   long getMax(Expression id);
 }

@@ -25,8 +25,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
 @RunWith(DataProviderRunner.class)
 public class NotEqualToTest extends AbstractConstraintTest {
-   private static final TestUtils.Action ENFORCE = (v, x, y) -> new NotEqualTo(x, y).enforce(v);
-
    public NotEqualToTest() {
       super(NotEqualTo::new);
    }
@@ -34,34 +32,46 @@ public class NotEqualToTest extends AbstractConstraintTest {
    @Test
    @DataProvider({"1,2,1,2", "1:3,4:6,1:3,4:6", "-8:-1,1:8,-8:-1,1:8", "1,1:3,1,2:3", "3,1:3,3,1:2"})
    public void testEnforceMatched(String inputLeft, String inputRight, String outputLeft, String outputRight) {
-      assertEnforceMatched(inputLeft, inputRight, outputLeft, outputRight);
-      assertEnforceMatched(inputRight, inputLeft, outputRight, outputLeft);
-   }
-
-   private void assertEnforceMatched(String inputLeft, String inputRight, String outputLeft, String outputRight) {
-      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.MATCHED, outputLeft, outputRight);
+      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.MATCHED, outputLeft, outputRight);
+      given(inputRight, inputLeft).when(enforce).then(ConstraintResult.MATCHED, outputRight, outputLeft);
    }
 
    @Test
    @DataProvider({"0:9,0:9", "-8:14,12:42", "2,1:3"})
    public void testEnforceUnresolved(String inputLeft, String inputRight) {
       // TODO for "2,1:3" should check that result "can only be 1 or 3 (not 2)", not just "min is 1 and max is 3".
-      assertEnforceUnresolved(inputLeft, inputRight);
-      assertEnforceUnresolved(inputRight, inputLeft);
-   }
-
-   private void assertEnforceUnresolved(String inputLeft, String inputRight) {
-      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.UNRESOLVED, inputLeft, inputRight);
+      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.UNRESOLVED, inputLeft, inputRight);
+      given(inputRight, inputLeft).when(enforce).then(ConstraintResult.UNRESOLVED, inputRight, inputLeft);
    }
 
    @Test
    @DataProvider({"1,1", "-1,-1", "0,0"})
    public void testEnforceFailed(String inputLeft, String inputRight) {
-      assertEnforceFailed(inputLeft, inputRight);
-      assertEnforceFailed(inputRight, inputLeft);
+      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.FAILED);
+      given(inputRight, inputLeft).when(enforce).then(ConstraintResult.FAILED);
    }
 
-   private void assertEnforceFailed(String inputLeft, String inputRight) {
-      given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.FAILED);
+   @Test
+   @DataProvider({ //
+               "1,2,MATCHED",
+               "1:3,4:6,MATCHED",
+               "-8:-1,1:8,MATCHED",
+               "1,1:3,UNRESOLVED",
+               "3,1:3,UNRESOLVED",
+               "0:9,0:9,UNRESOLVED",
+               "-8:14,12:42,UNRESOLVED",
+               "2,1:3,UNRESOLVED",
+               "1,1,FAILED",
+               "-1,-1,FAILED",
+               "0,0,FAILED"})
+   public void testReify(String inputLeft, String inputRight, ConstraintResult expected) {
+      given(inputLeft, inputRight).when(reify).then(expected);
+      given(inputRight, inputLeft).when(reify).then(expected);
+   }
+
+   @Test
+   public void testPrevent() { // TODO add more examples
+      given("7:9", "8").when(prevent).then(ConstraintResult.MATCHED, "8", "8");
+      given("7", "8").when(prevent).then(ConstraintResult.FAILED);
    }
 }

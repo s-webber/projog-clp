@@ -50,6 +50,32 @@ public final class Between implements Constraint {
    }
 
    @Override
+   public ConstraintResult reify(ReadConstraintStore constraintStore) {
+      final long minValue = e.getMin(constraintStore);
+      final long maxValue = e.getMax(constraintStore);
+
+      if (minValue >= min && maxValue <= max) {
+         return ConstraintResult.MATCHED;
+      } else if (minValue > max || maxValue < min) {
+         return ConstraintResult.FAILED;
+      } else {
+         return ConstraintResult.UNRESOLVED;
+      }
+   }
+
+   @Override
+   public ConstraintResult prevent(ConstraintStore constraintStore) {
+      switch (reify(constraintStore)) {
+         case MATCHED:
+            return ConstraintResult.FAILED;
+         case FAILED:
+            return ConstraintResult.MATCHED;
+         default:
+            return ConstraintResult.UNRESOLVED;
+      }
+   }
+
+   @Override
    public void walk(Consumer<Expression> r) {
       e.walk(r);
    }

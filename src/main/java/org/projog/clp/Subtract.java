@@ -37,12 +37,12 @@ public final class Subtract implements Expression {
    }
 
    @Override
-   public long getMin(ConstraintStore s) {
+   public long getMin(ReadConstraintStore s) {
       return safeSubtract(left.getMin(s), right.getMax(s));
    }
 
    @Override
-   public long getMax(ConstraintStore s) {
+   public long getMax(ReadConstraintStore s) {
       return safeSubtract(left.getMax(s), right.getMin(s));
    }
 
