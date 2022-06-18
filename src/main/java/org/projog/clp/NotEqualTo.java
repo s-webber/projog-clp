@@ -57,8 +57,8 @@ public final class NotEqualTo implements Constraint {
    }
 
    @Override
-   public NotEqualTo replace(Function<Expression, Expression> r) {
-      return new NotEqualTo(left.replace(r), right.replace(r));
+   public NotEqualTo replaceVariables(Function<Variable, Variable> r) {
+      return new NotEqualTo(left.replaceVariables(r), right.replaceVariables(r));
    }
 
    @Override

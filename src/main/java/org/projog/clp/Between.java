@@ -55,8 +55,8 @@ public final class Between implements Constraint {
    }
 
    @Override
-   public Between replace(Function<Expression, Expression> r) {
-      return new Between(e.replace(r), min, max);
+   public Between replaceVariables(Function<Variable, Variable> r) {
+      return new Between(e.replaceVariables(r), min, max);
    }
 
    @Override

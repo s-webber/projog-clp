@@ -15,16 +15,7 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import static org.projog.clp.TestUtils.given;
-
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +24,12 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
 @RunWith(DataProviderRunner.class)
-public class EqualToTest {
+public class EqualToTest extends AbstractConstraintTest {
    private static final TestUtils.Action ENFORCE = (v, x, y) -> new EqualTo(x, y).enforce(v);
+
+   public EqualToTest() {
+      super(EqualTo::new);
+   }
 
    @Test
    @DataProvider({"1,1,1", "8,7:9,8", "-8:14,14:42,14"})
@@ -67,45 +62,5 @@ public class EqualToTest {
 
    private void assertEnforceFailed(String inputLeft, String inputRight) {
       given(inputLeft, inputRight).when(ENFORCE).then(ConstraintResult.FAILED);
-   }
-
-   @Test
-   public void testWalk() {
-      // given
-      @SuppressWarnings("unchecked")
-      Consumer<Expression> consumer = mock(Consumer.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
-      EqualTo testObject = new EqualTo(left, right);
-
-      // when
-      testObject.walk(consumer);
-
-      // then
-      verify(left).walk(consumer);
-      verify(right).walk(consumer);
-      verifyNoMoreInteractions(consumer, left, right);
-   }
-
-   @Test
-   public void testReplace() {
-      // given
-      @SuppressWarnings("unchecked")
-      Function<Expression, Expression> function = mock(Function.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
-      EqualTo testObject = new EqualTo(left, right);
-      when(left.replace(function)).thenReturn(new FixedValue(42));
-      when(right.replace(function)).thenReturn(new FixedValue(180));
-
-      // when
-      EqualTo replacement = testObject.replace(function);
-      assertNotSame(testObject, replacement);
-      assertEquals("EqualTo [left=FixedValue [value=42], right=FixedValue [value=180]]", replacement.toString());
-
-      // then
-      verify(left).replace(function);
-      verify(right).replace(function);
-      verifyNoMoreInteractions(function, left, right);
    }
 }

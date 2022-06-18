@@ -368,8 +368,8 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public Multiply replace(Function<Expression, Expression> r) {
-      return new Multiply(left.replace(r), right.replace(r));
+   public Multiply replaceVariables(Function<Variable, Variable> r) {
+      return new Multiply(left.replaceVariables(r), right.replaceVariables(r));
    }
 
    @Override

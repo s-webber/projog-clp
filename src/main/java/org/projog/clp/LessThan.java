@@ -55,8 +55,8 @@ public final class LessThan implements Constraint {
    }
 
    @Override
-   public LessThan replace(Function<Expression, Expression> r) {
-      return new LessThan(left.replace(r), right.replace(r));
+   public LessThan replaceVariables(Function<Variable, Variable> r) {
+      return new LessThan(left.replaceVariables(r), right.replaceVariables(r));
    }
 
    @Override

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -83,37 +82,17 @@ public class FixedValueTest {
    }
 
    @Test
-   public void testReplace_null() {
+   public void testReplaceVariables() {
       // given
       FixedValue testObject = new FixedValue(7);
       @SuppressWarnings("unchecked")
-      Function<Expression, Expression> function = mock(Function.class);
-      when(testObject.replace(function)).thenReturn(null);
+      Function<Variable, Variable> function = mock(Function.class);
 
       // when
-      Expression replacement = testObject.replace(function);
+      Expression replacement = testObject.replaceVariables(function);
       assertSame(testObject, replacement);
 
       // then
-      verify(function).apply(testObject);
       verifyNoMoreInteractions(function);
-   }
-
-   @Test
-   public void testReplace_replacement() {
-      // given
-      FixedValue testObject = new FixedValue(7);
-      Expression expectedReplacement = mock(Expression.class);
-      @SuppressWarnings("unchecked")
-      Function<Expression, Expression> function = mock(Function.class);
-      when(testObject.replace(function)).thenReturn(expectedReplacement);
-
-      // when
-      Expression replacement = testObject.replace(function);
-      assertSame(expectedReplacement, replacement);
-
-      // then
-      verify(function).apply(testObject);
-      verifyNoMoreInteractions(expectedReplacement, function);
    }
 }

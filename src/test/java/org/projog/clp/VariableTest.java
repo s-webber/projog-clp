@@ -140,15 +140,15 @@ public final class VariableTest {
    }
 
    @Test
-   public void testReplace_null() {
+   public void testReplaceVariables_null() {
       // given
       @SuppressWarnings("unchecked")
-      Function<Expression, Expression> function = mock(Function.class);
+      Function<Variable, Variable> function = mock(Function.class);
       Variable testObject = new Variable(1);
       when(function.apply(testObject)).thenReturn(null);
 
       // when
-      Expression replacement = testObject.replace(function);
+      Expression replacement = testObject.replaceVariables(function);
       assertSame(testObject, replacement);
 
       // then
@@ -157,16 +157,16 @@ public final class VariableTest {
    }
 
    @Test
-   public void testReplace_other() {
+   public void testReplaceVariables_other() {
       // given
       @SuppressWarnings("unchecked")
-      Function<Expression, Expression> function = mock(Function.class);
+      Function<Variable, Variable> function = mock(Function.class);
       Variable testObject = new Variable(1);
-      FixedValue expected = new FixedValue(30);
+      Variable expected = new Variable(30);
       when(function.apply(testObject)).thenReturn(expected);
 
       // when
-      Expression replacement = testObject.replace(function);
+      Expression replacement = testObject.replaceVariables(function);
       assertSame(expected, replacement);
 
       // then

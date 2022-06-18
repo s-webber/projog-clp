@@ -99,8 +99,8 @@ public final class Add implements Expression {
    }
 
    @Override
-   public Add replace(Function<Expression, Expression> r) {
-      return new Add(left.replace(r), right.replace(r));
+   public Add replaceVariables(Function<Variable, Variable> r) {
+      return new Add(left.replaceVariables(r), right.replaceVariables(r));
    }
 
    @Override

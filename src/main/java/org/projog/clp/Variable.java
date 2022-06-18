@@ -66,8 +66,8 @@ public final class Variable implements Expression {
    }
 
    @Override
-   public Expression replace(Function<Expression, Expression> function) {
-      Expression r = function.apply(this);
+   public Expression replaceVariables(Function<Variable, Variable> function) {
+      Variable r = function.apply(this);
       if (r != null) {
          return r;
       }

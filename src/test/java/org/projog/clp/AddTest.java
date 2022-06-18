@@ -17,15 +17,7 @@ package org.projog.clp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import static org.projog.clp.TestDataParser.parseRange;
-
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +27,11 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 @RunWith(DataProviderRunner.class)
-public class AddTest {
+public class AddTest extends AbstractExpressionTest {
+   public AddTest() {
+      super(Add::new);
+   }
+
    @Test
    @DataProvider({
                "0,0,0", // 0/0
@@ -504,46 +500,5 @@ public class AddTest {
       ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
       assertEquals(ExpressionResult.FAILED, a.setNot(variables, a.getMax(variables)));
-   }
-
-   @Test
-   public void testWalk() {
-      // given
-      @SuppressWarnings("unchecked")
-      Consumer<Expression> consumer = mock(Consumer.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
-      Add testObject = new Add(left, right);
-
-      // when
-      testObject.walk(consumer);
-
-      // then
-      verify(consumer).accept(testObject);
-      verify(left).walk(consumer);
-      verify(right).walk(consumer);
-      verifyNoMoreInteractions(consumer, left, right);
-   }
-
-   @Test
-   public void testReplace() {
-      // given
-      @SuppressWarnings("unchecked")
-      Function<Expression, Expression> function = mock(Function.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
-      Add testObject = new Add(left, right);
-      when(left.replace(function)).thenReturn(new FixedValue(42));
-      when(right.replace(function)).thenReturn(new FixedValue(180));
-
-      // when
-      Add replacement = testObject.replace(function);
-      assertNotSame(testObject, replacement);
-      assertEquals("Add [left=FixedValue [value=42], right=FixedValue [value=180]]", replacement.toString());
-
-      // then
-      verify(left).replace(function);
-      verify(right).replace(function);
-      verifyNoMoreInteractions(function, left, right);
    }
 }

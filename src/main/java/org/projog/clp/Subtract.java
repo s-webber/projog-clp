@@ -107,8 +107,8 @@ public final class Subtract implements Expression {
    }
 
    @Override
-   public Subtract replace(Function<Expression, Expression> r) {
-      return new Subtract(left.replace(r), right.replace(r));
+   public Subtract replaceVariables(Function<Variable, Variable> r) {
+      return new Subtract(left.replaceVariables(r), right.replaceVariables(r));
    }
 
    @Override

@@ -66,11 +66,7 @@ public final class FixedValue implements Expression {
    }
 
    @Override
-   public Expression replace(Function<Expression, Expression> r) {
-      Expression r2 = r.apply(this);
-      if (r2 != null) {
-         return r2;
-      }
+   public Expression replaceVariables(Function<Variable, Variable> r) {
       return this;
    }
 

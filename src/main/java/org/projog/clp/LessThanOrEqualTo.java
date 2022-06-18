@@ -55,8 +55,8 @@ public final class LessThanOrEqualTo implements Constraint {
    }
 
    @Override
-   public LessThanOrEqualTo replace(Function<Expression, Expression> r) {
-      return new LessThanOrEqualTo(left.replace(r), right.replace(r));
+   public LessThanOrEqualTo replaceVariables(Function<Variable, Variable> r) {
+      return new LessThanOrEqualTo(left.replaceVariables(r), right.replaceVariables(r));
    }
 
    @Override

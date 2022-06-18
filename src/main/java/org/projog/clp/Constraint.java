@@ -31,13 +31,13 @@ public interface Constraint {
    void walk(Consumer<Expression> consumer);
 
    /**
-    * Returns new {@code Constraint} with {@code Expression}s in this {@code Constraint} replaced with values returned
+    * Returns new {@code Constraint} with {@code Variable}s in this {@code Constraint} replaced with values returned
     * from the given function.
     *
-    * @param function returns the {@code Expression} to use as a replacement for the {@code Expression} it is called
-    * with, or {@code null} if the original {@code Expression} should continue to be used.
-    * @return a new {@code Constraint} with {@code Expression}s in this {@code Constraint} replaced with versions
-    * returned from {@code function}.
+    * @param function returns the {@code Variable} to use as a replacement for the {@code Variable} it is called with,
+    * or {@code null} if the original {@code Variable} should continue to be used.
+    * @return a new {@code Constraint} with {@code Variable}s in this {@code Constraint} replaced with versions returned
+    * from {@code function}.
     */
-   Constraint replace(Function<Expression, Expression> function);
+   Constraint replaceVariables(Function<Variable, Variable> function);
 }

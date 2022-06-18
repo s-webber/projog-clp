@@ -56,8 +56,8 @@ public final class EqualTo implements Constraint {
    }
 
    @Override
-   public EqualTo replace(Function<Expression, Expression> r) {
-      return new EqualTo(left.replace(r), right.replace(r));
+   public EqualTo replaceVariables(Function<Variable, Variable> r) {
+      return new EqualTo(left.replaceVariables(r), right.replaceVariables(r));
    }
 
    @Override

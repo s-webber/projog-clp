@@ -77,7 +77,7 @@ final class DummyExpression implements Expression {
    }
 
    @Override
-   public Expression replace(Function<Expression, Expression> r) {
+   public Expression replaceVariables(Function<Variable, Variable> r) {
       throw new UnsupportedOperationException();
    }
 }

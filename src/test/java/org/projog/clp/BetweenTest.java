@@ -76,21 +76,21 @@ public class BetweenTest {
    }
 
    @Test
-   public void testReplace() {
+   public void testReplaceVariables() {
       // given
       @SuppressWarnings("unchecked")
-      Function<Expression, Expression> function = mock(Function.class);
+      Function<Variable, Variable> function = mock(Function.class);
       Expression expression = mock(Expression.class);
       Between testObject = new Between(expression, 7, 42);
-      when(expression.replace(function)).thenReturn(new FixedValue(30));
+      when(expression.replaceVariables(function)).thenReturn(new FixedValue(30));
 
       // when
-      Between replacement = testObject.replace(function);
+      Between replacement = testObject.replaceVariables(function);
       assertNotSame(testObject, replacement);
       assertEquals("Between [e=FixedValue [value=30], min=7, max=42]", replacement.toString());
 
       // then
-      verify(expression).replace(function);
+      verify(expression).replaceVariables(function);
       verifyNoMoreInteractions(function, expression);
    }
 }
