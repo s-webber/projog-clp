@@ -210,6 +210,12 @@ public final class ClpConstraintStore implements ConstraintStore {
       public Enforce enforce(Expression e) {
          return new Enforce(this, e);
       }
+
+      @Deprecated
+      @Override
+      public boolean equals(Object o) {
+         throw new UnsupportedOperationException();
+      }
    }
 
    public static class EnforceAll {
@@ -247,6 +253,12 @@ public final class ClpConstraintStore implements ConstraintStore {
          }
          return this;
       }
+
+      @Deprecated
+      @Override
+      public boolean equals(Object o) {
+         throw new UnsupportedOperationException();
+      }
    }
 
    public static class Enforce {
@@ -276,6 +288,17 @@ public final class ClpConstraintStore implements ConstraintStore {
 
       public void between(long min, long max) {
          builder.addConstraint(new Between(expression, min, max));
+      }
+
+      public void equivalentTo(Constraint equivalent) {
+         // TODO avoid cast
+         builder.addConstraint(new Equivalent((Constraint) expression, equivalent));
+      }
+
+      @Deprecated
+      @Override
+      public boolean equals(Object o) {
+         throw new UnsupportedOperationException();
       }
    }
 }
