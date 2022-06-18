@@ -19,7 +19,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /** An expression that can have one or more possible numeric values. */
-public final class Variable implements Expression {
+public final class Variable implements Expression, Constraint {
+   private static final int TRUE = 1;
+   private static final int FALSE = 0;
+
    private final int id;
 
    /** @see ClpConstraintStore.Builder#createVariable() */
@@ -61,12 +64,54 @@ public final class Variable implements Expression {
    }
 
    @Override
+   public ConstraintResult enforce(ConstraintStore s) {
+      long min = getMin(s);
+      long max = getMax(s);
+      if (min > TRUE || max < FALSE) {
+         throw new IllegalStateException("Expected 0 or 1");
+      } else if (s.setValue(this, TRUE) == ExpressionResult.FAILED) {
+         return ConstraintResult.FAILED;
+      } else {
+         return ConstraintResult.MATCHED;
+      }
+   }
+
+   @Override
+   public ConstraintResult prevent(ConstraintStore s) {
+      long min = getMin(s);
+      long max = getMax(s);
+      if (min > TRUE || max < FALSE) {
+         throw new IllegalStateException("Expected 0 or 1");
+      } else if (s.setValue(this, FALSE) == ExpressionResult.FAILED) {
+         return ConstraintResult.FAILED;
+      } else {
+         return ConstraintResult.MATCHED;
+      }
+   }
+
+   @Override
+   public ConstraintResult reify(ReadConstraintStore s) {
+      long min = getMin(s);
+      long max = getMax(s);
+
+      if (min != max) {
+         return ConstraintResult.UNRESOLVED;
+      } else if (min == TRUE) {
+         return ConstraintResult.MATCHED;
+      } else if (min == FALSE) {
+         return ConstraintResult.FAILED;
+      } else {
+         throw new IllegalStateException("Expected 0 or 1 but got " + min);
+      }
+   }
+
+   @Override
    public void walk(Consumer<Expression> r) {
       r.accept(this);
    }
 
    @Override
-   public Expression replaceVariables(Function<Variable, Variable> function) {
+   public Variable replaceVariables(Function<Variable, Variable> function) {
       Variable r = function.apply(this);
       if (r != null) {
          return r;

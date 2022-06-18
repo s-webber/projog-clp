@@ -67,6 +67,78 @@ public class FixedValueTest {
    }
 
    @Test
+   public void testReifyMatched() {
+      FixedValue f = new FixedValue(1);
+      assertSame(ConstraintResult.MATCHED, f.reify(null));
+   }
+
+   @Test
+   public void testReifyFailed() {
+      FixedValue f = new FixedValue(0);
+      assertSame(ConstraintResult.FAILED, f.reify(null));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testReifyToHigh() {
+      FixedValue f = new FixedValue(2);
+      assertSame(ConstraintResult.FAILED, f.reify(null));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testReifyToLow() {
+      FixedValue f = new FixedValue(-1);
+      assertSame(ConstraintResult.FAILED, f.reify(null));
+   }
+
+   @Test
+   public void testEnforceMatched() {
+      FixedValue f = new FixedValue(1);
+      assertSame(ConstraintResult.MATCHED, f.enforce(null));
+   }
+
+   @Test
+   public void testEnforceFailed() {
+      FixedValue f = new FixedValue(0);
+      assertSame(ConstraintResult.FAILED, f.enforce(null));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testEnforceToHigh() {
+      FixedValue f = new FixedValue(2);
+      assertSame(ConstraintResult.FAILED, f.enforce(null));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testEnforceToLow() {
+      FixedValue f = new FixedValue(-1);
+      assertSame(ConstraintResult.FAILED, f.enforce(null));
+   }
+
+   @Test
+   public void testPreventMatched() {
+      FixedValue f = new FixedValue(0);
+      assertSame(ConstraintResult.MATCHED, f.prevent(null));
+   }
+
+   @Test
+   public void testPreventFailed() {
+      FixedValue f = new FixedValue(1);
+      assertSame(ConstraintResult.FAILED, f.prevent(null));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testPreventToHigh() {
+      FixedValue f = new FixedValue(2);
+      assertSame(ConstraintResult.FAILED, f.prevent(null));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testPreventToLow() {
+      FixedValue f = new FixedValue(-1);
+      assertSame(ConstraintResult.FAILED, f.prevent(null));
+   }
+
+   @Test
    public void testWalk() {
       // given
       FixedValue testObject = new FixedValue(7);
@@ -89,7 +161,7 @@ public class FixedValueTest {
       Function<Variable, Variable> function = mock(Function.class);
 
       // when
-      Expression replacement = testObject.replaceVariables(function);
+      FixedValue replacement = testObject.replaceVariables(function);
       assertSame(testObject, replacement);
 
       // then

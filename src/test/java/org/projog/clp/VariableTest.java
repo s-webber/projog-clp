@@ -125,6 +125,115 @@ public final class VariableTest {
    }
 
    @Test
+   public void testReifyMatched() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 1);
+      assertSame(ConstraintResult.MATCHED, v.reify(s));
+   }
+
+   @Test
+   public void testReifyFailed() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 0);
+      assertSame(ConstraintResult.FAILED, v.reify(s));
+   }
+
+   @Test
+   public void testReifyUnresolved() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 0, 1);
+      assertSame(ConstraintResult.UNRESOLVED, v.reify(s));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testReifyToHigh() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 2);
+      assertSame(ConstraintResult.FAILED, v.reify(s));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testReifyToLow() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, -1);
+      assertSame(ConstraintResult.FAILED, v.reify(s));
+   }
+
+   @Test
+   public void testEnforceMatched() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 1);
+      assertSame(ConstraintResult.MATCHED, v.enforce(s));
+   }
+
+   @Test
+   public void testEnforceMatchedAndUpdated() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, Long.MIN_VALUE, Long.MAX_VALUE);
+      assertSame(ConstraintResult.MATCHED, v.enforce(s));
+      assertEquals(1, s.getMin(v));
+      assertEquals(1, s.getMax(v));
+   }
+
+   @Test
+   public void testEnforceFailed() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 0);
+      assertSame(ConstraintResult.FAILED, v.enforce(s));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testEnforceToHigh() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 2);
+      assertSame(ConstraintResult.FAILED, v.enforce(s));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testEnforceToLow() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, -1);
+      assertSame(ConstraintResult.FAILED, v.enforce(s));
+   }
+
+   @Test
+   public void testPreventMatched() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 0);
+      assertSame(ConstraintResult.MATCHED, v.prevent(s));
+   }
+
+   @Test
+   public void testPreventMatchedAndUpdated() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, Long.MIN_VALUE, Long.MAX_VALUE);
+      assertSame(ConstraintResult.MATCHED, v.prevent(s));
+      assertEquals(0, s.getMin(v));
+      assertEquals(0, s.getMax(v));
+   }
+
+   @Test
+   public void testPreventFailed() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 1);
+      assertSame(ConstraintResult.FAILED, v.prevent(s));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testPreventToHigh() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, 2);
+      assertSame(ConstraintResult.FAILED, v.prevent(s));
+   }
+
+   @Test(expected = IllegalStateException.class)
+   public void testPreventToLow() {
+      Variable v = new Variable(99);
+      ConstraintStore s = new DummyConstraintStore(v, -1);
+      assertSame(ConstraintResult.FAILED, v.prevent(s));
+   }
+
+   @Test
    public void testWalk() {
       // given
       @SuppressWarnings("unchecked")
@@ -166,7 +275,7 @@ public final class VariableTest {
       when(function.apply(testObject)).thenReturn(expected);
 
       // when
-      Expression replacement = testObject.replaceVariables(function);
+      Variable replacement = testObject.replaceVariables(function);
       assertSame(expected, replacement);
 
       // then

@@ -19,7 +19,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /** Represents a single immutable number. */
-public final class FixedValue implements Expression {
+public final class FixedValue implements Expression, Constraint {
+   private static final int TRUE = 1;
+   private static final int FALSE = 0;
+
    private final long value;
 
    public FixedValue(long value) {
@@ -61,12 +64,39 @@ public final class FixedValue implements Expression {
    }
 
    @Override
+   public ConstraintResult enforce(ConstraintStore constraintStore) {
+      return reify(constraintStore);
+   }
+
+   @Override
+   public ConstraintResult prevent(ConstraintStore constraintStore) {
+      if (value == TRUE) {
+         return ConstraintResult.FAILED;
+      } else if (value == FALSE) {
+         return ConstraintResult.MATCHED;
+      } else {
+         throw new IllegalStateException("Expected 0 or 1 but got " + value);
+      }
+   }
+
+   @Override
+   public ConstraintResult reify(ReadConstraintStore constraintStore) {
+      if (value == TRUE) {
+         return ConstraintResult.MATCHED;
+      } else if (value == FALSE) {
+         return ConstraintResult.FAILED;
+      } else {
+         throw new IllegalStateException("Expected 0 or 1 but got " + value);
+      }
+   }
+
+   @Override
    public void walk(Consumer<Expression> r) {
       r.accept(this);
    }
 
    @Override
-   public Expression replaceVariables(Function<Variable, Variable> r) {
+   public FixedValue replaceVariables(Function<Variable, Variable> r) {
       return this;
    }
 
