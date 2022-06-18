@@ -74,6 +74,11 @@ public class MultiplyTest {
 
    @Test
    @DataProvider({
+               // when min is zero
+               "-1:0,1:2,0,0,1:2",
+               "0:1,1:2,0,0:1,1:2",
+               "-1:1,1:2,0,0:1,1:2",
+               // when both args are +ve
                "1,2,2,1,2",
                "7,3,20,7,3",
                "7,3,21,7,3",
@@ -84,7 +89,19 @@ public class MultiplyTest {
                "1:7,2:3,18,6:7,3",
                "1:7,2:3,19,7,3",
                "1:7,2:3,20,7,3",
-               "1:7,2:3,21,7,3"})
+               "1:7,2:3,21,7,3",
+               // when both args are -ve
+               "-1,-2,2,-1,-2",
+               "-7,-3,20,-7,-3",
+               "-7,-3,21,-7,-3",
+               "-7:-1,-3:-2,14,-7:-5,-3:-2",
+               "-7:-1,-3:-2,15,-7:-5,-3",
+               "-7:-1,-3:-2,16,-7:-6,-3",
+               "-7:-1,-3:-2,17,-7:-6,-3",
+               "-7:-1,-3:-2,18,-7:-6,-3",
+               "-7:-1,-3:-2,19,-7,-3",
+               "-7:-1,-3:-2,20,-7,-3",
+               "-7:-1,-3:-2,21,-7,-3",})
    public void testSetMin(String inputLeftRange, String inputRightRange, String min, String outputLeftRange, String outputRightRange) {
       assertSetMin(parseRange(inputLeftRange), parseRange(inputRightRange), Long.parseLong(min), parseRange(outputLeftRange), parseRange(outputRightRange));
       assertSetMin(parseRange(inputRightRange), parseRange(inputLeftRange), Long.parseLong(min), parseRange(outputRightRange), parseRange(outputLeftRange));
@@ -104,7 +121,7 @@ public class MultiplyTest {
    }
 
    @Test
-   @DataProvider({"7,3,22", "7,3,23", "1:7,2:3,22"})
+   @DataProvider({"7,3,22", "7,3,23", "1:7,2:3,22", "-1,2,0", "-1,2,1"})
    public void testSetMinFailed(String inputLeftRange, String inputRightRange, String min) {
       assertSetMinFailed(parseRange(inputLeftRange), parseRange(inputRightRange), Long.parseLong(min));
       assertSetMinFailed(parseRange(inputRightRange), parseRange(inputLeftRange), Long.parseLong(min));
@@ -121,6 +138,11 @@ public class MultiplyTest {
 
    @Test
    @DataProvider({
+               // when max is zero
+               "-1:0,-2:-1,0,0,-2:-1",
+               "-1:0,-2:1,0,-1:0,-2:1",
+               "-1:1,1:2,0,-1:0,1:2",
+               //+ve/+ve
                "1,2,2,1,2",
                "4,6,24,4,6",
                "4,6,25,4,6",
@@ -134,7 +156,22 @@ public class MultiplyTest {
                "4:7,6:15,30,4:5,6:7",
                "4:7,6:15,31,4:5,6:7",
                "4:7,6:15,32,4:5,6:8",
-               "4:7,6:15,105,4:7,6:15",})
+               "4:7,6:15,105,4:7,6:15",
+               // -ve/-ve
+               "-1,-2,2,-1,-2",
+               "-4,-6,24,-4,-6",
+               "-4,-6,25,-4,-6",
+               "-7,-15,105,-7,-15",
+               "-7:-4,-15:-6,24,-4,-6",
+               "-7:-4,-15:-6,25,-4,-6",
+               "-7:-4,-15:-6,26,-4,-6",
+               "-7:-4,-15:-6,27,-4,-6",
+               "-7:-4,-15:-6,28,-4,-7:-6",
+               "-7:-4,-15:-6,29,-4,-7:-6",
+               "-7:-4,-15:-6,30,-5:-4,-7:-6",
+               "-7:-4,-15:-6,31,-5:-4,-7:-6",
+               "-7:-4,-15:-6,32,-5:-4,-8:-6",
+               "-7:-4,-15:-6,105,-7:-4,-15:-6",})
    public void testSetMax(String inputLeftRange, String inputRightRange, String min, String outputLeftRange, String outputRightRange) {
       assertSetMax(parseRange(inputLeftRange), parseRange(inputRightRange), Long.parseLong(min), parseRange(outputLeftRange), parseRange(outputRightRange));
       assertSetMax(parseRange(inputRightRange), parseRange(inputLeftRange), Long.parseLong(min), parseRange(outputRightRange), parseRange(outputLeftRange));
@@ -154,7 +191,7 @@ public class MultiplyTest {
    }
 
    @Test
-   @DataProvider({"4,6,22", "4,6,23", "4:7,6:15,23"})
+   @DataProvider({"4,6,22", "4,6,23", "4:7,6:15,23", "1,2,0", "-1,-2,0", "1,2,-1", "-1,-2,-1"})
    public void testSetMaxFailed(String inputLeftRange, String inputRightRange, String min) {
       assertSetMaxFailed(parseRange(inputLeftRange), parseRange(inputRightRange), Long.parseLong(min));
       assertSetMaxFailed(parseRange(inputRightRange), parseRange(inputLeftRange), Long.parseLong(min));

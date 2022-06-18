@@ -19,6 +19,8 @@ import static org.projog.clp.MathUtils.safeAdd;
 import static org.projog.clp.MathUtils.safeMultiply;
 import static org.projog.clp.MathUtils.safeSubtract;
 
+import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -28,8 +30,8 @@ public final class Multiply implements Expression {
    private final Expression right;
 
    public Multiply(Expression left, Expression right) {
-      this.left = left;
-      this.right = right;
+      this.left = Objects.requireNonNull(left);
+      this.right = Objects.requireNonNull(right);
    }
 
    @Override
@@ -83,32 +85,119 @@ public final class Multiply implements Expression {
       long rightMin = right.getMin(s);
       long rightMax = right.getMax(s);
 
-      if (min == 0 || leftMin < 1 || rightMin < 1) {
-         // TODO currently ignore anything where either arg is negative or min is 0
-         return ExpressionResult.NO_CHANGE;
+      if (min > 0) {
+         // For result to be >0 both args must be of the same sign (+ve/-ve).
+         if (leftMin > -1 && rightMax < 1) { // if not the same sign
+            return ExpressionResult.FAILED;
+         }
+         if (rightMin > -1 && leftMax < 1) { // if not the same sign
+            return ExpressionResult.FAILED;
+         }
+         // neither arg can be zero
+         if (leftMin == 0) {
+            ExpressionResult r = left.setMin(s, 1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (leftMax == 0) {
+            ExpressionResult r = left.setMax(s, -1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMin == 0) {
+            ExpressionResult r = right.setMin(s, 1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMax == 0) {
+            ExpressionResult r = right.setMax(s, -1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         // must be same sign
+         if (leftMin > 0 && rightMin < 1) {
+            ExpressionResult r = right.setMin(s, 1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMin > 0 && leftMin < 1) {
+            ExpressionResult r = left.setMin(s, 1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (leftMax < 0 && rightMax > -1) {
+            ExpressionResult r = right.setMax(s, -1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMax < 0 && leftMax > -1) {
+            ExpressionResult r = left.setMax(s, -1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
       }
 
-      long newMinLeft = Math.min(divideWhole(min, rightMin), divideWhole(min, rightMax));
-      ExpressionResult r1 = newMinLeft > leftMin ? left.setMin(s, newMinLeft) : ExpressionResult.NO_CHANGE;
-      if (r1 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (min == 0) {
+         if (leftMin > 0) {
+            ExpressionResult r = right.setMin(s, 0);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMin > 0) {
+            ExpressionResult r = left.setMin(s, 0);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (leftMax < 0) {
+            ExpressionResult r = right.setMax(s, 0);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMax < 0) {
+            ExpressionResult r = left.setMax(s, 0);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
       }
 
-      long newMinRight = Math.min(divideWhole(min, leftMin), divideWhole(min, leftMax));
-      ExpressionResult r2 = newMinRight > rightMin ? right.setMin(s, newMinRight) : ExpressionResult.NO_CHANGE;
-      if (r2 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
-      }
+      if (leftMax < 0 && rightMax < 0) {
+         ExpressionResult r1 = setMax(s, left, min, leftMax, rightMin, rightMax, Multiply::divideWhole);
+         if (r1 == ExpressionResult.FAILED) {
+            return ExpressionResult.FAILED;
+         }
 
-      return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
-   }
+         ExpressionResult r2 = setMax(s, right, min, rightMax, leftMin, leftMax, Multiply::divideWhole);
+         if (r2 == ExpressionResult.FAILED) {
+            return ExpressionResult.FAILED;
+         }
 
-   private static long divideWhole(long dividend, long divisor) {
-      long result = dividend / divisor;
-      if (divisor * result == dividend) {
-         return result;
+         return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+      } else if (leftMin > 0 && rightMin > 0) {
+         ExpressionResult r1 = setMin(s, left, min, leftMin, rightMin, rightMax, Multiply::divideWhole);
+         if (r1 == ExpressionResult.FAILED) {
+            return ExpressionResult.FAILED;
+         }
+
+         ExpressionResult r2 = setMin(s, right, min, rightMin, leftMin, leftMax, Multiply::divideWhole);
+         if (r2 == ExpressionResult.FAILED) {
+            return ExpressionResult.FAILED;
+         }
+
+         return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
       } else {
-         return result + 1;
+         return ExpressionResult.NO_CHANGE;
       }
    }
 
@@ -119,24 +208,145 @@ public final class Multiply implements Expression {
       long rightMin = right.getMin(s);
       long rightMax = right.getMax(s);
 
-      if (max == 0 || leftMin < 1 || rightMin < 1) {
-         // TODO currently ignore anything where either arg is negative or min is 0
+      if (max < 0) {
+         // For result to be <0 args must be of different sign (+ve/-ve).
+         if (leftMin > -1 && rightMin > -1) { // if not the same sign
+            return ExpressionResult.FAILED;
+         }
+         if (leftMax < 1 && rightMax < 1) { // if not the same sign
+            return ExpressionResult.FAILED;
+         }
+         // neither arg can be zero
+         if (leftMin == 0) {
+            ExpressionResult r = left.setMin(s, 1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (leftMax == 0) {
+            ExpressionResult r = left.setMax(s, -1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMin == 0) {
+            ExpressionResult r = right.setMin(s, 1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMax == 0) {
+            ExpressionResult r = right.setMax(s, -1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         // cannot be same sign
+         if (leftMin > 0 && rightMax > -1) {
+            ExpressionResult r = right.setMax(s, -1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMin > 0 && leftMax > -1) {
+            ExpressionResult r = left.setMax(s, -1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (leftMax < 0 && rightMin < 1) {
+            ExpressionResult r = right.setMin(s, 1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMax < 0 && leftMin < 1) {
+            ExpressionResult r = left.setMin(s, 1);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+      }
+
+      if (max == 0) {
+         if (leftMin > 0) {
+            ExpressionResult r = right.setMax(s, 0);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMin > 0) {
+            ExpressionResult r = left.setMax(s, 0);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (leftMax < 0) {
+            ExpressionResult r = right.setMin(s, 0);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+         if (rightMax < 0) {
+            ExpressionResult r = left.setMin(s, 0);
+            if (r != ExpressionResult.NO_CHANGE) {
+               return r;
+            }
+         }
+      }
+
+      if (leftMax < 0 && rightMax < 0) {
+         ExpressionResult r1 = setMin(s, left, max, leftMin, rightMin, rightMax, Multiply::divideRoundDown);
+         if (r1 == ExpressionResult.FAILED) {
+            return ExpressionResult.FAILED;
+         }
+
+         ExpressionResult r2 = setMin(s, right, max, rightMin, leftMin, leftMax, Multiply::divideRoundDown);
+         if (r2 == ExpressionResult.FAILED) {
+            return ExpressionResult.FAILED;
+         }
+
+         return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+      } else if (leftMin > 0 && rightMin > 0) {
+         ExpressionResult r1 = setMax(s, left, max, leftMax, rightMin, rightMax, Multiply::divideRoundDown);
+         if (r1 == ExpressionResult.FAILED) {
+            return ExpressionResult.FAILED;
+         }
+
+         ExpressionResult r2 = setMax(s, right, max, rightMax, leftMin, leftMax, Multiply::divideRoundDown);
+         if (r2 == ExpressionResult.FAILED) {
+            return ExpressionResult.FAILED;
+         }
+
+         return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+      } else {
          return ExpressionResult.NO_CHANGE;
       }
+   }
 
-      long newMaxLeft = Math.max(max / rightMin, max / rightMax);
-      ExpressionResult r1 = newMaxLeft < leftMax ? left.setMax(s, newMaxLeft) : ExpressionResult.NO_CHANGE;
-      if (r1 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+   private static ExpressionResult setMax(ConstraintStore s, Expression left, long max, long leftMax, long rightMin, long rightMax, BiFunction<Long, Long, Long> f) {
+      long newMaxLeft = Math.max(f.apply(max, rightMin), f.apply(max, rightMax));
+      return newMaxLeft < leftMax ? left.setMax(s, newMaxLeft) : ExpressionResult.NO_CHANGE;
+   }
+
+   private static ExpressionResult setMin(ConstraintStore s, Expression left, long min, long leftMin, long rightMin, long rightMax, BiFunction<Long, Long, Long> f) {
+      long newMinLeft = Math.min(f.apply(min, rightMin), f.apply(min, rightMax));
+      return newMinLeft > leftMin ? left.setMin(s, newMinLeft) : ExpressionResult.NO_CHANGE;
+   }
+
+   private static long divideRoundDown(long dividend, long divisor) {
+      return dividend / divisor;
+   }
+
+   private static long divideWhole(long dividend, long divisor) {
+      long result = dividend / divisor;
+      if (divisor * result == dividend) {
+         return result;
+      } else if (divisor < 0) {
+         return result - 1;
+      } else {
+         return result + 1;
       }
-
-      long newMaxRight = Math.max(max / leftMin, max / leftMax);
-      ExpressionResult r2 = newMaxRight < rightMax ? right.setMax(s, newMaxRight) : ExpressionResult.NO_CHANGE;
-      if (r2 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
-      }
-
-      return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
    }
 
    @Override
