@@ -31,9 +31,9 @@ import org.junit.Test;
 
 abstract class AbstractConstraintTest {
    private final BiFunction<Expression, Expression, Constraint> factory;
-   protected final TestUtils.Action enforce;
-   protected final TestUtils.Action prevent;
-   protected final TestUtils.Action reify;
+   final TestUtils.Action enforce;
+   final TestUtils.Action prevent;
+   final TestUtils.Action reify;
 
    AbstractConstraintTest(BiFunction<Expression, Expression, Constraint> factory) {
       this.factory = factory;
@@ -47,8 +47,8 @@ abstract class AbstractConstraintTest {
       // given
       @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
+      Expression left = mock(ExpressionConstraint.class);
+      Expression right = mock(ExpressionConstraint.class);
       Constraint testObject = factory.apply(left, right);
 
       // when
@@ -65,8 +65,8 @@ abstract class AbstractConstraintTest {
       // given
       @SuppressWarnings("unchecked")
       Function<Variable, Variable> function = mock(Function.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
+      Expression left = mock(ExpressionConstraint.class);
+      Expression right = mock(ExpressionConstraint.class);
       Constraint testObject = factory.apply(left, right);
       when(left.replaceVariables(function)).thenReturn(new FixedValue(42));
       when(right.replaceVariables(function)).thenReturn(new FixedValue(180));
@@ -82,5 +82,10 @@ abstract class AbstractConstraintTest {
       verify(left).replaceVariables(function);
       verify(right).replaceVariables(function);
       verifyNoMoreInteractions(function, left, right);
+   }
+
+   private interface ExpressionConstraint extends Expression, Constraint {
+      @Override
+      FixedValue replaceVariables(Function<Variable, Variable> function);
    }
 }

@@ -18,6 +18,8 @@ package org.projog.clp;
 import static org.junit.Assert.assertEquals;
 import static org.projog.clp.TestDataParser.parseRange;
 
+import java.util.Objects;
+
 final class TestUtils {
    static TestUtils given(String left, String right) {
       return new TestUtils(parseRange(left), parseRange(right));
@@ -64,7 +66,7 @@ final class TestUtils {
       private final Object result;
 
       When(Object result) {
-         this.result = result;
+         this.result = Objects.requireNonNull(result);
       }
 
       void then(Object expectedResult) {

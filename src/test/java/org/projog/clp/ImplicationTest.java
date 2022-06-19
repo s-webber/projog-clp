@@ -24,18 +24,18 @@ import org.junit.runner.RunWith;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
 @RunWith(DataProviderRunner.class)
-public class EquivalentTest extends AbstractReificationTest {
+public class ImplicationTest extends AbstractReificationTest {
 
-   public EquivalentTest() {
-      super(Equivalent::new);
+   public ImplicationTest() {
+      super(Implication::new);
 
       given("1", "1").enforce(MATCHED).prevent(FAILED).reify(MATCHED);
       given("0", "0").enforce(MATCHED).prevent(FAILED).reify(MATCHED);
       given("1", "0").enforce(FAILED).prevent(MATCHED).reify(FAILED);
-      given("0", "1").enforce(FAILED).prevent(MATCHED).reify(FAILED);
+      given("0", "1").enforce(MATCHED).prevent(FAILED).reify(MATCHED);
       given("1", "0:1").enforce(MATCHED, "1").prevent(MATCHED, "1", "0").reify(UNRESOLVED);
-      given("0:1", "1").enforce(MATCHED, "1").prevent(MATCHED, "0", "1").reify(UNRESOLVED);
-      given("0", "0:1").enforce(MATCHED, "0").prevent(MATCHED, "0", "1").reify(UNRESOLVED);
+      given("0:1", "1").enforce(MATCHED).prevent(FAILED).reify(MATCHED);
+      given("0", "0:1").enforce(MATCHED).prevent(FAILED).reify(MATCHED);
       given("0:1", "0").enforce(MATCHED, "0").prevent(MATCHED, "1", "0").reify(UNRESOLVED);
       given("0:1", "0:1").enforce(UNRESOLVED).prevent(UNRESOLVED).reify(UNRESOLVED);
    }

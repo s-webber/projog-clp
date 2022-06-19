@@ -19,11 +19,11 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class Equivalent implements Constraint {
+public class Xor implements Constraint {
    private final Constraint left;
    private final Constraint right;
 
-   public Equivalent(Constraint left, Constraint right) {
+   public Xor(Constraint left, Constraint right) {
       this.left = Objects.requireNonNull(left);
       this.right = Objects.requireNonNull(right);
    }
@@ -41,9 +41,9 @@ public class Equivalent implements Constraint {
    private static ConstraintResult enforce(ConstraintStore constraintStore, Constraint a, Constraint b) {
       ConstraintResult r = a.reify(constraintStore);
       if (r == ConstraintResult.MATCHED) {
-         return b.enforce(constraintStore);
-      } else if (r == ConstraintResult.FAILED) {
          return b.prevent(constraintStore);
+      } else if (r == ConstraintResult.FAILED) {
+         return b.enforce(constraintStore);
       } else {
          return ConstraintResult.UNRESOLVED;
       }
@@ -61,12 +61,12 @@ public class Equivalent implements Constraint {
          return ConstraintResult.UNRESOLVED;
       }
 
-      return r1 == r2 ? ConstraintResult.MATCHED : ConstraintResult.FAILED;
+      return r1 == r2 ? ConstraintResult.FAILED : ConstraintResult.MATCHED;
    }
 
    @Override
    public ConstraintResult prevent(ConstraintStore constraintStore) {
-      return new Xor(left, right).enforce(constraintStore);
+      return new Equivalent(left, right).enforce(constraintStore);
    }
 
    @Override
@@ -76,12 +76,12 @@ public class Equivalent implements Constraint {
    }
 
    @Override
-   public Equivalent replaceVariables(Function<Variable, Variable> r) {
-      return new Equivalent(left.replaceVariables(r), right.replaceVariables(r));
+   public Xor replaceVariables(Function<Variable, Variable> r) {
+      return new Xor(left.replaceVariables(r), right.replaceVariables(r));
    }
 
    @Override
    public String toString() {
-      return "Equivalent [left=" + left + ", right=" + right + "]";
+      return "Xor [left=" + left + ", right=" + right + "]";
    }
 }
