@@ -15,13 +15,13 @@
  */
 package org.projog.clp.example;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 import static org.projog.clp.example.ExpressionUtils.add;
 import static org.projog.clp.example.ExpressionUtils.diff;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.projog.clp.BruteForceSearch;
 import org.projog.clp.ClpConstraintStore;
 import org.projog.clp.Variable;

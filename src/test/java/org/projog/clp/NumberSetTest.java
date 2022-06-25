@@ -15,13 +15,14 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
-import org.junit.Test;
+import org.testng.annotations.Ignore;
+import org.testng.annotations.Test;
 
 public class NumberSetTest {
    @Test
@@ -54,6 +55,7 @@ public class NumberSetTest {
       }
    }
 
+   @Ignore
    @Test
    public void testMaxRange() {
       NumberSet s = new NumberSet(1, Integer.MAX_VALUE);

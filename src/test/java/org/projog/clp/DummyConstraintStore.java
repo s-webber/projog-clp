@@ -15,7 +15,7 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertSame;
+import static org.testng.Assert.assertSame;
 
 class DummyConstraintStore implements ConstraintStore {
    private final Variable variable;

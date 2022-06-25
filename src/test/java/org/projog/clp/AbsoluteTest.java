@@ -15,28 +15,23 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.projog.clp.TestDataParser.parseRange;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertSame;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-
-@RunWith(DataProviderRunner.class)
 public class AbsoluteTest {
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                "0,0", // 0
                "2,2", // +
                "-7,7", // -
@@ -64,8 +59,8 @@ public class AbsoluteTest {
       assertEquals(expectedRange.max(), a.getMax(store));
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "0:100,1,1:100",
                "0:100,100,100",
                "-100:0,1,-100:-1",
@@ -74,7 +69,7 @@ public class AbsoluteTest {
                "-100:-7,8,-100:-8",
                "-45:7,8,-45:-8",
                "-7:45,8,8:45"})
-   public void testSetMin_updated(String input, long min, String expected) {
+   public void testSetMin_updated(String input, Long min, String expected) {
       Range inputRange = parseRange(input);
       Range expectedRange = parseRange(expected);
       ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
@@ -92,8 +87,8 @@ public class AbsoluteTest {
       assertEquals(min, a.getMin(store));
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "0:100,0",
                "0:100,-1",
                "0:100,-101",
@@ -108,7 +103,7 @@ public class AbsoluteTest {
                "-100:-7,6",
                "-100:100,7",
                "-100:100,0"})
-   public void testSetMin_no_change(String input, long min) {
+   public void testSetMin_no_change(String input, Long min) {
       Range inputRange = parseRange(input);
       ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
       Variable v = b.createVariable();
@@ -124,9 +119,9 @@ public class AbsoluteTest {
       assertEquals(inputRange.max(), v.getMax(store));
    }
 
-   @Test
-   @DataProvider({"0:100,101", "-100:0,101", "-100:100,101"})
-   public void testSetMin_failed(String input, long min) {
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"0:100,101", "-100:0,101", "-100:100,101"})
+   public void testSetMin_failed(String input, Long min) {
       Range inputRange = parseRange(input);
       ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
       Variable v = b.createVariable();
@@ -140,8 +135,8 @@ public class AbsoluteTest {
       assertSame(ExpressionResult.FAILED, result);
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "0:100,0,0",
                "0:100,1,0:1",
                "0:100,99,0:99",
@@ -156,7 +151,7 @@ public class AbsoluteTest {
                "-7:45,6,-6:6",
                "-45:7,8,-8:7",
                "-7:45,8,-7:8"})
-   public void testSetMax_updated(String input, long max, String expected) {
+   public void testSetMax_updated(String input, Long max, String expected) {
       Range inputRange = parseRange(input);
       Range expectedRange = parseRange(expected);
       ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
@@ -174,8 +169,8 @@ public class AbsoluteTest {
       assertEquals(max, a.getMax(store));
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "0:100,101",
                "0:100,100",
                "7:100,100",
@@ -186,7 +181,7 @@ public class AbsoluteTest {
                "-100:-7,101",
                "-100:100,100",
                "-100:100,101"})
-   public void testSetMax_no_change(String input, long max) {
+   public void testSetMax_no_change(String input, Long max) {
       Range inputRange = parseRange(input);
       ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
       Variable v = b.createVariable();
@@ -202,9 +197,9 @@ public class AbsoluteTest {
       assertEquals(inputRange.max(), v.getMax(store));
    }
 
-   @Test
-   @DataProvider({"1:100,0", "-100:-1,0", "-100:100,-101"})
-   public void testSetMax_failed(String input, long max) {
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"1:100,0", "-100:-1,0", "-100:100,-101"})
+   public void testSetMax_failed(String input, Long max) {
       Range inputRange = parseRange(input);
       ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
       Variable v = b.createVariable();
@@ -218,9 +213,9 @@ public class AbsoluteTest {
       assertSame(ExpressionResult.FAILED, result);
    }
 
-   @Test
-   @DataProvider({"1:3,1", "1:3,2", "1:3,2", "1,1", "-3:3,3"})
-   public void testSetNot(String input, long not) {
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"1:3,1", "1:3,2", "1:3,2", "1,1", "-3:3,3"})
+   public void testSetNot(String input, Long not) {
       Range inputRange = parseRange(input);
       ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
       Variable v = b.createVariable();

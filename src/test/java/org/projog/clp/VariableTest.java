@@ -15,17 +15,17 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public final class VariableTest {
    @Test
@@ -145,14 +145,14 @@ public final class VariableTest {
       assertSame(ConstraintResult.UNRESOLVED, v.reify(s));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testReifyToHigh() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, 2);
       assertSame(ConstraintResult.FAILED, v.reify(s));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testReifyToLow() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, -1);
@@ -182,14 +182,14 @@ public final class VariableTest {
       assertSame(ConstraintResult.FAILED, v.enforce(s));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testEnforceToHigh() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, 2);
       assertSame(ConstraintResult.FAILED, v.enforce(s));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testEnforceToLow() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, -1);
@@ -219,14 +219,14 @@ public final class VariableTest {
       assertSame(ConstraintResult.FAILED, v.prevent(s));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testPreventToHigh() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, 2);
       assertSame(ConstraintResult.FAILED, v.prevent(s));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testPreventToLow() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, -1);

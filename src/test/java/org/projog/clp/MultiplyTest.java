@@ -15,24 +15,19 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.projog.clp.TestDataParser.parseRange;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-
-@RunWith(DataProviderRunner.class)
 public class MultiplyTest extends AbstractExpressionTest {
    public MultiplyTest() {
       super(Multiply::new);
    }
 
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                "0,0,0",
                "42,0,0",
                "-42,0,0",
@@ -68,8 +63,8 @@ public class MultiplyTest extends AbstractExpressionTest {
       assertEquals(expectedRange.max(), m.getMax(environment.getConstraintStore()));
    }
 
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                // when min is zero
                "-1:0,1:2,0,0,1:2",
                "0:1,1:2,0,0:1,1:2",
@@ -116,8 +111,8 @@ public class MultiplyTest extends AbstractExpressionTest {
       assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
    }
 
-   @Test
-   @DataProvider({"7,3,22", "7,3,23", "1:7,2:3,22", "-1,2,0", "-1,2,1"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"7,3,22", "7,3,23", "1:7,2:3,22", "-1,2,0", "-1,2,1"})
    public void testSetMinFailed(String inputLeftRange, String inputRightRange, String min) {
       assertSetMinFailed(parseRange(inputLeftRange), parseRange(inputRightRange), Long.parseLong(min));
       assertSetMinFailed(parseRange(inputRightRange), parseRange(inputLeftRange), Long.parseLong(min));
@@ -132,8 +127,8 @@ public class MultiplyTest extends AbstractExpressionTest {
       assertEquals(ExpressionResult.FAILED, m.setMin(environment.getConstraintStore(), min));
    }
 
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                // when max is zero
                "-1:0,-2:-1,0,0,-2:-1",
                "-1:0,-2:1,0,-1:0,-2:1",
@@ -186,8 +181,8 @@ public class MultiplyTest extends AbstractExpressionTest {
       assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
    }
 
-   @Test
-   @DataProvider({"4,6,22", "4,6,23", "4:7,6:15,23", "1,2,0", "-1,-2,0", "1,2,-1", "-1,-2,-1"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"4,6,22", "4,6,23", "4:7,6:15,23", "1,2,0", "-1,-2,0", "1,2,-1", "-1,-2,-1"})
    public void testSetMaxFailed(String inputLeftRange, String inputRightRange, String min) {
       assertSetMaxFailed(parseRange(inputLeftRange), parseRange(inputRightRange), Long.parseLong(min));
       assertSetMaxFailed(parseRange(inputRightRange), parseRange(inputLeftRange), Long.parseLong(min));

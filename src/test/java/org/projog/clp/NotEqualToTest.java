@@ -17,42 +17,37 @@ package org.projog.clp;
 
 import static org.projog.clp.TestUtils.given;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-
-@RunWith(DataProviderRunner.class)
 public class NotEqualToTest extends AbstractConstraintTest {
    public NotEqualToTest() {
       super(NotEqualTo::new);
    }
 
-   @Test
-   @DataProvider({"1,2,1,2", "1:3,4:6,1:3,4:6", "-8:-1,1:8,-8:-1,1:8", "1,1:3,1,2:3", "3,1:3,3,1:2"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"1,2,1,2", "1:3,4:6,1:3,4:6", "-8:-1,1:8,-8:-1,1:8", "1,1:3,1,2:3", "3,1:3,3,1:2"})
    public void testEnforceMatched(String inputLeft, String inputRight, String outputLeft, String outputRight) {
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.MATCHED, outputLeft, outputRight);
       given(inputRight, inputLeft).when(enforce).then(ConstraintResult.MATCHED, outputRight, outputLeft);
    }
 
-   @Test
-   @DataProvider({"0:9,0:9", "-8:14,12:42", "2,1:3"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"0:9,0:9", "-8:14,12:42", "2,1:3"})
    public void testEnforceUnresolved(String inputLeft, String inputRight) {
       // TODO for "2,1:3" should check that result "can only be 1 or 3 (not 2)", not just "min is 1 and max is 3".
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.UNRESOLVED, inputLeft, inputRight);
       given(inputRight, inputLeft).when(enforce).then(ConstraintResult.UNRESOLVED, inputRight, inputLeft);
    }
 
-   @Test
-   @DataProvider({"1,1", "-1,-1", "0,0"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"1,1", "-1,-1", "0,0"})
    public void testEnforceFailed(String inputLeft, String inputRight) {
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.FAILED);
       given(inputRight, inputLeft).when(enforce).then(ConstraintResult.FAILED);
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "1,2,MATCHED",
                "1:3,4:6,MATCHED",
                "-8:-1,1:8,MATCHED",

@@ -15,9 +15,11 @@
  */
 package org.projog.clp.example;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.testng.Assert.assertTrue;
 
-import org.junit.Test;
+import java.util.Arrays;
+
+import org.testng.annotations.Test;
 
 public class SudokuTest {
    @Test
@@ -48,5 +50,9 @@ public class SudokuTest {
       assertArrayEquals(solution[6], new int[] {9, 4, 2, 5, 3, 8, 6, 1, 7});
       assertArrayEquals(solution[7], new int[] {1, 5, 8, 6, 9, 7, 3, 4, 2});
       assertArrayEquals(solution[8], new int[] {7, 6, 3, 4, 2, 1, 5, 8, 9});
+   }
+
+   private static void assertArrayEquals(int[] actual, int[] expected) {
+      assertTrue(Arrays.equals(actual, expected));
    }
 }

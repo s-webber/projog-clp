@@ -15,26 +15,21 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertThrows;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.function.Function;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-
-@RunWith(DataProviderRunner.class)
 public class VariableStateTest {
    @DataProvider
    public static Object[] testDataRanges() {
@@ -76,8 +71,7 @@ public class VariableStateTest {
       assertEquals(1, v.count());
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_no_overlap(long min, long max) {
       assertTrue(max > min + 4);
 
@@ -94,8 +88,7 @@ public class VariableStateTest {
       assertNull(VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_range_within_another_no_matching_values_1(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -111,8 +104,7 @@ public class VariableStateTest {
       assertNull(VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_range_within_another_no_matching_values_b(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -127,8 +119,7 @@ public class VariableStateTest {
       assertNull(VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_with_single_value_equals_min(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -142,8 +133,7 @@ public class VariableStateTest {
       assertValue(VariableState.and(b, a), min);
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_with_single_value_equals_max(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(max);
@@ -157,8 +147,7 @@ public class VariableStateTest {
       assertValue(VariableState.and(b, a), max);
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_with_self(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -167,8 +156,7 @@ public class VariableStateTest {
       assertSame(a, VariableState.and(a, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_with_identical(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -182,8 +170,7 @@ public class VariableStateTest {
       assertSame(b, VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_within_another_exclusive(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -197,8 +184,7 @@ public class VariableStateTest {
       assertSame(b, VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_within_another_start_inclusive(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -212,8 +198,7 @@ public class VariableStateTest {
       assertSame(b, VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_within_another_end_inclusive(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min + 1);
@@ -227,8 +212,7 @@ public class VariableStateTest {
       assertSame(a, VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_overlap(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -242,8 +226,7 @@ public class VariableStateTest {
       assertRange(VariableState.and(b, a), min + 1, max - 1);
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_same_range_and_bitset(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -259,8 +242,7 @@ public class VariableStateTest {
       assertSame(b, VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_same_range_and_values_but_created_with_different_min_values(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -378,8 +360,7 @@ public class VariableStateTest {
       assertNull(VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_range_overlap_but_no_matching_values_lower_state_has_more_values(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -420,8 +401,7 @@ public class VariableStateTest {
       assertNull(VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_range_overlap_but_no_matching_values_higher_state_has_more_values(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -438,8 +418,7 @@ public class VariableStateTest {
       assertNull(VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_single_value_lower_than_bitset(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -453,8 +432,7 @@ public class VariableStateTest {
       assertNull(VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_single_value_higher_than_bitset(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(max);
@@ -468,8 +446,7 @@ public class VariableStateTest {
       assertNull(VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_single_value_within_range_of_bitset(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -483,8 +460,7 @@ public class VariableStateTest {
       assertSame(b, VariableState.and(b, a));
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_non_bitset_within_bitset_min_same(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min);
@@ -499,8 +475,7 @@ public class VariableStateTest {
       assertPossibilities(VariableState.and(b, a), min, min + 2, min + 3, min + 4);
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_non_bitset_within_bitset_max_same(long min, long max) {
       VariableState a = new VariableState();
       a.setMin(min + 1);
@@ -601,8 +576,7 @@ public class VariableStateTest {
       assertValue(VariableState.and(b, a), 14);
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_bitset_example_4(long base, long max) {
       VariableState a = new VariableState();
       a.setMin(base + 1);
@@ -621,8 +595,7 @@ public class VariableStateTest {
       assertValue(VariableState.and(b, a), base + 3);
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_bitset_example_5(long base, long max) {
       VariableState a = new VariableState();
       a.setMin(base + 1);
@@ -641,8 +614,7 @@ public class VariableStateTest {
       assertValue(VariableState.and(b, a), base + 1);
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_bitset_example_6(long base, long max) {
       VariableState a = new VariableState();
       a.setMin(base + 2);
@@ -661,8 +633,7 @@ public class VariableStateTest {
       assertValue(VariableState.and(b, a), base + 4);
    }
 
-   @Test
-   @UseDataProvider("testDataRanges")
+   @Test(dataProvider = "testDataRanges")
    public void testAnd_bitset_example_7(long base, long max) {
       VariableState a = new VariableState();
       a.setMin(base + 2);

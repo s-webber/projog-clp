@@ -19,10 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import org.junit.Test;
-
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 abstract class AbstractReificationTest extends AbstractConstraintTest {
    private Map<String, Builder> tests = new HashMap<>();
@@ -36,8 +34,7 @@ abstract class AbstractReificationTest extends AbstractConstraintTest {
       return new Object[] {"1,1", "0,0", "1,0", "0,1", "1,0:1", "0:1,1", "0,0:1", "0:1,0", "0:1,0:1"};
    }
 
-   @UseDataProvider("data")
-   @Test
+   @Test(dataProvider = "data")
    public final void testEnforce(String key) {
       Builder b = getBuilder(key);
 
@@ -49,8 +46,7 @@ abstract class AbstractReificationTest extends AbstractConstraintTest {
       }
    }
 
-   @UseDataProvider("data")
-   @Test
+   @Test(dataProvider = "data")
    public final void testPrevent(String key) {
       Builder b = getBuilder(key);
 
@@ -62,8 +58,7 @@ abstract class AbstractReificationTest extends AbstractConstraintTest {
       }
    }
 
-   @UseDataProvider("data")
-   @Test
+   @Test(dataProvider = "data")
    public final void testReify(String key) {
       Builder b = getBuilder(key);
 

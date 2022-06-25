@@ -17,41 +17,36 @@ package org.projog.clp;
 
 import static org.projog.clp.TestUtils.given;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-
-@RunWith(DataProviderRunner.class)
 public class EqualToTest extends AbstractConstraintTest {
    public EqualToTest() {
       super(EqualTo::new);
    }
 
-   @Test
-   @DataProvider({"1,1,1", "8,7:9,8", "-8:14,14:42,14"})
-   public void testEnforceMatched(String inputLeft, String inputRight, Long expected) {
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"1,1,1", "8,7:9,8", "-8:14,14:42,14"})
+   public void testEnforceMatched(String inputLeft, String inputRight, String expected) {
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.MATCHED, expected.toString());
       given(inputRight, inputLeft).when(enforce).then(ConstraintResult.MATCHED, expected.toString());
    }
 
-   @Test
-   @DataProvider({"0:9,0:9,0:9", "-8:14,12:42,12:14"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"0:9,0:9,0:9", "-8:14,12:42,12:14"})
    public void testEnforceUnresolved(String inputLeft, String inputRight, String expected) {
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.UNRESOLVED, expected);
       given(inputRight, inputLeft).when(enforce).then(ConstraintResult.UNRESOLVED, expected);
    }
 
-   @Test
-   @DataProvider({"-1,0:9", "10,0:9", "-9:-1,1:9", "12:14,15:22"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"-1,0:9", "10,0:9", "-9:-1,1:9", "12:14,15:22"})
    public void testEnforceFailed(String inputLeft, String inputRight) {
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.FAILED);
       given(inputRight, inputLeft).when(enforce).then(ConstraintResult.FAILED);
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "1,1,MATCHED",
                "8,7:9,UNRESOLVED",
                "-8:14,14:42,UNRESOLVED",

@@ -19,13 +19,7 @@ import static org.projog.clp.ConstraintResult.FAILED;
 import static org.projog.clp.ConstraintResult.MATCHED;
 import static org.projog.clp.ConstraintResult.UNRESOLVED;
 
-import org.junit.runner.RunWith;
-
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-
-@RunWith(DataProviderRunner.class)
 public class XorTest extends AbstractReificationTest {
-
    public XorTest() {
       super(Xor::new);
 

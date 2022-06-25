@@ -15,16 +15,17 @@
  */
 package org.projog.clp.example;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.projog.clp.example.ExpressionUtils.add;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
 import org.projog.clp.Variable;
+import org.testng.annotations.Test;
 
 public class KillerSudokuTest {
    @Test
@@ -114,11 +115,15 @@ public class KillerSudokuTest {
       assertArrayEquals(solution[8], new int[] {9, 8, 4, 2, 5, 7, 3, 6, 1});
    }
 
-   static final class Group {
+   private static final class Group {
       final int total;
 
       Group(int total) {
          this.total = total;
       }
+   }
+
+   private static void assertArrayEquals(int[] actual, int[] expected) {
+      assertTrue(Arrays.equals(actual, expected));
    }
 }

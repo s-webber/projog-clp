@@ -15,19 +15,14 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
 import static org.projog.clp.TestDataParser.parseLong;
+import static org.testng.Assert.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-
-@RunWith(DataProviderRunner.class)
 public class MathUtilsTest {
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                "0,0,0", // 0/0
                "42,0,42", // +/0
                "-42,0,-42", // -/0
@@ -95,8 +90,8 @@ public class MathUtilsTest {
       assertEquals(expected, MathUtils.safeAdd(left, right));
    }
 
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                "0,0,0", // 0/0
                "0,42,-42", // 0/+
                "42,0,42", // +/0
@@ -165,8 +160,8 @@ public class MathUtilsTest {
       assertEquals(parseLong(expected), MathUtils.safeSubtract(parseLong(left), parseLong(right)));
    }
 
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                "0,0,0", // 0/0
                "42,0,0", // +/0
                "-42,0,0", // -/0

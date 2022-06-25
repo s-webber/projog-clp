@@ -15,27 +15,22 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotSame;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-
-@RunWith(DataProviderRunner.class)
 public class BetweenTest {
-   @Test
-   @DataProvider({"30,40,30,40", "20,42,30,40", "33,38,33,38", "27,39,30,39", "31,42,31,40"})
-   public void testEnforceMatched(long inputMin, long inputMax, long outputMin, long outputMax) {
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"30,40,30,40", "20,42,30,40", "33,38,33,38", "27,39,30,39", "31,42,31,40"})
+   public void testEnforceMatched(Long inputMin, Long inputMax, Long outputMin, Long outputMax) {
       ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
       Variable e = builder.createVariable();
       ConstraintStore variables = builder.build();
@@ -49,9 +44,9 @@ public class BetweenTest {
       assertEquals(outputMax, e.getMax(variables));
    }
 
-   @Test
-   @DataProvider({"0,29", "41,50"})
-   public void testEnforceFailed(long inputMin, long inputMax) {
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"0,29", "41,50"})
+   public void testEnforceFailed(Long inputMin, Long inputMax) {
       ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
       Variable e = builder.createVariable();
       ConstraintStore variables = builder.build();
@@ -63,8 +58,8 @@ public class BetweenTest {
       assertEquals(ConstraintResult.FAILED, b.enforce(variables));
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "30,40,MATCHED",
                "34,36,MATCHED",
                "29,40,UNRESOLVED",
@@ -72,7 +67,7 @@ public class BetweenTest {
                "29,41,UNRESOLVED",
                "0,29,FAILED",
                "41,50,FAILED"})
-   public void testReify(long inputMin, long inputMax, ConstraintResult expected) {
+   public void testReify(Long inputMin, Long inputMax, ConstraintResult expected) {
       ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
       Variable e = builder.createVariable();
       ConstraintStore variables = builder.build();
@@ -84,8 +79,8 @@ public class BetweenTest {
       assertEquals(expected, b.reify(variables));
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "30,40,FAILED",
                "34,36,FAILED",
                "29,40,UNRESOLVED",
@@ -93,7 +88,7 @@ public class BetweenTest {
                "29,41,UNRESOLVED",
                "0,29,MATCHED",
                "41,50,MATCHED"})
-   public void testPrevent(long inputMin, long inputMax, ConstraintResult expected) {
+   public void testPrevent(Long inputMin, Long inputMax, ConstraintResult expected) {
       ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
       Variable e = builder.createVariable();
       ConstraintStore variables = builder.build();

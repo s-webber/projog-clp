@@ -15,16 +15,16 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class FixedValueTest {
    @Test
@@ -78,13 +78,13 @@ public class FixedValueTest {
       assertSame(ConstraintResult.FAILED, f.reify(null));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testReifyToHigh() {
       FixedValue f = new FixedValue(2);
       assertSame(ConstraintResult.FAILED, f.reify(null));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testReifyToLow() {
       FixedValue f = new FixedValue(-1);
       assertSame(ConstraintResult.FAILED, f.reify(null));
@@ -102,13 +102,13 @@ public class FixedValueTest {
       assertSame(ConstraintResult.FAILED, f.enforce(null));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testEnforceToHigh() {
       FixedValue f = new FixedValue(2);
       assertSame(ConstraintResult.FAILED, f.enforce(null));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testEnforceToLow() {
       FixedValue f = new FixedValue(-1);
       assertSame(ConstraintResult.FAILED, f.enforce(null));
@@ -126,13 +126,13 @@ public class FixedValueTest {
       assertSame(ConstraintResult.FAILED, f.prevent(null));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testPreventToHigh() {
       FixedValue f = new FixedValue(2);
       assertSame(ConstraintResult.FAILED, f.prevent(null));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test(expectedExceptions = IllegalStateException.class)
    public void testPreventToLow() {
       FixedValue f = new FixedValue(-1);
       assertSame(ConstraintResult.FAILED, f.prevent(null));

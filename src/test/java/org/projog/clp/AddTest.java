@@ -15,25 +15,20 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.projog.clp.TestDataParser.parseRange;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-
-@RunWith(DataProviderRunner.class)
 public class AddTest extends AbstractExpressionTest {
    public AddTest() {
       super(Add::new);
    }
 
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                "0,0,0", // 0/0
                "42,0,42", // +/0
                "-42,0,-42", // -/0
@@ -110,8 +105,8 @@ public class AddTest extends AbstractExpressionTest {
       assertEquals(expectedRange.max(), a.getMax(environment.getConstraintStore()));
    }
 
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                "9,0:3,8,9,0:3",
                "MIN:9,0:3,8,5:9,0:3",
                "9,0:3,9,9,0:3",
@@ -226,8 +221,8 @@ public class AddTest extends AbstractExpressionTest {
       assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
    }
 
-   @Test
-   @DataProvider({
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
                "9,0:3,9,9,0:0",
                "9:MAX,0:3,9,9:9,0:0",
                "9,0:3,10,9,0:1",
@@ -358,8 +353,7 @@ public class AddTest extends AbstractExpressionTest {
                   {"-7:12", "-6:13"}};
    }
 
-   @UseDataProvider("data")
-   @Test
+   @Test(dataProvider = "data")
    public void testSetMinSuccess(String leftRange, String rightRange) {
       assertSetMinSuccess(parseRange(leftRange), parseRange(rightRange));
       assertSetMinSuccess(parseRange(rightRange), parseRange(leftRange));
@@ -376,8 +370,7 @@ public class AddTest extends AbstractExpressionTest {
       assertEquals(max, a.getMin(variables));
    }
 
-   @UseDataProvider("data")
-   @Test
+   @Test(dataProvider = "data")
    public void testSetMaxSuccess(String leftRange, String rightRange) {
       assertSetMaxSuccess(parseRange(leftRange), parseRange(rightRange));
       assertSetMaxSuccess(parseRange(rightRange), parseRange(leftRange));
@@ -394,8 +387,7 @@ public class AddTest extends AbstractExpressionTest {
       assertEquals(min, a.getMax(variables));
    }
 
-   @UseDataProvider("data")
-   @Test
+   @Test(dataProvider = "data")
    public void testSetMinFailed(String leftRange, String rightRange) {
       assertSetMinFailed(parseRange(leftRange), parseRange(rightRange));
       assertSetMinFailed(parseRange(rightRange), parseRange(leftRange));
@@ -412,8 +404,7 @@ public class AddTest extends AbstractExpressionTest {
       }
    }
 
-   @UseDataProvider("data")
-   @Test
+   @Test(dataProvider = "data")
    public void testSetMaxFailed(String leftRange, String rightRange) {
       assertSetMaxFailed(parseRange(leftRange), parseRange(rightRange));
       assertSetMaxFailed(parseRange(rightRange), parseRange(leftRange));
@@ -430,8 +421,8 @@ public class AddTest extends AbstractExpressionTest {
       }
    }
 
-   @Test
-   @DataProvider({"MAX,MAX", "MAX,1", "MAX-1,2", "MAX-1,3", "MAX-2,3", "MAX-3,4",})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"MAX,MAX", "MAX,1", "MAX-1,2", "MAX-1,3", "MAX-2,3", "MAX-3,4",})
    public void testSetMaxOverflow(String leftRange, String rightRange) {
       assertSetMaxOverflow(parseRange(leftRange), parseRange(rightRange));
       assertSetMaxOverflow(parseRange(rightRange), parseRange(leftRange));

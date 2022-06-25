@@ -17,38 +17,33 @@ package org.projog.clp;
 
 import static org.projog.clp.TestUtils.given;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.testng.annotations.Test;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-
-@RunWith(DataProviderRunner.class)
 public class LessThanOrEqualToTest extends AbstractConstraintTest {
    public LessThanOrEqualToTest() {
       super(LessThanOrEqualTo::new);
    }
 
-   @Test
-   @DataProvider({"3,3,3,3", "3,4,3,4", "2,4,2,4", "-4,4,-4,4", "2:5,2,2,2", "2:5,3,2:3,3", "2:5,4,2:4,4", "2:5,5,2:5,5", "2,2:5,2,2:5", "3,2:5,3,3:5", "4,2:5,4,4:5", "5,2:5,5,5"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"3,3,3,3", "3,4,3,4", "2,4,2,4", "-4,4,-4,4", "2:5,2,2,2", "2:5,3,2:3,3", "2:5,4,2:4,4", "2:5,5,2:5,5", "2,2:5,2,2:5", "3,2:5,3,3:5", "4,2:5,4,4:5", "5,2:5,5,5"})
    public void testEnforceMatched(String inputLeft, String inputRight, String expectedLeft, String expectedRight) {
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.MATCHED, expectedLeft, expectedRight);
    }
 
-   @Test
-   @DataProvider({"0:9,0:9,0:9,0:9", "0:10,0:9,0:9,0:9", "-8:14,12:42,-8:14,12:42"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"0:9,0:9,0:9,0:9", "0:10,0:9,0:9,0:9", "-8:14,12:42,-8:14,12:42"})
    public void testEnforceUnresolved(String inputLeft, String inputRight, String expectedLeft, String expectedRight) {
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.UNRESOLVED, expectedLeft, expectedRight);
    }
 
-   @Test
-   @DataProvider({"8,7", "9,7", "9,-7", "8:11,4:7", "8:11,4:6"})
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"8,7", "9,7", "9,-7", "8:11,4:7", "8:11,4:6"})
    public void testEnforceFailed(String inputLeft, String inputRight) {
       given(inputLeft, inputRight).when(enforce).then(ConstraintResult.FAILED);
    }
 
-   @Test
-   @DataProvider({ //
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({ //
                "3,3,MATCHED",
                "3,4,MATCHED",
                "2,4,MATCHED",

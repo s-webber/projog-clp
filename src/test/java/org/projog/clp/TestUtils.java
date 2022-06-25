@@ -15,7 +15,7 @@
  */
 package org.projog.clp;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 import static org.projog.clp.TestDataParser.parseRange;
 
 import java.util.Objects;
