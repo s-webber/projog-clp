@@ -69,7 +69,7 @@ public final class VariableTest {
       Variable testObject = new Variable(1);
       ConstraintStore e = mock(ConstraintStore.class);
       long value = 7;
-      ExpressionResult expected = ExpressionResult.UPDATED;
+      ExpressionResult expected = ExpressionResult.VALID;
 
       when(e.setValue(testObject, value)).thenReturn(expected);
 
@@ -84,7 +84,7 @@ public final class VariableTest {
       Variable testObject = new Variable(1);
       ConstraintStore e = mock(ConstraintStore.class);
       long value = 7;
-      ExpressionResult expected = ExpressionResult.FAILED;
+      ExpressionResult expected = ExpressionResult.INVALID;
 
       when(e.setNot(testObject, value)).thenReturn(expected);
 
@@ -99,7 +99,7 @@ public final class VariableTest {
       Variable testObject = new Variable(1);
       ConstraintStore e = mock(ConstraintStore.class);
       long value = 7;
-      ExpressionResult expected = ExpressionResult.NO_CHANGE;
+      ExpressionResult expected = ExpressionResult.VALID;
 
       when(e.setMin(testObject, value)).thenReturn(expected);
 
@@ -114,7 +114,7 @@ public final class VariableTest {
       Variable testObject = new Variable(1);
       ConstraintStore e = mock(ConstraintStore.class);
       long value = 7;
-      ExpressionResult expected = ExpressionResult.UPDATED;
+      ExpressionResult expected = ExpressionResult.VALID;
 
       when(e.setMax(testObject, value)).thenReturn(expected);
 

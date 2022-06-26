@@ -69,7 +69,7 @@ public final class Variable implements Expression, Constraint {
       long max = getMax(s);
       if (min > TRUE || max < FALSE) {
          throw new IllegalStateException("Expected 0 or 1");
-      } else if (s.setValue(this, TRUE) == ExpressionResult.FAILED) {
+      } else if (s.setValue(this, TRUE) == ExpressionResult.INVALID) {
          return ConstraintResult.FAILED;
       } else {
          return ConstraintResult.MATCHED;
@@ -82,7 +82,7 @@ public final class Variable implements Expression, Constraint {
       long max = getMax(s);
       if (min > TRUE || max < FALSE) {
          throw new IllegalStateException("Expected 0 or 1");
-      } else if (s.setValue(this, FALSE) == ExpressionResult.FAILED) {
+      } else if (s.setValue(this, FALSE) == ExpressionResult.INVALID) {
          return ConstraintResult.FAILED;
       } else {
          return ConstraintResult.MATCHED;

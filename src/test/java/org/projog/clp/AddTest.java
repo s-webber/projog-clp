@@ -310,9 +310,8 @@ public class AddTest extends AbstractExpressionTest {
       ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
 
-      long min = a.getMin(variables);
       long max = a.getMax(variables);
-      assertEquals(min == max ? ExpressionResult.NO_CHANGE : ExpressionResult.UPDATED, a.setMin(variables, max));
+      assertEquals(ExpressionResult.VALID, a.setMin(variables, max));
       assertEquals(max, a.getMin(variables));
    }
 
@@ -328,8 +327,7 @@ public class AddTest extends AbstractExpressionTest {
       Add a = new Add(environment.getLeft(), environment.getRight());
 
       long min = a.getMin(variables);
-      long max = a.getMax(variables);
-      assertEquals(min == max ? ExpressionResult.NO_CHANGE : ExpressionResult.UPDATED, a.setMax(variables, min));
+      assertEquals(ExpressionResult.VALID, a.setMax(variables, min));
       assertEquals(min, a.getMax(variables));
    }
 
@@ -346,7 +344,7 @@ public class AddTest extends AbstractExpressionTest {
 
          long max = a.getMax(environment.getConstraintStore());
          long newMax = max + i;
-         assertEquals(ExpressionResult.FAILED, a.setMin(environment.getConstraintStore(), newMax));
+         assertEquals(ExpressionResult.INVALID, a.setMin(environment.getConstraintStore(), newMax));
       }
    }
 
@@ -363,7 +361,7 @@ public class AddTest extends AbstractExpressionTest {
 
          long min = a.getMin(environment.getConstraintStore());
          long newMin = min - i;
-         assertEquals(ExpressionResult.FAILED, a.setMax(environment.getConstraintStore(), newMin));
+         assertEquals(ExpressionResult.INVALID, a.setMax(environment.getConstraintStore(), newMin));
       }
    }
 
@@ -378,7 +376,7 @@ public class AddTest extends AbstractExpressionTest {
       TestUtils environment = new TestUtils(leftRange, rightRange);
       Add a = new Add(environment.getLeft(), environment.getRight());
 
-      assertEquals(ExpressionResult.FAILED, a.setMax(environment.getConstraintStore(), a.getMin(environment.getConstraintStore())));
+      assertEquals(ExpressionResult.INVALID, a.setMax(environment.getConstraintStore(), a.getMin(environment.getConstraintStore())));
    }
 
    @Test
@@ -391,7 +389,7 @@ public class AddTest extends AbstractExpressionTest {
       ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
       for (long i = a.getMin(variables) - 1; i <= a.getMax(variables) + 1; i++) {
-         assertEquals(ExpressionResult.NO_CHANGE, a.setNot(variables, i));
+         assertEquals(ExpressionResult.VALID, a.setNot(variables, i));
          assertEquals(leftRange.min(), left.getMin(variables));
          assertEquals(leftRange.max(), left.getMax(variables));
          assertEquals(rightRange.min(), right.getMin(variables));
@@ -408,7 +406,7 @@ public class AddTest extends AbstractExpressionTest {
       Variable right = environment.getRight();
       ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.UPDATED, a.setNot(variables, a.getMin(variables)));
+      assertEquals(ExpressionResult.VALID, a.setNot(variables, a.getMin(variables)));
       assertEquals(leftRange.min(), left.getMin(variables));
       assertEquals(leftRange.max(), left.getMax(variables));
       assertEquals(rightRange.min() + 1, right.getMin(variables));
@@ -424,7 +422,7 @@ public class AddTest extends AbstractExpressionTest {
       Variable right = environment.getRight();
       ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.UPDATED, a.setNot(variables, a.getMax(variables)));
+      assertEquals(ExpressionResult.VALID, a.setNot(variables, a.getMax(variables)));
       assertEquals(leftRange.min(), left.getMin(variables));
       assertEquals(leftRange.max(), left.getMax(variables));
       assertEquals(rightRange.min(), right.getMin(variables));
@@ -436,6 +434,6 @@ public class AddTest extends AbstractExpressionTest {
       TestUtils environment = new TestUtils(parseRange("3"), parseRange("5"));
       ConstraintStore variables = environment.getConstraintStore();
       Add a = new Add(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.FAILED, a.setNot(variables, a.getMax(variables)));
+      assertEquals(ExpressionResult.INVALID, a.setNot(variables, a.getMax(variables)));
    }
 }

@@ -83,7 +83,7 @@ abstract class AbstractExpressionTest {
       Variable right = environment.getRight();
       Expression e = factory.apply(left, right);
 
-      assertNotEquals(ExpressionResult.FAILED, t.action.set(e, environment.getConstraintStore(), t.value));
+      assertNotEquals(ExpressionResult.INVALID, t.action.set(e, environment.getConstraintStore(), t.value));
       assertEquals(t.outputLeft.min(), left.getMin(environment.getConstraintStore()));
       assertEquals(t.outputLeft.max(), left.getMax(environment.getConstraintStore()));
       assertEquals(t.outputRight.min(), right.getMin(environment.getConstraintStore()));

@@ -41,9 +41,9 @@ public class FixedValueTest {
       int value = 7;
       FixedValue f = new FixedValue(value);
 
-      assertSame(ExpressionResult.NO_CHANGE, f.setMax(null, value));
-      assertSame(ExpressionResult.NO_CHANGE, f.setMax(null, value + 1));
-      assertSame(ExpressionResult.FAILED, f.setMax(null, value - 1));
+      assertSame(ExpressionResult.VALID, f.setMax(null, value));
+      assertSame(ExpressionResult.VALID, f.setMax(null, value + 1));
+      assertSame(ExpressionResult.INVALID, f.setMax(null, value - 1));
    }
 
    @Test
@@ -51,9 +51,9 @@ public class FixedValueTest {
       int value = 7;
       FixedValue f = new FixedValue(value);
 
-      assertSame(ExpressionResult.NO_CHANGE, f.setMin(null, value));
-      assertSame(ExpressionResult.NO_CHANGE, f.setMin(null, value - 1));
-      assertSame(ExpressionResult.FAILED, f.setMin(null, value + 1));
+      assertSame(ExpressionResult.VALID, f.setMin(null, value));
+      assertSame(ExpressionResult.VALID, f.setMin(null, value - 1));
+      assertSame(ExpressionResult.INVALID, f.setMin(null, value + 1));
    }
 
    @Test
@@ -61,9 +61,9 @@ public class FixedValueTest {
       int value = 7;
       FixedValue f = new FixedValue(value);
 
-      assertSame(ExpressionResult.NO_CHANGE, f.setNot(null, value - 1));
-      assertSame(ExpressionResult.NO_CHANGE, f.setNot(null, value + 1));
-      assertSame(ExpressionResult.FAILED, f.setNot(null, value));
+      assertSame(ExpressionResult.VALID, f.setNot(null, value - 1));
+      assertSame(ExpressionResult.VALID, f.setNot(null, value + 1));
+      assertSame(ExpressionResult.INVALID, f.setNot(null, value));
    }
 
    @Test

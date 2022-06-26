@@ -47,18 +47,17 @@ public final class Add implements Expression {
       long leftMax = left.getMax(s);
       long rightMax = right.getMax(s);
       if (safeAdd(leftMax, rightMax) < min) {
-         return ExpressionResult.FAILED;
+         return ExpressionResult.INVALID;
       }
 
-      ExpressionResult r1 = left.setMin(s, safeSubtract(min, rightMax));
-      if (r1 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (left.setMin(s, safeSubtract(min, rightMax)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
-      ExpressionResult r2 = right.setMin(s, safeSubtract(min, leftMax));
-      if (r2 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (right.setMin(s, safeSubtract(min, leftMax)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
-      return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+
+      return ExpressionResult.VALID;
    }
 
    @Override
@@ -66,18 +65,17 @@ public final class Add implements Expression {
       long leftMin = left.getMin(s);
       long rightMin = right.getMin(s);
       if (safeAdd(leftMin, rightMin) > max) {
-         return ExpressionResult.FAILED;
+         return ExpressionResult.INVALID;
       }
 
-      ExpressionResult r1 = left.setMax(s, safeSubtract(max, rightMin));
-      if (r1 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (left.setMax(s, safeSubtract(max, rightMin)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
-      ExpressionResult r2 = right.setMax(s, safeSubtract(max, leftMin));
-      if (r2 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (right.setMax(s, safeSubtract(max, leftMin)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
-      return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+
+      return ExpressionResult.VALID;
    }
 
    @Override
@@ -87,7 +85,7 @@ public final class Add implements Expression {
       } else if (getMin(s) == not) {
          return setMin(s, safeAdd(not, 1));
       } else {
-         return ExpressionResult.NO_CHANGE;
+         return ExpressionResult.VALID;
       }
    }
 

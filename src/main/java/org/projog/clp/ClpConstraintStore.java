@@ -96,8 +96,8 @@ public final class ClpConstraintStore implements ConstraintStore {
       }
    }
 
-   private ExpressionResult update(Expression e, ExpressionResult r) {
-      if (r == ExpressionResult.UPDATED) {
+   private ExpressionResult update(Expression e, VariableStateResult r) {
+      if (r == VariableStateResult.UPDATED) {
          List<Integer> list = constraintsByVariable.get(e);
          if (list != null) {
             for (Integer constraintId : list) {
@@ -107,7 +107,7 @@ public final class ClpConstraintStore implements ConstraintStore {
             }
          }
       }
-      return r;
+      return r == VariableStateResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID;
    }
 
    public boolean resolve() {

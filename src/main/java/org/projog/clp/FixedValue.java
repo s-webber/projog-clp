@@ -41,26 +41,17 @@ public final class FixedValue implements Expression, Constraint {
 
    @Override
    public ExpressionResult setNot(ConstraintStore s, long not) {
-      if (value == not) {
-         return ExpressionResult.FAILED;
-      }
-      return ExpressionResult.NO_CHANGE;
+      return value == not ? ExpressionResult.INVALID : ExpressionResult.VALID;
    }
 
    @Override
    public ExpressionResult setMin(ConstraintStore s, long min) {
-      if (min > value) {
-         return ExpressionResult.FAILED;
-      }
-      return ExpressionResult.NO_CHANGE;
+      return min > value ? ExpressionResult.INVALID : ExpressionResult.VALID;
    }
 
    @Override
    public ExpressionResult setMax(ConstraintStore s, long max) {
-      if (max < value) {
-         return ExpressionResult.FAILED;
-      }
-      return ExpressionResult.NO_CHANGE;
+      return max < value ? ExpressionResult.INVALID : ExpressionResult.VALID;
    }
 
    @Override

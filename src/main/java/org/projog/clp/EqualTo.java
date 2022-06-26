@@ -39,10 +39,10 @@ public final class EqualTo implements Constraint {
       if (minLeft > maxRight || maxLeft < minRight) {
          return ConstraintResult.FAILED;
       }
-      if (left.setMin(m, minRight) == ExpressionResult.FAILED
-          || left.setMax(m, maxRight) == ExpressionResult.FAILED
-          || right.setMin(m, minLeft) == ExpressionResult.FAILED
-          || right.setMax(m, maxLeft) == ExpressionResult.FAILED) {
+      if (left.setMin(m, minRight) == ExpressionResult.INVALID
+          || left.setMax(m, maxRight) == ExpressionResult.INVALID
+          || right.setMin(m, minLeft) == ExpressionResult.INVALID
+          || right.setMax(m, maxLeft) == ExpressionResult.INVALID) {
          return ConstraintResult.FAILED;
       }
 

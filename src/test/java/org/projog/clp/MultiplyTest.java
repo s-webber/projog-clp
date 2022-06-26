@@ -119,7 +119,7 @@ public class MultiplyTest extends AbstractExpressionTest {
       Variable right = environment.getRight();
       Multiply m = new Multiply(left, right);
 
-      assertEquals(ExpressionResult.FAILED, m.setMin(environment.getConstraintStore(), min));
+      assertEquals(ExpressionResult.INVALID, m.setMin(environment.getConstraintStore(), min));
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
@@ -135,7 +135,7 @@ public class MultiplyTest extends AbstractExpressionTest {
       Variable right = environment.getRight();
       Multiply m = new Multiply(left, right);
 
-      assertEquals(ExpressionResult.FAILED, m.setMax(environment.getConstraintStore(), min));
+      assertEquals(ExpressionResult.INVALID, m.setMax(environment.getConstraintStore(), min));
    }
 
    @Test
@@ -148,7 +148,7 @@ public class MultiplyTest extends AbstractExpressionTest {
       ConstraintStore variables = environment.getConstraintStore();
       Multiply m = new Multiply(environment.getLeft(), environment.getRight());
       for (long i = m.getMin(variables) - 1; i <= m.getMax(variables) + 1; i++) {
-         assertEquals(ExpressionResult.NO_CHANGE, m.setNot(variables, i));
+         assertEquals(ExpressionResult.VALID, m.setNot(variables, i));
          assertEquals(leftRange.min(), left.getMin(variables));
          assertEquals(leftRange.max(), left.getMax(variables));
          assertEquals(rightRange.min(), right.getMin(variables));
@@ -165,7 +165,7 @@ public class MultiplyTest extends AbstractExpressionTest {
       Variable right = environment.getRight();
       ConstraintStore variables = environment.getConstraintStore();
       Multiply m = new Multiply(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.UPDATED, m.setNot(variables, m.getMin(variables)));
+      assertEquals(ExpressionResult.VALID, m.setNot(variables, m.getMin(variables)));
       assertEquals(leftRange.min(), left.getMin(variables));
       assertEquals(leftRange.max(), left.getMax(variables));
       assertEquals(rightRange.min() + 1, right.getMin(variables));
@@ -181,7 +181,7 @@ public class MultiplyTest extends AbstractExpressionTest {
       Variable right = environment.getRight();
       ConstraintStore variables = environment.getConstraintStore();
       Multiply m = new Multiply(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.UPDATED, m.setNot(variables, m.getMax(variables)));
+      assertEquals(ExpressionResult.VALID, m.setNot(variables, m.getMax(variables)));
       assertEquals(leftRange.min(), left.getMin(variables));
       assertEquals(leftRange.max(), left.getMax(variables));
       assertEquals(rightRange.min(), right.getMin(variables));
@@ -193,6 +193,6 @@ public class MultiplyTest extends AbstractExpressionTest {
       TestUtils environment = new TestUtils(parseRange("3"), parseRange("5"));
       ConstraintStore variables = environment.getConstraintStore();
       Multiply m = new Multiply(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.FAILED, m.setNot(variables, m.getMax(variables)));
+      assertEquals(ExpressionResult.INVALID, m.setNot(variables, m.getMax(variables)));
    }
 }

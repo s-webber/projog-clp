@@ -50,24 +50,28 @@ class DummyConstraintStore implements ConstraintStore {
    @Override
    public ExpressionResult setValue(Expression id, long value) {
       assertSame(variable, id);
-      return state.setValue(value);
+      return toResult(state.setValue(value));
    }
 
    @Override
    public ExpressionResult setMin(Expression id, long min) {
       assertSame(variable, id);
-      return state.setMin(min);
+      return toResult(state.setMin(min));
    }
 
    @Override
    public ExpressionResult setMax(Expression id, long max) {
       assertSame(variable, id);
-      return state.setMax(max);
+      return toResult(state.setMax(max));
    }
 
    @Override
    public ExpressionResult setNot(Expression id, long not) {
       assertSame(variable, id);
-      return state.setNot(not);
+      return toResult(state.setNot(not));
+   }
+
+   private ExpressionResult toResult(VariableStateResult s) {
+      return s == VariableStateResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID;
    }
 }

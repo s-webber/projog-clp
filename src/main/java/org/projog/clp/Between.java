@@ -42,7 +42,7 @@ public final class Between implements Constraint {
 
    @Override
    public ConstraintResult enforce(ConstraintStore m) {
-      if (e.setMin(m, min) == ExpressionResult.FAILED || e.setMax(m, max) == ExpressionResult.FAILED) {
+      if (e.setMin(m, min) == ExpressionResult.INVALID || e.setMax(m, max) == ExpressionResult.INVALID) {
          return ConstraintResult.FAILED;
       }
 

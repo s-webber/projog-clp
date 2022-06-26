@@ -55,7 +55,7 @@ public final class BruteForceSearch {
       while ((current = getCurrent()) != null) {
          long next = current.next();
          copies[idx] = (idx == 0 ? original : copies[idx - 1]).copy();
-         if (copies[idx].getVariable(indexes[idx]).setValue(copies[idx], next) == ExpressionResult.FAILED) {
+         if (copies[idx].getVariable(indexes[idx]).setValue(copies[idx], next) == ExpressionResult.INVALID) {
             // do nothing
          } else if (!copies[idx].resolve()) {
             // do nothing

@@ -42,7 +42,7 @@ public final class LessThanOrEqualTo implements Constraint {
          return ConstraintResult.FAILED;
       }
 
-      if (left.setMax(m, max) == ExpressionResult.FAILED || right.setMin(m, min) == ExpressionResult.FAILED) {
+      if (left.setMax(m, max) == ExpressionResult.INVALID || right.setMin(m, min) == ExpressionResult.INVALID) {
          return ConstraintResult.FAILED;
       }
       return left.getMax(m) <= right.getMin(m) ? ConstraintResult.MATCHED : ConstraintResult.UNRESOLVED;

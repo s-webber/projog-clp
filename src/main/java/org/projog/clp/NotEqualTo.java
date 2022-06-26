@@ -33,13 +33,13 @@ public final class NotEqualTo implements Constraint {
       long minLeft = left.getMin(m);
       long maxLeft = left.getMax(m);
 
-      if (minLeft == maxLeft && right.setNot(m, minLeft) == ExpressionResult.FAILED) {
+      if (minLeft == maxLeft && right.setNot(m, minLeft) == ExpressionResult.INVALID) {
          return ConstraintResult.FAILED;
       }
 
       long minRight = right.getMin(m);
       long maxRight = right.getMax(m);
-      if (minRight == maxRight && left.setNot(m, minRight) == ExpressionResult.FAILED) {
+      if (minRight == maxRight && left.setNot(m, minRight) == ExpressionResult.INVALID) {
          return ConstraintResult.FAILED;
       }
 

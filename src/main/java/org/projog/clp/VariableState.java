@@ -226,10 +226,10 @@ public final class VariableState {
       return max;
    }
 
-   public ExpressionResult setValue(long value) {
+   public VariableStateResult setValue(long value) {
       validate();
       if (value == min && value == max) {
-         return ExpressionResult.NO_CHANGE;
+         return VariableStateResult.NO_CHANGE;
       }
       if (value < min || value > max) {
          return fail();
@@ -243,13 +243,13 @@ public final class VariableState {
       }
       this.min = value;
       this.max = value;
-      return ExpressionResult.UPDATED;
+      return VariableStateResult.UPDATED;
    }
 
-   public ExpressionResult setMin(long min) {
+   public VariableStateResult setMin(long min) {
       validate();
       if (min <= this.min) {
-         return ExpressionResult.NO_CHANGE;
+         return VariableStateResult.NO_CHANGE;
       }
       if (min > this.max) {
          return fail();
@@ -266,13 +266,13 @@ public final class VariableState {
       if (min == max) {
          bitset = null;
       }
-      return ExpressionResult.UPDATED;
+      return VariableStateResult.UPDATED;
    }
 
-   public ExpressionResult setMax(long max) {
+   public VariableStateResult setMax(long max) {
       validate();
       if (max >= this.max) {
-         return ExpressionResult.NO_CHANGE;
+         return VariableStateResult.NO_CHANGE;
       }
       if (max < this.min) {
          return fail();
@@ -289,20 +289,20 @@ public final class VariableState {
       if (min == max) {
          bitset = null;
       }
-      return ExpressionResult.UPDATED;
+      return VariableStateResult.UPDATED;
    }
 
-   public ExpressionResult setNot(long not) {
+   public VariableStateResult setNot(long not) {
       validate();
       if (not < min || not > max) {
-         return ExpressionResult.NO_CHANGE;
+         return VariableStateResult.NO_CHANGE;
       }
       if (min == not && max == not) {
          return fail();
       }
       if (bitset == null) {
          if (MathUtils.safeSubtract(max, min) >= Integer.MAX_VALUE) {
-            return ExpressionResult.NO_CHANGE;
+            return VariableStateResult.NO_CHANGE;
          }
          bitset = new NumberSet(min, max);
       }
@@ -321,9 +321,9 @@ public final class VariableState {
          if (min == max) {
             bitset = null;
          }
-         return ExpressionResult.UPDATED;
+         return VariableStateResult.UPDATED;
       } else {
-         return ExpressionResult.NO_CHANGE;
+         return VariableStateResult.NO_CHANGE;
       }
    }
 
@@ -346,9 +346,9 @@ public final class VariableState {
       return new Possibilities(min, max, bitset);
    }
 
-   private ExpressionResult fail() {
+   private VariableStateResult fail() {
       bitset = CORRUPT;
-      return ExpressionResult.FAILED;
+      return VariableStateResult.FAILED;
    }
 
    private void validate() {

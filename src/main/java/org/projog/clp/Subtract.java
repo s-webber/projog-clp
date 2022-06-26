@@ -51,20 +51,18 @@ public final class Subtract implements Expression {
       long leftMax = left.getMax(s);
       long rightMin = right.getMin(s);
       if (safeSubtract(leftMax, rightMin) < min) {
-         return ExpressionResult.FAILED;
+         return ExpressionResult.INVALID;
       }
 
-      ExpressionResult r1 = left.setMin(s, safeAdd(rightMin, min));
-      if (r1 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (left.setMin(s, safeAdd(rightMin, min)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
 
-      ExpressionResult r2 = right.setMax(s, safeSubtract(leftMax, min));
-      if (r2 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (right.setMax(s, safeSubtract(leftMax, min)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
 
-      return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+      return ExpressionResult.VALID;
    }
 
    @Override
@@ -72,20 +70,18 @@ public final class Subtract implements Expression {
       long leftMin = left.getMin(s);
       long rightMax = right.getMax(s);
       if (safeSubtract(leftMin, rightMax) > max) {
-         return ExpressionResult.FAILED;
+         return ExpressionResult.INVALID;
       }
 
-      ExpressionResult r1 = left.setMax(s, safeAdd(rightMax, max));
-      if (r1 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (left.setMax(s, safeAdd(rightMax, max)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
 
-      ExpressionResult r2 = right.setMin(s, safeSubtract(leftMin, max));
-      if (r2 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (right.setMin(s, safeSubtract(leftMin, max)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
 
-      return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+      return ExpressionResult.VALID;
    }
 
    @Override
@@ -95,7 +91,7 @@ public final class Subtract implements Expression {
       } else if (getMin(s) == not) {
          return setMin(s, safeAdd(not, 1));
       } else {
-         return ExpressionResult.NO_CHANGE;
+         return ExpressionResult.VALID;
       }
    }
 

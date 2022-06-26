@@ -770,7 +770,7 @@ public class VariableStateTest {
       v.setMin(min);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setValue(min));
+      assertEquals(VariableStateResult.UPDATED, v.setValue(min));
       assertValue(v, min);
    }
 
@@ -781,7 +781,7 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(max);
 
-      assertEquals(ExpressionResult.UPDATED, v.setValue(max));
+      assertEquals(VariableStateResult.UPDATED, v.setValue(max));
       assertValue(v, max);
    }
 
@@ -790,10 +790,10 @@ public class VariableStateTest {
       VariableState v = new VariableState();
       int value = 8;
 
-      assertEquals(ExpressionResult.UPDATED, v.setValue(value));
+      assertEquals(VariableStateResult.UPDATED, v.setValue(value));
       assertValue(v, value);
 
-      assertEquals(ExpressionResult.NO_CHANGE, v.setValue(value));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setValue(value));
       assertValue(v, value);
 
       assertFailed(v, s -> s.setValue(value - 1));
@@ -806,11 +806,11 @@ public class VariableStateTest {
       int min = 5;
       v.setMin(min);
 
-      assertEquals(ExpressionResult.UPDATED, v.setMax(10));
+      assertEquals(VariableStateResult.UPDATED, v.setMax(10));
       assertRange(v, min, 10);
 
-      assertEquals(ExpressionResult.NO_CHANGE, v.setMax(10));
-      assertEquals(ExpressionResult.NO_CHANGE, v.setMax(9999));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setMax(10));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setMax(9999));
       assertRange(v, min, 10);
 
       assertFailed(v, s -> s.setMax(min - 1));
@@ -822,11 +822,11 @@ public class VariableStateTest {
       int max = 10;
       v.setMax(max);
 
-      assertEquals(ExpressionResult.UPDATED, v.setMin(5));
+      assertEquals(VariableStateResult.UPDATED, v.setMin(5));
       assertRange(v, 5, max);
 
-      assertEquals(ExpressionResult.NO_CHANGE, v.setMin(5));
-      assertEquals(ExpressionResult.NO_CHANGE, v.setMin(0));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setMin(5));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setMin(0));
       assertEquals(5, v.getMin());
       assertRange(v, 5, max);
 
@@ -842,18 +842,18 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.NO_CHANGE, v.setNot(4));
-      assertEquals(ExpressionResult.NO_CHANGE, v.setNot(11));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setNot(4));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setNot(11));
       assertRange(v, 5, 10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(5));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(5));
       assertRange(v, 6, 10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(10));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(10));
       assertRange(v, 6, 9);
 
-      assertEquals(ExpressionResult.NO_CHANGE, v.setNot(5));
-      assertEquals(ExpressionResult.NO_CHANGE, v.setNot(10));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setNot(5));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setNot(10));
       assertEquals(6, v.getMin());
       assertEquals(9, v.getMax());
    }
@@ -867,7 +867,7 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(8));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(8));
       assertPossibilities(v, 5, 6, 7, 9, 10);
    }
 
@@ -892,10 +892,10 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(8));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(7));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(6));
-      assertEquals(ExpressionResult.UPDATED, v.setMin(6));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(8));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(7));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(6));
+      assertEquals(VariableStateResult.UPDATED, v.setMin(6));
 
       assertRange(v, 9, 10);
    }
@@ -909,10 +909,10 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(7));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(8));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(9));
-      assertEquals(ExpressionResult.UPDATED, v.setMax(9));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(7));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(8));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(9));
+      assertEquals(VariableStateResult.UPDATED, v.setMax(9));
 
       assertRange(v, 5, 6);
    }
@@ -923,9 +923,9 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(8));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(6));
-      assertEquals(ExpressionResult.UPDATED, v.setMin(6));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(8));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(6));
+      assertEquals(VariableStateResult.UPDATED, v.setMin(6));
 
       assertPossibilities(v, 7, 9, 10);
    }
@@ -936,9 +936,9 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(7));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(9));
-      assertEquals(ExpressionResult.UPDATED, v.setMax(9));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(7));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(9));
+      assertEquals(VariableStateResult.UPDATED, v.setMax(9));
 
       assertPossibilities(v, 5, 6, 8);
    }
@@ -952,11 +952,11 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(9));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(8));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(7));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(6));
-      assertEquals(ExpressionResult.UPDATED, v.setMin(6));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(9));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(8));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(7));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(6));
+      assertEquals(VariableStateResult.UPDATED, v.setMin(6));
 
       assertValue(v, 10);
    }
@@ -970,11 +970,11 @@ public class VariableStateTest {
       v.setMin(5);
       v.setMax(10);
 
-      assertEquals(ExpressionResult.UPDATED, v.setNot(6));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(7));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(8));
-      assertEquals(ExpressionResult.UPDATED, v.setNot(9));
-      assertEquals(ExpressionResult.UPDATED, v.setMax(9));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(6));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(7));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(8));
+      assertEquals(VariableStateResult.UPDATED, v.setNot(9));
+      assertEquals(VariableStateResult.UPDATED, v.setMax(9));
 
       assertValue(v, 5);
    }
@@ -984,7 +984,7 @@ public class VariableStateTest {
    public void testSetNot_9() {
       VariableState v = new VariableState();
 
-      assertEquals(ExpressionResult.NO_CHANGE, v.setNot(0));
+      assertEquals(VariableStateResult.NO_CHANGE, v.setNot(0));
    }
 
    private void assertValue(VariableState state, long value) {
@@ -1029,10 +1029,10 @@ public class VariableStateTest {
       assertFalse(p.hasNext());
    }
 
-   private void assertFailed(VariableState state, Function<VariableState, ExpressionResult> f) {
+   private void assertFailed(VariableState state, Function<VariableState, VariableStateResult> f) {
       VariableState copy = state.copy();
 
-      assertEquals(ExpressionResult.FAILED, f.apply(copy));
+      assertEquals(VariableStateResult.FAILED, f.apply(copy));
 
       assertEquals("corrupt", copy.toString());
       assertThrows(IllegalStateException.class, () -> copy.copy());

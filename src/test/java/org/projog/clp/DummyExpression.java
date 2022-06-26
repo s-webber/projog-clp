@@ -43,27 +43,13 @@ final class DummyExpression implements Expression {
    @Override
    public ExpressionResult setMin(ConstraintStore s, long min) {
       Objects.requireNonNull(s);
-      if (min > max) {
-         return ExpressionResult.FAILED;
-      } else if (min > this.min) {
-         this.min = min;
-         return ExpressionResult.UPDATED;
-      } else {
-         return ExpressionResult.NO_CHANGE;
-      }
+      return min > max ? ExpressionResult.INVALID : ExpressionResult.VALID;
    }
 
    @Override
    public ExpressionResult setMax(ConstraintStore s, long max) {
       Objects.requireNonNull(s);
-      if (max < min) {
-         return ExpressionResult.FAILED;
-      } else if (max < this.max) {
-         this.max = max;
-         return ExpressionResult.UPDATED;
-      } else {
-         return ExpressionResult.NO_CHANGE;
-      }
+      return max < min ? ExpressionResult.INVALID : ExpressionResult.VALID;
    }
 
    @Override

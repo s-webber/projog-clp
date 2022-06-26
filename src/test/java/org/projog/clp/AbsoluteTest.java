@@ -81,7 +81,7 @@ public class AbsoluteTest {
       Absolute a = new Absolute(v);
       ExpressionResult result = a.setMin(store, min);
 
-      assertSame(ExpressionResult.UPDATED, result);
+      assertSame(ExpressionResult.VALID, result);
       assertEquals(expectedRange.min(), v.getMin(store));
       assertEquals(expectedRange.max(), v.getMax(store));
       assertEquals(min, a.getMin(store));
@@ -114,7 +114,7 @@ public class AbsoluteTest {
       Absolute a = new Absolute(v);
       ExpressionResult result = a.setMin(store, min);
 
-      assertSame(ExpressionResult.NO_CHANGE, result);
+      assertSame(ExpressionResult.VALID, result);
       assertEquals(inputRange.min(), v.getMin(store));
       assertEquals(inputRange.max(), v.getMax(store));
    }
@@ -132,7 +132,7 @@ public class AbsoluteTest {
       Absolute a = new Absolute(v);
       ExpressionResult result = a.setMin(store, min);
 
-      assertSame(ExpressionResult.FAILED, result);
+      assertSame(ExpressionResult.INVALID, result);
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
@@ -163,7 +163,7 @@ public class AbsoluteTest {
       Absolute a = new Absolute(v);
       ExpressionResult result = a.setMax(store, max);
 
-      assertSame(ExpressionResult.UPDATED, result);
+      assertSame(ExpressionResult.VALID, result);
       assertEquals(expectedRange.min(), v.getMin(store));
       assertEquals(expectedRange.max(), v.getMax(store));
       assertEquals(max, a.getMax(store));
@@ -192,7 +192,7 @@ public class AbsoluteTest {
       Absolute a = new Absolute(v);
       ExpressionResult result = a.setMax(store, max);
 
-      assertSame(ExpressionResult.NO_CHANGE, result);
+      assertSame(ExpressionResult.VALID, result);
       assertEquals(inputRange.min(), v.getMin(store));
       assertEquals(inputRange.max(), v.getMax(store));
    }
@@ -210,7 +210,7 @@ public class AbsoluteTest {
       Absolute a = new Absolute(v);
       ExpressionResult result = a.setMax(store, max);
 
-      assertSame(ExpressionResult.FAILED, result);
+      assertSame(ExpressionResult.INVALID, result);
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
@@ -226,7 +226,7 @@ public class AbsoluteTest {
       Absolute a = new Absolute(v);
       ExpressionResult result = a.setNot(store, not);
 
-      assertSame(ExpressionResult.NO_CHANGE, result);
+      assertSame(ExpressionResult.VALID, result);
       assertEquals(inputRange.min(), v.getMin(store));
       assertEquals(inputRange.max(), v.getMax(store));
    }

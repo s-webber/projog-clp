@@ -52,47 +52,45 @@ public class Absolute implements Expression {
 
    @Override
    public ExpressionResult setNot(ConstraintStore s, long not) {
-      return ExpressionResult.NO_CHANGE; // TODO
+      return ExpressionResult.VALID; // TODO
    }
 
    @Override
    public ExpressionResult setMin(ConstraintStore s, long value) {
       if (value < 1) {
-         return ExpressionResult.NO_CHANGE;
+         return ExpressionResult.VALID;
       }
 
       long min = e.getMin(s);
       long max = e.getMax(s);
       long negative = safeSubtract(0, value);
 
-      ExpressionResult r1 = max < value ? e.setMax(s, negative) : ExpressionResult.NO_CHANGE;
-      if (r1 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (max < value && e.setMax(s, negative) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
 
-      ExpressionResult r2 = min > negative ? e.setMin(s, value) : ExpressionResult.NO_CHANGE;
-      if (r2 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (min > negative && e.setMin(s, value) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
 
-      return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+      return ExpressionResult.VALID;
    }
 
    @Override
    public ExpressionResult setMax(ConstraintStore s, long value) {
       if (value < 0) {
-         return ExpressionResult.FAILED;
+         return ExpressionResult.INVALID;
       }
 
-      ExpressionResult r1 = e.setMax(s, value);
-      if (r1 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+      if (e.setMax(s, value) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
-      ExpressionResult r2 = e.setMin(s, safeSubtract(0, value));
-      if (r2 == ExpressionResult.FAILED) {
-         return ExpressionResult.FAILED;
+
+      if (e.setMin(s, safeSubtract(0, value)) == ExpressionResult.INVALID) {
+         return ExpressionResult.INVALID;
       }
-      return r1 == ExpressionResult.UPDATED || r2 == ExpressionResult.UPDATED ? ExpressionResult.UPDATED : ExpressionResult.NO_CHANGE;
+
+      return ExpressionResult.VALID;
    }
 
    @Override

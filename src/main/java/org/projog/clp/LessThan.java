@@ -42,7 +42,7 @@ public final class LessThan implements Constraint {
          return ConstraintResult.FAILED;
       }
 
-      if (left.setMax(m, max - 1) == ExpressionResult.FAILED || right.setMin(m, min + 1) == ExpressionResult.FAILED) {
+      if (left.setMax(m, max - 1) == ExpressionResult.INVALID || right.setMin(m, min + 1) == ExpressionResult.INVALID) {
          return ConstraintResult.FAILED;
       }
       return left.getMax(m) < right.getMin(m) ? ConstraintResult.MATCHED : ConstraintResult.UNRESOLVED;
