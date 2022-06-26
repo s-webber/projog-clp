@@ -15,63 +15,35 @@
  */
 package org.projog.clp;
 
-import static org.projog.clp.TestUtils.given;
-
-import org.testng.annotations.Test;
-
 public class LessThanOrEqualToTest extends AbstractConstraintTest {
    public LessThanOrEqualToTest() {
-      super(LessThanOrEqualTo::new);
-   }
+      super(LessThanOrEqualTo::new, false);
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"3,3,3,3", "3,4,3,4", "2,4,2,4", "-4,4,-4,4", "2:5,2,2,2", "2:5,3,2:3,3", "2:5,4,2:4,4", "2:5,5,2:5,5", "2,2:5,2,2:5", "3,2:5,3,3:5", "4,2:5,4,4:5", "5,2:5,5,5"})
-   public void testEnforceMatched(String inputLeft, String inputRight, String expectedLeft, String expectedRight) {
-      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.MATCHED, expectedLeft, expectedRight);
-   }
+      enforce("3", "3").matched();
+      enforce("3", "4").matched();
+      enforce("2", "4").matched();
+      enforce("-4", "4").matched();
+      enforce("2:5", "2").matched("2", "2");
+      enforce("2:5", "3").matched("2:3", "3");
+      enforce("2:5", "4").matched("2:4", "4");
+      enforce("2:5", "5").matched("2:5", "5");
+      enforce("2", "2:5").matched("2", "2:5");
+      enforce("3", "2:5").matched("3", "3:5");
+      enforce("4", "2:5").matched("4", "4:5");
+      enforce("5", "2:5").matched("5", "5");
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"0:9,0:9,0:9,0:9", "0:10,0:9,0:9,0:9", "-8:14,12:42,-8:14,12:42"})
-   public void testEnforceUnresolved(String inputLeft, String inputRight, String expectedLeft, String expectedRight) {
-      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.UNRESOLVED, expectedLeft, expectedRight);
-   }
+      enforce("0:9", "0:9").unresolved();
+      enforce("0:10", "0:9").unresolved("0:9");
+      enforce("-8:14", "12:42").unresolved();
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"8,7", "9,7", "9,-7", "8:11,4:7", "8:11,4:6"})
-   public void testEnforceFailed(String inputLeft, String inputRight) {
-      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.FAILED);
-   }
+      enforce("8", "7").failed();
+      enforce("9", "7").failed();
+      enforce("9", "-7").failed();
+      enforce("8:11", "4:7").failed();
+      enforce("8:11", "4:6").failed();
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({ //
-               "3,3,MATCHED",
-               "3,4,MATCHED",
-               "2,4,MATCHED",
-               "-4,4,MATCHED",
-               "2:5,5,MATCHED",
-               "2,2:5,MATCHED",
-               "2:5,2,UNRESOLVED",
-               "2:5,3,UNRESOLVED",
-               "2:5,4,UNRESOLVED",
-               "3,2:5,UNRESOLVED",
-               "4,2:5,UNRESOLVED",
-               "5,2:5,UNRESOLVED",
-               "0:9,0:9,UNRESOLVED",
-               "0:10,0:9,UNRESOLVED",
-               "-8:14,12:42,UNRESOLVED",
-               "8,7,FAILED",
-               "9,7,FAILED",
-               "9,-7,FAILED",
-               "8:11,4:7,FAILED",
-               "8:11,4:6,FAILED"})
-   public void testReify(String inputLeft, String inputRight, ConstraintResult expected) {
-      given(inputLeft, inputRight).when(reify).then(expected);
-   }
-
-   @Test
-   public void testPrevent() { // TODO add more examples
-      given("7:9", "8").when(prevent).then(ConstraintResult.MATCHED, "9", "8");
-      given("8", "8").when(prevent).then(ConstraintResult.FAILED);
-      given("7", "8").when(prevent).then(ConstraintResult.FAILED);
+      prevent("7:9", "8").matched("9", "8");
+      prevent("8", "8").failed();
+      prevent("7", "8").failed();
    }
 }

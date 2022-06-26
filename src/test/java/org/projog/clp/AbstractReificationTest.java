@@ -15,22 +15,39 @@
  */
 package org.projog.clp;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertSame;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-abstract class AbstractReificationTest extends AbstractConstraintTest {
-   private Map<String, Builder> tests = new HashMap<>();
+abstract class AbstractReificationTest {
+   private final Map<String, Builder> tests = new HashMap<>();
+   private final BiFunction<Constraint, Constraint, Constraint> factory;
+   final TestUtils.Action enforce;
+   final TestUtils.Action prevent;
+   final TestUtils.Action reify;
 
    AbstractReificationTest(BiFunction<Constraint, Constraint, Constraint> factory) {
-      super((e1, e2) -> factory.apply((Constraint) e1, (Constraint) e2));
+      this.factory = factory;
+      this.enforce = (v, x, y) -> factory.apply(x, y).enforce(v);
+      this.prevent = (v, x, y) -> factory.apply(x, y).prevent(v);
+      this.reify = (v, x, y) -> factory.apply(x, y).reify(v);
    }
 
    @DataProvider
-   public static Object[] data() {
+   public Object[] data() {
       return new Object[] {"1,1", "0,0", "1,0", "0,1", "1,0:1", "0:1,1", "0,0:1", "0:1,0", "0:1,0:1"};
    }
 
@@ -63,6 +80,48 @@ abstract class AbstractReificationTest extends AbstractConstraintTest {
       Builder b = getBuilder(key);
 
       TestUtils.given(b.inputLeft, b.inputRight).when(reify).then(b.reifyResult);
+   }
+
+   @Test
+   public final void testWalk() {
+      // given
+      @SuppressWarnings("unchecked")
+      Consumer<Expression> consumer = mock(Consumer.class);
+      Constraint left = mock(Constraint.class);
+      Constraint right = mock(Constraint.class);
+      Constraint testObject = factory.apply(left, right);
+
+      // when
+      testObject.walk(consumer);
+
+      // then
+      verify(left).walk(consumer);
+      verify(right).walk(consumer);
+      verifyNoMoreInteractions(consumer, left, right);
+   }
+
+   @Test
+   public final void testReplaceVariables() {
+      // given
+      @SuppressWarnings("unchecked")
+      Function<Variable, Variable> function = mock(Function.class);
+      Constraint left = mock(Constraint.class);
+      Constraint right = mock(Constraint.class);
+      Constraint testObject = factory.apply(left, right);
+      when(left.replaceVariables(function)).thenReturn(new FixedValue(42));
+      when(right.replaceVariables(function)).thenReturn(new FixedValue(180));
+
+      // when
+      Constraint replacement = testObject.replaceVariables(function);
+      assertSame(testObject.getClass(), replacement.getClass());
+      assertNotSame(testObject, replacement);
+      String name = testObject.getClass().getName();
+      assertEquals(name.substring(name.lastIndexOf('.') + 1) + " [left=FixedValue [value=42], right=FixedValue [value=180]]", replacement.toString());
+
+      // then
+      verify(left).replaceVariables(function);
+      verify(right).replaceVariables(function);
+      verifyNoMoreInteractions(function, left, right);
    }
 
    private Builder getBuilder(String key) {

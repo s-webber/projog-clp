@@ -15,55 +15,23 @@
  */
 package org.projog.clp;
 
-import static org.projog.clp.TestUtils.given;
-
-import org.testng.annotations.Test;
-
 public class EqualToTest extends AbstractConstraintTest {
    public EqualToTest() {
-      super(EqualTo::new);
-   }
+      super(EqualTo::new, true);
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"1,1,1", "8,7:9,8", "-8:14,14:42,14"})
-   public void testEnforceMatched(String inputLeft, String inputRight, String expected) {
-      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.MATCHED, expected.toString());
-      given(inputRight, inputLeft).when(enforce).then(ConstraintResult.MATCHED, expected.toString());
-   }
+      enforce("1", "1").matched("1");
+      enforce("8", "7:9").matched("8");
+      enforce("-8:14", "14:42").matched("14");
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"0:9,0:9,0:9", "-8:14,12:42,12:14"})
-   public void testEnforceUnresolved(String inputLeft, String inputRight, String expected) {
-      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.UNRESOLVED, expected);
-      given(inputRight, inputLeft).when(enforce).then(ConstraintResult.UNRESOLVED, expected);
-   }
+      enforce("0:9", "0:9").unresolved("0:9");
+      enforce("-8:14", "12:42").unresolved("12:14");
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"-1,0:9", "10,0:9", "-9:-1,1:9", "12:14,15:22"})
-   public void testEnforceFailed(String inputLeft, String inputRight) {
-      given(inputLeft, inputRight).when(enforce).then(ConstraintResult.FAILED);
-      given(inputRight, inputLeft).when(enforce).then(ConstraintResult.FAILED);
-   }
+      enforce("-1", "0:9").failed();
+      enforce("10", "0:9").failed();
+      enforce("-9:-1", "1:9").failed();
+      enforce("12:14", "15:22").failed();
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({ //
-               "1,1,MATCHED",
-               "8,7:9,UNRESOLVED",
-               "-8:14,14:42,UNRESOLVED",
-               "0:9,0:9,UNRESOLVED",
-               "-8:14,12:42,UNRESOLVED",
-               "-1,0:9,FAILED",
-               "10,0:9,FAILED",
-               "-9:-1,1:9,FAILED",
-               "12:14,15:22,FAILED"})
-   public void testReify(String inputLeft, String inputRight, ConstraintResult expected) {
-      given(inputLeft, inputRight).when(reify).then(expected);
-      given(inputRight, inputLeft).when(reify).then(expected);
-   }
-
-   @Test
-   public void testPrevent() { // TODO add more examples
-      given("7", "8").when(prevent).then(ConstraintResult.MATCHED);
-      given("7", "7").when(prevent).then(ConstraintResult.FAILED);
+      prevent("7", "8").matched();
+      prevent("7", "7").failed();
    }
 }

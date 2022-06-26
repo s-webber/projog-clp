@@ -34,4 +34,19 @@ final class Range {
    long max() {
       return max;
    }
+
+   @Override
+   public boolean equals(Object o) {
+      if (o instanceof Range) {
+         Range r = (Range) o;
+         return min == r.min && max == r.max;
+      } else {
+         return false;
+      }
+   }
+
+   @Override
+   public int hashCode() {
+      return Long.hashCode(min) * Long.hashCode(max);
+   }
 }

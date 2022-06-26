@@ -15,14 +15,18 @@
  */
 package org.projog.clp;
 
-import static org.testng.Assert.assertEquals;
 import static org.projog.clp.TestDataParser.parseRange;
+import static org.testng.Assert.assertEquals;
 
 import java.util.Objects;
 
 final class TestUtils {
    static TestUtils given(String left, String right) {
       return new TestUtils(parseRange(left), parseRange(right));
+   }
+
+   static TestUtils given(Range left, Range right) {
+      return new TestUtils(left, right);
    }
 
    private final Variable left;
@@ -83,9 +87,21 @@ final class TestUtils {
          assertRange(right, parseRange(expectedRight));
       }
 
+      void then(Object expectedResult, Range expectedLeft, Range expectedRight) {
+         then(expectedResult);
+         assertRange(left, expectedLeft);
+         assertRange(right, expectedRight);
+      }
+
       private void assertRange(Variable variable, Range range) {
          assertEquals(range.min(), variable.getMin(v));
          assertEquals(range.max(), variable.getMax(v));
+      }
+
+      @Deprecated
+      @Override
+      public boolean equals(Object o) {
+         throw new UnsupportedOperationException();
       }
    }
 }
