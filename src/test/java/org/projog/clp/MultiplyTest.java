@@ -17,98 +17,93 @@ package org.projog.clp;
 
 import static org.projog.clp.TestDataParser.parseRange;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
 
 import org.testng.annotations.Test;
 
 public class MultiplyTest extends AbstractExpressionTest {
    public MultiplyTest() {
-      super(Multiply::new);
-   }
+      super(Multiply::new, true);
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({
-               "0,0,0",
-               "42,0,0",
-               "-42,0,0",
-               "42,5,210",
-               "-5,-42,210",
-               "5,-42,-210",
-               "0:5,0:5,0:25",
-               "-5:0,0:5,-25:0",
-               "-5:0,-5:0,0:25",
-               "0:5,1:5,0:25",
-               "1:5,1:5,1:25",
-               "-5:-1,1:5,-25:-1",
-               "-5:-1,-5:-1,1:25",
-               "-5:1,1:5,-25:5",
-               "-5:1,-5:1,-5:25",
-               "MAX,1,MAX",
-               "MAX,2,MAX",
-               "MAX,MAX,MAX",
-               "MAX,-1,MIN+1",
-               "MAX,-2,MIN",
-               "MIN,1,MIN",
-               "MIN,-1,MAX"})
-   public void testGetMinMax(String leftRange, String rightRange, String expectedRange) {
-      assertGetMinMax(parseRange(leftRange), parseRange(rightRange), parseRange(expectedRange));
-      assertGetMinMax(parseRange(rightRange), parseRange(leftRange), parseRange(expectedRange));
-   }
+      when("0", "0").then("0");
+      when("42", "0").then("0");
+      when("-42", "0").then("0");
+      when("42", "5").then("210");
+      when("-5", "-42").then("210");
+      when("5", "-42").then("-210");
+      when("0:5", "0:5").then("0:25");
+      when("-5:0", "0:5").then("-25:0");
+      when("-5:0", "-5:0").then("0:25");
+      when("0:5", "1:5").then("0:25");
+      when("1:5", "1:5").then("1:25");
+      when("-5:-1", "1:5").then("-25:-1");
+      when("-5:-1", "-5:-1").then("1:25");
+      when("-5:1", "1:5").then("-25:5");
+      when("-5:1", "-5:1").then("-5:25");
+      when("MAX", "1").then("MAX");
+      when("MAX", "2").then("MAX");
+      when("MAX", "MAX").then("MAX");
+      when("MAX", "-1").then("MIN+1");
+      when("MAX", "-2").then("MIN");
+      when("MIN", "1").then("MIN");
+      when("MIN", "-1").then("MAX");
 
-   private void assertGetMinMax(Range leftRange, Range rightRange, Range expectedRange) {
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Multiply m = new Multiply(environment.getLeft(), environment.getRight());
+      given("-1:0", "1:2").setMin(0).then("0", "1:2");
+      given("0:1", "1:2").setMin(0).then("0:1", "1:2");
+      given("-1:1", "1:2").setMin(0).then("0:1", "1:2");
+      given("1", "2").setMin(2).then("1", "2");
+      given("7", "3").setMin(20).then("7", "3");
+      given("7", "3").setMin(21).then("7", "3");
+      given("1:7", "2:3").setMin(14).then("5:7", "2:3");
+      given("1:7", "2:3").setMin(15).then("5:7", "3");
+      given("1:7", "2:3").setMin(16).then("6:7", "3");
+      given("1:7", "2:3").setMin(17).then("6:7", "3");
+      given("1:7", "2:3").setMin(18).then("6:7", "3");
+      given("1:7", "2:3").setMin(19).then("7", "3");
+      given("1:7", "2:3").setMin(20).then("7", "3");
+      given("1:7", "2:3").setMin(21).then("7", "3");
+      given("-1", "-2").setMin(2).then("-1", "-2");
+      given("-7", "-3").setMin(20).then("-7", "-3");
+      given("-7", "-3").setMin(21).then("-7", "-3");
+      given("-7:-1", "-3:-2").setMin(14).then("-7:-5", "-3:-2");
+      given("-7:-1", "-3:-2").setMin(15).then("-7:-5", "-3");
+      given("-7:-1", "-3:-2").setMin(16).then("-7:-6", "-3");
+      given("-7:-1", "-3:-2").setMin(17).then("-7:-6", "-3");
+      given("-7:-1", "-3:-2").setMin(18).then("-7:-6", "-3");
+      given("-7:-1", "-3:-2").setMin(19).then("-7", "-3");
+      given("-7:-1", "-3:-2").setMin(20).then("-7", "-3");
+      given("-7:-1", "-3:-2").setMin(21).then("-7", "-3");
 
-      assertEquals(expectedRange.min(), m.getMin(environment.getConstraintStore()));
-      assertEquals(expectedRange.max(), m.getMax(environment.getConstraintStore()));
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({
-               // when min is zero
-               "-1:0,1:2,0,0,1:2",
-               "0:1,1:2,0,0:1,1:2",
-               "-1:1,1:2,0,0:1,1:2",
-               // when both args are +ve
-               "1,2,2,1,2",
-               "7,3,20,7,3",
-               "7,3,21,7,3",
-               "1:7,2:3,14,5:7,2:3",
-               "1:7,2:3,15,5:7,3",
-               "1:7,2:3,16,6:7,3",
-               "1:7,2:3,17,6:7,3",
-               "1:7,2:3,18,6:7,3",
-               "1:7,2:3,19,7,3",
-               "1:7,2:3,20,7,3",
-               "1:7,2:3,21,7,3",
-               // when both args are -ve
-               "-1,-2,2,-1,-2",
-               "-7,-3,20,-7,-3",
-               "-7,-3,21,-7,-3",
-               "-7:-1,-3:-2,14,-7:-5,-3:-2",
-               "-7:-1,-3:-2,15,-7:-5,-3",
-               "-7:-1,-3:-2,16,-7:-6,-3",
-               "-7:-1,-3:-2,17,-7:-6,-3",
-               "-7:-1,-3:-2,18,-7:-6,-3",
-               "-7:-1,-3:-2,19,-7,-3",
-               "-7:-1,-3:-2,20,-7,-3",
-               "-7:-1,-3:-2,21,-7,-3",})
-   public void testSetMin(String inputLeftRange, String inputRightRange, String min, String outputLeftRange, String outputRightRange) {
-      assertSetMin(parseRange(inputLeftRange), parseRange(inputRightRange), Long.parseLong(min), parseRange(outputLeftRange), parseRange(outputRightRange));
-      assertSetMin(parseRange(inputRightRange), parseRange(inputLeftRange), Long.parseLong(min), parseRange(outputRightRange), parseRange(outputLeftRange));
-   }
-
-   private void assertSetMin(Range inputLeftRange, Range inputRightRange, long min, Range outputLeftRange, Range outputRightRange) {
-      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      Multiply m = new Multiply(left, right);
-
-      assertNotEquals(ExpressionResult.FAILED, m.setMin(environment.getConstraintStore(), min));
-      assertEquals(outputLeftRange.min(), left.getMin(environment.getConstraintStore()));
-      assertEquals(outputLeftRange.max(), left.getMax(environment.getConstraintStore()));
-      assertEquals(outputRightRange.min(), right.getMin(environment.getConstraintStore()));
-      assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
+      given("-1:0", "-2:-1").setMax(0).then("0", "-2:-1");
+      given("-1:0", "-2:1").setMax(0).then("-1:0", "-2:1");
+      given("-1:1", "1:2").setMax(0).then("-1:0", "1:2");
+      given("1", "2").setMax(2).then("1", "2");
+      given("4", "6").setMax(24).then("4", "6");
+      given("4", "6").setMax(25).then("4", "6");
+      given("7", "15").setMax(105).then("7", "15");
+      given("4:7", "6:15").setMax(24).then("4", "6");
+      given("4:7", "6:15").setMax(25).then("4", "6");
+      given("4:7", "6:15").setMax(26).then("4", "6");
+      given("4:7", "6:15").setMax(27).then("4", "6");
+      given("4:7", "6:15").setMax(28).then("4", "6:7");
+      given("4:7", "6:15").setMax(29).then("4", "6:7");
+      given("4:7", "6:15").setMax(30).then("4:5", "6:7");
+      given("4:7", "6:15").setMax(31).then("4:5", "6:7");
+      given("4:7", "6:15").setMax(32).then("4:5", "6:8");
+      given("4:7", "6:15").setMax(105).then("4:7", "6:15");
+      given("-1", "-2").setMax(2).then("-1", "-2");
+      given("-4", "-6").setMax(24).then("-4", "-6");
+      given("-4", "-6").setMax(25).then("-4", "-6");
+      given("-7", "-15").setMax(105).then("-7", "-15");
+      given("-7:-4", "-15:-6").setMax(24).then("-4", "-6");
+      given("-7:-4", "-15:-6").setMax(25).then("-4", "-6");
+      given("-7:-4", "-15:-6").setMax(26).then("-4", "-6");
+      given("-7:-4", "-15:-6").setMax(27).then("-4", "-6");
+      given("-7:-4", "-15:-6").setMax(28).then("-4", "-7:-6");
+      given("-7:-4", "-15:-6").setMax(29).then("-4", "-7:-6");
+      given("-7:-4", "-15:-6").setMax(30).then("-5:-4", "-7:-6");
+      given("-7:-4", "-15:-6").setMax(31).then("-5:-4", "-7:-6");
+      given("-7:-4", "-15:-6").setMax(32).then("-5:-4", "-8:-6");
+      given("-7:-4", "-15:-6").setMax(105).then("-7:-4", "-15:-6");
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
@@ -125,60 +120,6 @@ public class MultiplyTest extends AbstractExpressionTest {
       Multiply m = new Multiply(left, right);
 
       assertEquals(ExpressionResult.FAILED, m.setMin(environment.getConstraintStore(), min));
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({
-               // when max is zero
-               "-1:0,-2:-1,0,0,-2:-1",
-               "-1:0,-2:1,0,-1:0,-2:1",
-               "-1:1,1:2,0,-1:0,1:2",
-               //+ve/+ve
-               "1,2,2,1,2",
-               "4,6,24,4,6",
-               "4,6,25,4,6",
-               "7,15,105,7,15",
-               "4:7,6:15,24,4,6",
-               "4:7,6:15,25,4,6",
-               "4:7,6:15,26,4,6",
-               "4:7,6:15,27,4,6",
-               "4:7,6:15,28,4,6:7",
-               "4:7,6:15,29,4,6:7",
-               "4:7,6:15,30,4:5,6:7",
-               "4:7,6:15,31,4:5,6:7",
-               "4:7,6:15,32,4:5,6:8",
-               "4:7,6:15,105,4:7,6:15",
-               // -ve/-ve
-               "-1,-2,2,-1,-2",
-               "-4,-6,24,-4,-6",
-               "-4,-6,25,-4,-6",
-               "-7,-15,105,-7,-15",
-               "-7:-4,-15:-6,24,-4,-6",
-               "-7:-4,-15:-6,25,-4,-6",
-               "-7:-4,-15:-6,26,-4,-6",
-               "-7:-4,-15:-6,27,-4,-6",
-               "-7:-4,-15:-6,28,-4,-7:-6",
-               "-7:-4,-15:-6,29,-4,-7:-6",
-               "-7:-4,-15:-6,30,-5:-4,-7:-6",
-               "-7:-4,-15:-6,31,-5:-4,-7:-6",
-               "-7:-4,-15:-6,32,-5:-4,-8:-6",
-               "-7:-4,-15:-6,105,-7:-4,-15:-6",})
-   public void testSetMax(String inputLeftRange, String inputRightRange, String min, String outputLeftRange, String outputRightRange) {
-      assertSetMax(parseRange(inputLeftRange), parseRange(inputRightRange), Long.parseLong(min), parseRange(outputLeftRange), parseRange(outputRightRange));
-      assertSetMax(parseRange(inputRightRange), parseRange(inputLeftRange), Long.parseLong(min), parseRange(outputRightRange), parseRange(outputLeftRange));
-   }
-
-   private void assertSetMax(Range inputLeftRange, Range inputRightRange, long min, Range outputLeftRange, Range outputRightRange) {
-      TestUtils environment = new TestUtils(inputLeftRange, inputRightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      Multiply m = new Multiply(left, right);
-
-      assertNotEquals(ExpressionResult.FAILED, m.setMax(environment.getConstraintStore(), min));
-      assertEquals(outputLeftRange.min(), left.getMin(environment.getConstraintStore()));
-      assertEquals(outputLeftRange.max(), left.getMax(environment.getConstraintStore()));
-      assertEquals(outputRightRange.min(), right.getMin(environment.getConstraintStore()));
-      assertEquals(outputRightRange.max(), right.getMax(environment.getConstraintStore()));
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)

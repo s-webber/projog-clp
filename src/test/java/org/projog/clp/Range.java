@@ -49,4 +49,9 @@ final class Range {
    public int hashCode() {
       return Long.hashCode(min) * Long.hashCode(max);
    }
+
+   @Override
+   public String toString() {
+      return "Range [min=" + min + ", max=" + max + "]";
+   }
 }

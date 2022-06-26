@@ -45,6 +45,10 @@ abstract class AbstractConstraintTest {
    private final TestUtils.Action prevent;
    private final TestUtils.Action reify;
 
+   // TODO validate have tests and test have expected values
+   // TODO use test of opposite constraint to provide tests of prevent
+   // TODO test null when required and when require not null
+
    AbstractConstraintTest(BiFunction<Expression, Expression, Constraint> factory, boolean flip) {
       this.factory = factory;
       this.flip = flip;

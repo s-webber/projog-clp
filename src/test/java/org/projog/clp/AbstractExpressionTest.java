@@ -15,25 +15,79 @@
  */
 package org.projog.clp;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotSame;
-import static org.testng.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertSame;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 abstract class AbstractExpressionTest {
+   private final Map<String, GetterTest> getterTests = new LinkedHashMap<>();
+   private final List<SetterTest> setterTests = new ArrayList<>();
    private final BiFunction<Expression, Expression, Expression> factory;
+   private final boolean flip;
 
-   AbstractExpressionTest(BiFunction<Expression, Expression, Expression> factory) {
+   // TODO add test to validate getterTests and setterTests.
+   // TODO check test all methods tested
+   // TODO check no duplicates and no given/when without then
+   // TODO test setter failures
+   // TODO test not
+   // TODO test null when required and when require not null
+   // TODO remove need for any tests in sub-classes
+
+   AbstractExpressionTest(BiFunction<Expression, Expression, Expression> factory, boolean flip) {
       this.factory = factory;
+      this.flip = flip;
+   }
+
+   @Test(dataProvider = "getTests")
+   public final void testGetters(GetterTest t) {
+      TestUtils environment = new TestUtils(t.inputLeft, t.inputRight);
+      Expression a = factory.apply(environment.getLeft(), environment.getRight());
+
+      assertEquals(t.expected.min(), a.getMin(environment.getConstraintStore()));
+      assertEquals(t.expected.max(), a.getMax(environment.getConstraintStore()));
+   }
+
+   @Test(dataProvider = "setMinTests")
+   public final void testSetMin(SetterTest t) {
+      testSetter(t);
+   }
+
+   @Test(dataProvider = "setMaxTests")
+   public final void testSetMax(SetterTest t) {
+      testSetter(t);
+   }
+
+   @Test(dataProvider = "setNotTests")
+   public final void testSetNot(SetterTest t) {
+      testSetter(t);
+   }
+
+   private void testSetter(SetterTest t) {
+      TestUtils environment = new TestUtils(t.inputLeft, t.inputRight);
+      Variable left = environment.getLeft();
+      Variable right = environment.getRight();
+      Expression e = factory.apply(left, right);
+
+      assertNotEquals(ExpressionResult.FAILED, t.action.set(e, environment.getConstraintStore(), t.value));
+      assertEquals(t.outputLeft.min(), left.getMin(environment.getConstraintStore()));
+      assertEquals(t.outputLeft.max(), left.getMax(environment.getConstraintStore()));
+      assertEquals(t.outputRight.min(), right.getMin(environment.getConstraintStore()));
+      assertEquals(t.outputRight.max(), right.getMax(environment.getConstraintStore()));
    }
 
    @Test
@@ -63,8 +117,8 @@ abstract class AbstractExpressionTest {
       Expression left = mock(Expression.class);
       Expression right = mock(Expression.class);
       Expression testObject = factory.apply(left, right);
-      when(left.replaceVariables(function)).thenReturn(new FixedValue(42));
-      when(right.replaceVariables(function)).thenReturn(new FixedValue(180));
+      org.mockito.Mockito.when(left.replaceVariables(function)).thenReturn(new FixedValue(42));
+      org.mockito.Mockito.when(right.replaceVariables(function)).thenReturn(new FixedValue(180));
 
       // when
       Expression replacement = testObject.replaceVariables(function);
@@ -77,5 +131,163 @@ abstract class AbstractExpressionTest {
       verify(left).replaceVariables(function);
       verify(right).replaceVariables(function);
       verifyNoMoreInteractions(function, left, right);
+   }
+
+   @DataProvider
+   public Object[][] getTests() {
+      List<Object[]> result = new ArrayList<>();
+      for (GetterTest s : getterTests.values()) {
+         result.add(new Object[] {s});
+         if (flip && !s.inputLeft.equals(s.inputRight)) {
+            result.add(new Object[] {s.flip()});
+         }
+      }
+      return result.toArray(new Object[result.size()][]);
+   }
+
+   @DataProvider
+   public Object[][] setMinTests() {
+      return selectSetterTests(SetAction.MIN);
+   }
+
+   @DataProvider
+   public Object[][] setMaxTests() {
+      return selectSetterTests(SetAction.MAX);
+   }
+
+   @DataProvider
+   public Object[][] setNotTests() {
+      return selectSetterTests(SetAction.NOT);
+   }
+
+   private Object[][] selectSetterTests(SetAction action) {
+      List<Object[]> result = new ArrayList<>();
+
+      for (SetterTest s : setterTests) {
+         if (action != s.action) {
+            continue;
+         }
+
+         result.add(new Object[] {s});
+         if (flip && !s.inputLeft.equals(s.inputRight)) {
+            result.add(new Object[] {s.flip()});
+         }
+      }
+
+      return result.toArray(new Object[result.size()][]);
+   }
+
+   SetterTest given(String left, String right) {
+      SetterTest g = new SetterTest(left, right);
+      setterTests.add(g);
+      return g;
+   }
+
+   GetterTest when(String left, String right) {
+      GetterTest w = new GetterTest(left, right);
+      String key = left + "," + right;
+      if (getterTests.put(key, w) != null) {
+         throw new IllegalStateException(key);
+      }
+      if (flip && !left.equals(right) && getterTests.containsKey(right + "," + left)) {
+         throw new IllegalStateException(key);
+      }
+      return w;
+   }
+
+   static class SetterTest {
+      private final Range inputLeft;
+      private final Range inputRight;
+      private SetAction action;
+      private Long value;
+      private Range outputLeft;
+      private Range outputRight;
+
+      private SetterTest(String inputLeft, String inputRight) {
+         this(TestDataParser.parseRange(inputLeft), TestDataParser.parseRange(inputRight));
+      }
+
+      private SetterTest(Range inputLeft, Range inputRight) {
+         this.inputLeft = inputLeft;
+         this.inputRight = inputRight;
+      }
+
+      SetterTest setMin(long value) {
+         this.action = SetAction.MIN;
+         this.value = value;
+         return this;
+      }
+
+      SetterTest setMax(long value) {
+         this.action = SetAction.MAX;
+         this.value = value;
+         return this;
+      }
+
+      SetterTest setNot(long value) {
+         this.action = SetAction.NOT;
+         this.value = value;
+         return this;
+      }
+
+      void then(String outputLeft, String outputRight) {
+         then(TestDataParser.parseRange(outputLeft), TestDataParser.parseRange(outputRight));
+      }
+
+      void then(Range outputLeft, Range outputRight) {
+         this.outputLeft = outputLeft;
+         this.outputRight = outputRight;
+      }
+
+      private SetterTest flip() {
+         SetterTest flip = new SetterTest(inputRight, inputLeft);
+         flip.action = this.action;
+         flip.value = this.value;
+         flip.then(outputRight, outputLeft);
+         return flip;
+      }
+   }
+
+   static class GetterTest {
+      private final Range inputLeft;
+      private final Range inputRight;
+      private Range expected;
+
+      private GetterTest(String inputLeft, String inputRight) {
+         this(TestDataParser.parseRange(inputLeft), TestDataParser.parseRange(inputRight));
+      }
+
+      private GetterTest(Range inputLeft, Range inputRight) {
+         this.inputLeft = inputLeft;
+         this.inputRight = inputRight;
+      }
+
+      void then(String expected) {
+         this.expected = TestDataParser.parseRange(expected);
+      }
+
+      private GetterTest flip() {
+         GetterTest flip = new GetterTest(inputRight, inputLeft);
+         flip.expected = this.expected;
+         return flip;
+      }
+   }
+
+   private static enum SetAction {
+      MIN,
+      MAX,
+      NOT;
+
+      ExpressionResult set(Expression e, ConstraintStore store, long value) {
+         if (this == MIN) {
+            return e.setMin(store, value);
+         } else if (this == MAX) {
+            return e.setMax(store, value);
+         } else if (this == NOT) {
+            return e.setNot(store, value);
+         } else {
+            throw new IllegalArgumentException();
+         }
+      }
    }
 }
