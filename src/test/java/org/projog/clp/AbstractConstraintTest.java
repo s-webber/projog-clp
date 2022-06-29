@@ -21,6 +21,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.projog.clp.TestUtils.given;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
@@ -29,10 +31,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -44,67 +48,48 @@ abstract class AbstractConstraintTest {
    private final TestUtils.Action enforce;
    private final TestUtils.Action prevent;
    private final TestUtils.Action reify;
+   private boolean running;
 
-   // TODO validate have tests and test have expected values
    // TODO use test of opposite constraint to provide tests of prevent
-   // TODO test null when required and when require not null
 
    AbstractConstraintTest(BiFunction<Expression, Expression, Constraint> factory, boolean flip) {
-      this.factory = factory;
+      this.factory = Objects.requireNonNull(factory);
       this.flip = flip;
       this.enforce = (v, x, y) -> factory.apply(x, y).enforce(v);
       this.prevent = (v, x, y) -> factory.apply(x, y).prevent(v);
       this.reify = (v, x, y) -> factory.apply(x, y).reify(v);
    }
 
-   @DataProvider
-   public Object[][] enforceTest() {
-      return toArray(enforceTests);
+   @BeforeTest
+   public void before() {
+      this.running = true;
    }
 
-   @DataProvider
-   public Object[][] preventTest() {
-      return toArray(preventTests);
-   }
+   @Test
+   public final void testConfiguration() {
+      assertFalse(enforceTests.isEmpty());
+      for (Object[] o : enforceTest()) {
+         assertEquals(1, o.length);
+         TestCase t = (TestCase) o[0];
 
-   @DataProvider
-   public Object[][] reifyTest() {
-      List<Object[]> result = new ArrayList<>();
-      for (TestCase s : enforceTests.values()) {
-         ConstraintResult expected;
-         if (s.result == ConstraintResult.FAILED) {
-            expected = ConstraintResult.FAILED;
-         } else if (s.result == ConstraintResult.MATCHED && s.inputLeft.equals(s.outputLeft) && s.inputRight.equals(s.outputRight)) {
-            // TODO if MATCHED and input different that output then add two tests of reify -
-            // TODO UNRESOLVED using input and MATCHED using output
-            // TODO add check that not already a test using output values and don't add if already exists
-            expected = ConstraintResult.MATCHED;
-         } else {
-            expected = ConstraintResult.UNRESOLVED;
-         }
-         TestCase testCase = new TestCase(s.inputLeft, s.inputRight);
-         testCase.set(expected, s.inputLeft, s.inputRight);
-         result.add(new Object[] {testCase});
-         if (shouldFlip(s)) {
-            result.add(new Object[] {testCase.flip()});
-         }
+         assertNotNull(t.result);
       }
-      return result.toArray(new Object[result.size()][]);
-   }
 
-   private Object[][] toArray(Map<String, TestCase> testCases) {
-      List<Object[]> result = new ArrayList<>();
-      for (TestCase s : testCases.values()) {
-         result.add(new Object[] {s});
-         if (shouldFlip(s)) {
-            result.add(new Object[] {s.flip()});
-         }
+      assertFalse(preventTests.isEmpty());
+      for (Object[] o : preventTest()) {
+         assertEquals(1, o.length);
+         TestCase t = (TestCase) o[0];
+
+         assertNotNull(t.result);
       }
-      return result.toArray(new Object[result.size()][]);
-   }
 
-   private boolean shouldFlip(TestCase s) {
-      return flip && !s.inputLeft.equals(s.inputRight);
+      assertEquals(enforceTest().length, reifyTest().length);
+      for (Object[] o : reifyTest()) {
+         assertEquals(1, o.length);
+         TestCase t = (TestCase) o[0];
+
+         assertNotNull(t.result);
+      }
    }
 
    @Test(dataProvider = "enforceTest")
@@ -172,6 +157,56 @@ abstract class AbstractConstraintTest {
       verifyNoMoreInteractions(function, left, right);
    }
 
+   @DataProvider
+   public Object[][] enforceTest() {
+      return toArray(enforceTests);
+   }
+
+   @DataProvider
+   public Object[][] preventTest() {
+      return toArray(preventTests);
+   }
+
+   @DataProvider
+   public Object[][] reifyTest() {
+      List<Object[]> result = new ArrayList<>();
+      for (TestCase s : enforceTests.values()) {
+         ConstraintResult expected;
+         if (s.result == ConstraintResult.FAILED) {
+            expected = ConstraintResult.FAILED;
+         } else if (s.result == ConstraintResult.MATCHED && s.inputLeft.equals(s.outputLeft) && s.inputRight.equals(s.outputRight)) {
+            // TODO if MATCHED and input different that output then add two tests of reify -
+            // TODO UNRESOLVED using input and MATCHED using output
+            // TODO add check that not already a test using output values and don't add if already exists
+            expected = ConstraintResult.MATCHED;
+         } else {
+            expected = ConstraintResult.UNRESOLVED;
+         }
+         TestCase testCase = new TestCase(s.inputLeft, s.inputRight);
+         testCase.set(expected, s.inputLeft, s.inputRight);
+         result.add(new Object[] {testCase});
+         if (shouldFlip(s)) {
+            result.add(new Object[] {testCase.flip()});
+         }
+      }
+      return result.toArray(new Object[result.size()][]);
+   }
+
+   private Object[][] toArray(Map<String, TestCase> testCases) {
+      List<Object[]> result = new ArrayList<>();
+      for (TestCase s : testCases.values()) {
+         result.add(new Object[] {s});
+         if (shouldFlip(s)) {
+            result.add(new Object[] {s.flip()});
+         }
+      }
+      return result.toArray(new Object[result.size()][]);
+   }
+
+   private boolean shouldFlip(TestCase s) {
+      return flip && !s.inputLeft.equals(s.inputRight);
+   }
+
    TestCase enforce(String left, String right) {
       return add(enforceTests, left, right);
    }
@@ -181,6 +216,8 @@ abstract class AbstractConstraintTest {
    }
 
    private TestCase add(Map<String, TestCase> testCases, String left, String right) {
+      assertFalse(running);
+
       TestCase testCase = new TestCase(left, right);
       String key = left + "," + right;
       if (testCases.put(key, testCase) != null) {
@@ -233,6 +270,7 @@ abstract class AbstractConstraintTest {
       }
 
       void failed() {
+         assertNull(this.result);
          this.result = ConstraintResult.FAILED;
       }
 
@@ -242,7 +280,7 @@ abstract class AbstractConstraintTest {
 
       private void set(ConstraintResult result, Range outputLeft, Range outputRight) {
          assertNull(this.result);
-         this.result = result;
+         this.result = Objects.requireNonNull(result);
          this.outputLeft = outputLeft;
          this.outputRight = outputRight;
       }

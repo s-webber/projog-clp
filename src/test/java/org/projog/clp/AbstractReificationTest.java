@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertSame;
 
@@ -29,6 +30,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -38,6 +40,7 @@ abstract class AbstractReificationTest {
    final TestUtils.Action enforce;
    final TestUtils.Action prevent;
    final TestUtils.Action reify;
+   private boolean running;
 
    AbstractReificationTest(BiFunction<Constraint, Constraint, Constraint> factory) {
       this.factory = factory;
@@ -46,9 +49,19 @@ abstract class AbstractReificationTest {
       this.reify = (v, x, y) -> factory.apply(x, y).reify(v);
    }
 
+   @BeforeTest
+   public void before() {
+      this.running = true;
+   }
+
    @DataProvider
    public Object[] data() {
       return new Object[] {"1,1", "0,0", "1,0", "0,1", "1,0:1", "0:1,1", "0,0:1", "0:1,0", "0:1,0:1"};
+   }
+
+   @Test
+   public final void testConfiguration() {
+      assertEquals(data().length, tests.size());
    }
 
    @Test(dataProvider = "data")
@@ -133,6 +146,8 @@ abstract class AbstractReificationTest {
    }
 
    Builder given(String inputLeft, String inputRight) {
+      assertFalse(running);
+
       String key = inputLeft + "," + inputRight;
       if (tests.containsKey(key)) {
          throw new IllegalStateException(key);

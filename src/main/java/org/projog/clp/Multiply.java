@@ -80,6 +80,10 @@ public final class Multiply implements Expression {
 
    @Override
    public ExpressionResult setMin(ConstraintStore s, long min) {
+      if (min > getMax(s)) {
+         return ExpressionResult.INVALID;
+      }
+
       long leftMin = left.getMin(s);
       long leftMax = left.getMax(s);
       long rightMin = right.getMin(s);
@@ -163,6 +167,10 @@ public final class Multiply implements Expression {
 
    @Override
    public ExpressionResult setMax(ConstraintStore s, long max) {
+      if (max < getMin(s)) {
+         return ExpressionResult.INVALID;
+      }
+
       long leftMin = left.getMin(s);
       long leftMax = left.getMax(s);
       long rightMin = right.getMin(s);

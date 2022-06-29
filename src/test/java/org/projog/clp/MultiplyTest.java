@@ -104,6 +104,49 @@ public class MultiplyTest extends AbstractExpressionTest {
       given("-7:-4", "-15:-6").setMax(31).then("-5:-4", "-7:-6");
       given("-7:-4", "-15:-6").setMax(32).then("-5:-4", "-8:-6");
       given("-7:-4", "-15:-6").setMax(105).then("-7:-4", "-15:-6");
+
+      for (String[] o : new String[][] { //
+                  {"0", "42"},
+                  {"0", "-42"},
+                  {"5", "42"},
+                  {"5", "-42"},
+                  {"1:10", "1:10"},
+                  {"-10:-1", "-10:-1"},
+                  {"-7:12", "-6:13"}}) {
+         assertEquals(o.length, 2);
+         String inputLeft = o[0];
+         String inputRight = o[1];
+         Range range = getMinMax(inputLeft, inputRight);
+
+         given(inputLeft, inputRight).setMin(range.min).unchanged();
+         given(inputLeft, inputRight).setMin(range.min - 1).unchanged();
+         given(inputLeft, inputRight).setMin(Long.MIN_VALUE).unchanged();
+
+         given(inputLeft, inputRight).setMax(range.max).unchanged();
+         given(inputLeft, inputRight).setMax(range.max + 1).unchanged();
+         given(inputLeft, inputRight).setMax(Long.MAX_VALUE).unchanged();
+
+         given(inputLeft, inputRight).setMin(range.max + 1).failed();
+         given(inputLeft, inputRight).setMin(Long.MAX_VALUE).failed();
+
+         given(inputLeft, inputRight).setMax(range.min - 1).failed();
+         given(inputLeft, inputRight).setMax(Long.MIN_VALUE).failed();
+      }
+
+      given("3", "5:7").setNot(14).unchanged();
+      given("3", "5:7").setNot(15).then("3", "6:7");
+      given("3", "5:7").setNot(16).unchanged();
+      given("3", "5:7").setNot(17).unchanged();
+      given("3", "5:7").setNot(18).unchanged();
+      given("3", "5:7").setNot(19).unchanged();
+      given("3", "5:7").setNot(20).unchanged();
+      given("3", "5:7").setNot(11).unchanged();
+      given("3", "5:7").setNot(21).then("3", "5:6");
+      given("3", "5:7").setNot(22).unchanged();
+
+      given("5", "3").setNot(14).unchanged();
+      given("5", "3").setNot(15).failed();
+      given("5", "3").setNot(16).unchanged();
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
@@ -136,63 +179,5 @@ public class MultiplyTest extends AbstractExpressionTest {
       Multiply m = new Multiply(left, right);
 
       assertEquals(ExpressionResult.INVALID, m.setMax(environment.getConstraintStore(), min));
-   }
-
-   @Test
-   public void testSetNotNoChange() {
-      Range leftRange = parseRange("2:4");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Multiply m = new Multiply(environment.getLeft(), environment.getRight());
-      for (long i = m.getMin(variables) - 1; i <= m.getMax(variables) + 1; i++) {
-         assertEquals(ExpressionResult.VALID, m.setNot(variables, i));
-         assertEquals(leftRange.min(), left.getMin(variables));
-         assertEquals(leftRange.max(), left.getMax(variables));
-         assertEquals(rightRange.min(), right.getMin(variables));
-         assertEquals(rightRange.max(), right.getMax(variables));
-      }
-   }
-
-   @Test
-   public void testSetNotUpdatedMin() {
-      Range leftRange = parseRange("3");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Multiply m = new Multiply(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.VALID, m.setNot(variables, m.getMin(variables)));
-      assertEquals(leftRange.min(), left.getMin(variables));
-      assertEquals(leftRange.max(), left.getMax(variables));
-      assertEquals(rightRange.min() + 1, right.getMin(variables));
-      assertEquals(rightRange.max(), right.getMax(variables));
-   }
-
-   @Test
-   public void testSetNotUpdatedMax() {
-      Range leftRange = parseRange("3");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Multiply m = new Multiply(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.VALID, m.setNot(variables, m.getMax(variables)));
-      assertEquals(leftRange.min(), left.getMin(variables));
-      assertEquals(leftRange.max(), left.getMax(variables));
-      assertEquals(rightRange.min(), right.getMin(variables));
-      assertEquals(rightRange.max() - 1, right.getMax(variables));
-   }
-
-   @Test
-   public void testSetNotFailed() {
-      TestUtils environment = new TestUtils(parseRange("3"), parseRange("5"));
-      ConstraintStore variables = environment.getConstraintStore();
-      Multiply m = new Multiply(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.INVALID, m.setNot(variables, m.getMax(variables)));
    }
 }

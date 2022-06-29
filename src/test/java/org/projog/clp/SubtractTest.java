@@ -15,11 +15,7 @@
  */
 package org.projog.clp;
 
-import static org.projog.clp.TestDataParser.parseRange;
 import static org.testng.Assert.assertEquals;
-
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 public class SubtractTest extends AbstractExpressionTest {
    public SubtractTest() {
@@ -287,11 +283,8 @@ public class SubtractTest extends AbstractExpressionTest {
       given("0:MAX", "-2:3").setMax(2).then("0:5", "-2:3");
       given("0", "-2:3").setMax(3).then("0", "-2:3");
       given("0:MAX", "-2:3").setMax(3).then("0:6", "-2:3");
-   }
 
-   @DataProvider
-   public static Object[] data() {
-      return new Object[][] {
+      for (String[] o : new String[][] {
                   {"0", "42"},
                   {"42", "0"},
                   {"0", "-42"},
@@ -302,152 +295,53 @@ public class SubtractTest extends AbstractExpressionTest {
                   {"-42", "5"},
                   {"1:10", "1:10"},
                   {"-10:-1", "-10:-1"},
-                  {"-7:12", "-6:13"}};
-   }
+                  {"-7:12", "-6:13"}}) {
+         assertEquals(o.length, 2);
+         String inputLeft = o[0];
+         String inputRight = o[1];
+         Range range = getMinMax(inputLeft, inputRight);
 
-   @Test(dataProvider = "data")
-   public void testSetMinSuccess(String leftRange, String rightRange) {
-      assertSetMinSuccess(parseRange(leftRange), parseRange(rightRange));
-   }
+         given(inputLeft, inputRight).setMin(range.min).unchanged();
+         given(inputLeft, inputRight).setMin(range.min - 1).unchanged();
+         given(inputLeft, inputRight).setMin(Long.MIN_VALUE).unchanged();
 
-   private void assertSetMinSuccess(Range leftRange, Range rightRange) {
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      ConstraintStore variables = environment.getConstraintStore();
-      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
+         given(inputLeft, inputRight).setMax(range.max).unchanged();
+         given(inputLeft, inputRight).setMax(range.max + 1).unchanged();
+         given(inputLeft, inputRight).setMax(Long.MAX_VALUE).unchanged();
 
-      long max = s.getMax(variables);
-      assertEquals(ExpressionResult.VALID, s.setMin(variables, max));
-      assertEquals(max, s.getMin(variables));
-   }
+         given(inputLeft, inputRight).setMin(range.max + 1).failed();
+         given(inputLeft, inputRight).setMin(Long.MAX_VALUE).failed();
 
-   @Test(dataProvider = "data")
-   public void testSetMaxSuccess(String leftRange, String rightRange) {
-      assertSetMaxSuccess(parseRange(leftRange), parseRange(rightRange));
-   }
-
-   private void assertSetMaxSuccess(Range leftRange, Range rightRange) {
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      ConstraintStore variables = environment.getConstraintStore();
-      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
-
-      long min = s.getMin(variables);
-      assertEquals(ExpressionResult.VALID, s.setMax(variables, min));
-      assertEquals(min, s.getMax(variables));
-   }
-
-   @Test(dataProvider = "data")
-   public void testSetMinFailed(String leftRange, String rightRange) {
-      assertSetMinFailed(parseRange(leftRange), parseRange(rightRange));
-   }
-
-   private void assertSetMinFailed(Range leftRange, Range rightRange) {
-      for (int i = 1; i < 4; i++) {
-         TestUtils environment = new TestUtils(leftRange, rightRange);
-         Subtract s = new Subtract(environment.getLeft(), environment.getRight());
-
-         long max = s.getMax(environment.getConstraintStore());
-         long newMax = max + i;
-         assertEquals(ExpressionResult.INVALID, s.setMin(environment.getConstraintStore(), newMax));
+         given(inputLeft, inputRight).setMax(range.min - 1).failed();
+         given(inputLeft, inputRight).setMax(Long.MIN_VALUE).failed();
       }
-   }
 
-   @Test(dataProvider = "data")
-   public void testSetMaxFailed(String leftRange, String rightRange) {
-      assertSetMaxFailed(parseRange(leftRange), parseRange(rightRange));
-   }
+      given("MAX", "-1").setMax(Long.MAX_VALUE).failed();
+      given("MAX-1", "-2").setMax(Long.MAX_VALUE).failed();
+      given("MAX-1", "-3").setMax(Long.MAX_VALUE).failed();
+      given("MAX-2", "-3").setMax(Long.MAX_VALUE).failed();
+      given("MAX-3", "-4").setMax(Long.MAX_VALUE).failed();
 
-   private void assertSetMaxFailed(Range leftRange, Range rightRange) {
-      for (int i = 1; i < 4; i++) {
-         TestUtils environment = new TestUtils(leftRange, rightRange);
-         Subtract s = new Subtract(environment.getLeft(), environment.getRight());
+      given("MIN", "1").setMin(Long.MIN_VALUE).failed();
+      given("MIN+1", "2").setMin(Long.MIN_VALUE).failed();
+      given("MIN+1", "3").setMin(Long.MIN_VALUE).failed();
+      given("MIN+2", "3").setMin(Long.MIN_VALUE).failed();
+      given("MIN+3", "4").setMin(Long.MIN_VALUE).failed();
 
-         long min = s.getMin(environment.getConstraintStore());
-         long newMin = min - i;
-         assertEquals(ExpressionResult.INVALID, s.setMax(environment.getConstraintStore(), newMin));
-      }
-   }
+      given("10", "5:7").setNot(6).unchanged();
+      given("10", "5:7").setNot(5).then("10", "6:7");
+      given("10", "5:7").setNot(4).unchanged();
+      given("10", "5:7").setNot(3).then("10", "5:6");
+      given("10", "5:7").setNot(2).unchanged();
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"MAX,MIN", "MAX,-1", "MAX-1,-2", "MAX-1,-3", "MAX-2,-3", "MAX-3,-4",})
-   public void testSetMaxOverflow(String leftRange, String rightRange) {
-      assertSetMaxOverflow(parseRange(leftRange), parseRange(rightRange));
-   }
+      given("8:10", "5").setNot(6).unchanged();
+      given("8:10", "5").setNot(5).then("8:9", "5");
+      given("8:10", "5").setNot(4).unchanged();
+      given("8:10", "5").setNot(3).then("9:10", "5");
+      given("8:10", "5").setNot(2).unchanged();
 
-   private void assertSetMaxOverflow(Range leftRange, Range rightRange) {
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
-
-      assertEquals(ExpressionResult.INVALID, s.setMax(environment.getConstraintStore(), s.getMin(environment.getConstraintStore())));
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"MIN,MAX", "MIN,1", "MIN+1,2", "MIN+1,3", "MIN+2,3", "MIN+3,4",})
-   public void testSetMinOverflow(String leftRange, String rightRange) {
-      assertSetMinOverflow(parseRange(leftRange), parseRange(rightRange));
-   }
-
-   private void assertSetMinOverflow(Range leftRange, Range rightRange) {
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
-
-      assertEquals(ExpressionResult.INVALID, s.setMin(environment.getConstraintStore(), s.getMax(environment.getConstraintStore())));
-   }
-
-   @Test
-   public void testSetNotNoChange() {
-      Range leftRange = parseRange("2:4");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
-      for (long i = s.getMin(variables) - 1; i <= s.getMax(variables) + 1; i++) {
-         assertEquals(ExpressionResult.VALID, s.setNot(variables, i));
-         assertEquals(leftRange.min(), left.getMin(variables));
-         assertEquals(leftRange.max(), left.getMax(variables));
-         assertEquals(rightRange.min(), right.getMin(variables));
-         assertEquals(rightRange.max(), right.getMax(variables));
-      }
-   }
-
-   @Test
-   public void testSetNotUpdatedMin() {
-      Range leftRange = parseRange("3");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.VALID, s.setNot(variables, s.getMin(variables)));
-      assertEquals(leftRange.min(), left.getMin(variables));
-      assertEquals(leftRange.max(), left.getMax(variables));
-      assertEquals(rightRange.min(), right.getMin(variables));
-      assertEquals(rightRange.max() - 1, right.getMax(variables));
-   }
-
-   @Test
-   public void testSetNotUpdatedMax() {
-      Range leftRange = parseRange("3");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.VALID, s.setNot(variables, s.getMax(variables)));
-      assertEquals(leftRange.min(), left.getMin(variables));
-      assertEquals(leftRange.max(), left.getMax(variables));
-      assertEquals(rightRange.min() + 1, right.getMin(variables));
-      assertEquals(rightRange.max(), right.getMax(variables));
-   }
-
-   @Test
-   public void testSetNotFailed() {
-      TestUtils environment = new TestUtils(parseRange("3"), parseRange("5"));
-      ConstraintStore variables = environment.getConstraintStore();
-      Subtract s = new Subtract(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.INVALID, s.setNot(variables, s.getMax(variables)));
+      given("5", "3").setNot(1).unchanged();
+      given("5", "3").setNot(2).failed();
+      given("5", "3").setNot(3).unchanged();
    }
 }

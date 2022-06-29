@@ -15,11 +15,7 @@
  */
 package org.projog.clp;
 
-import static org.projog.clp.TestDataParser.parseRange;
 import static org.testng.Assert.assertEquals;
-
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 public class AddTest extends AbstractExpressionTest {
    public AddTest() {
@@ -88,27 +84,27 @@ public class AddTest extends AbstractExpressionTest {
       when("-10:-1", "-10:-1").then("-20:-2"); // all negative
       when("-7:12", "-6:13").then("-13:25"); // neg:positive,neg:positive
 
-      given("9", "0:3").setMin(8).then("9", "0:3");
+      given("9", "0:3").setMin(8).unchanged();;
       given("MIN:9", "0:3").setMin(8).then("5:9", "0:3");
-      given("9", "0:3").setMin(9).then("9", "0:3");
+      given("9", "0:3").setMin(9).unchanged();;
       given("MIN:9", "0:3").setMin(9).then("6:9", "0:3");
       given("9", "0:3").setMin(10).then("9", "1:3");
       given("MIN:9", "0:3").setMin(10).then("7:9", "1:3");
       given("9", "0:3").setMin(11).then("9", "2:3");
       given("MIN:9", "0:3").setMin(11).then("8:9", "2:3");
-      given("9", "0:3").setMin(12).then("9", "3:3");
-      given("MIN:9", "0:3").setMin(12).then("9:9", "3:3");
-      given("9", "1:3").setMin(9).then("9", "1:3");
+      given("9", "0:3").setMin(12).then("9", "3");
+      given("MIN:9", "0:3").setMin(12).then("9", "3");
+      given("9", "1:3").setMin(9).unchanged();
       given("MIN:9", "1:3").setMin(9).then("6:9", "1:3");
-      given("9", "1:3").setMin(10).then("9", "1:3");
+      given("9", "1:3").setMin(10).unchanged();
       given("MIN:9", "1:3").setMin(10).then("7:9", "1:3");
       given("9", "1:3").setMin(11).then("9", "2:3");
       given("MIN:9", "1:3").setMin(11).then("8:9", "2:3");
-      given("9", "1:3").setMin(12).then("9", "3:3");
-      given("MIN:9", "1:3").setMin(12).then("9:9", "3:3");
-      given("9", "-2:3").setMin(6).then("9", "-2:3");
+      given("9", "1:3").setMin(12).then("9", "3");
+      given("MIN:9", "1:3").setMin(12).then("9", "3");
+      given("9", "-2:3").setMin(6).unchanged();
       given("MIN:9", "-2:3").setMin(6).then("3:9", "-2:3");
-      given("9", "-2:3").setMin(7).then("9", "-2:3");
+      given("9", "-2:3").setMin(7).unchanged();
       given("MIN:9", "-2:3").setMin(7).then("4:9", "-2:3");
       given("9", "-2:3").setMin(8).then("9", "-1:3");
       given("MIN:9", "-2:3").setMin(8).then("5:9", "-1:3");
@@ -118,29 +114,29 @@ public class AddTest extends AbstractExpressionTest {
       given("MIN:9", "-2:3").setMin(10).then("7:9", "1:3");
       given("9", "-2:3").setMin(11).then("9", "2:3");
       given("MIN:9", "-2:3").setMin(11).then("8:9", "2:3");
-      given("9", "-2:3").setMin(12).then("9", "3:3");
-      given("MIN:9", "-2:3").setMin(12).then("9:9", "3:3");
-      given("-9", "0:3").setMin(-10).then("-9", "0:3");
+      given("9", "-2:3").setMin(12).then("9", "3");
+      given("MIN:9", "-2:3").setMin(12).then("9", "3");
+      given("-9", "0:3").setMin(-10).unchanged();
       given("MIN:-9", "0:3").setMin(-10).then("-13:-9", "0:3");
-      given("-9", "0:3").setMin(-9).then("-9", "0:3");
+      given("-9", "0:3").setMin(-9).unchanged();
       given("MIN:-9", "0:3").setMin(-9).then("-12:-9", "0:3");
       given("-9", "0:3").setMin(-8).then("-9", "1:3");
       given("MIN:-9", "0:3").setMin(-8).then("-11:-9", "1:3");
       given("-9", "0:3").setMin(-7).then("-9", "2:3");
       given("MIN:-9", "0:3").setMin(-7).then("-10:-9", "2:3");
-      given("-9", "0:3").setMin(-6).then("-9", "3:3");
-      given("MIN:-9", "0:3").setMin(-6).then("-9:-9", "3:3");
-      given("-9", "1:3").setMin(-9).then("-9", "1:3");
+      given("-9", "0:3").setMin(-6).then("-9", "3");
+      given("MIN:-9", "0:3").setMin(-6).then("-9", "3");
+      given("-9", "1:3").setMin(-9).unchanged();
       given("MIN:-9", "1:3").setMin(-9).then("-12:-9", "1:3");
-      given("-9", "1:3").setMin(-8).then("-9", "1:3");
+      given("-9", "1:3").setMin(-8).unchanged();
       given("MIN:-9", "1:3").setMin(-8).then("-11:-9", "1:3");
       given("-9", "1:3").setMin(-7).then("-9", "2:3");
       given("MIN:-9", "1:3").setMin(-7).then("-10:-9", "2:3");
-      given("-9", "1:3").setMin(-6).then("-9", "3:3");
-      given("MIN:-9", "1:3").setMin(-6).then("-9:-9", "3:3");
-      given("-9", "-2:3").setMin(-12).then("-9", "-2:3");
+      given("-9", "1:3").setMin(-6).then("-9", "3");
+      given("MIN:-9", "1:3").setMin(-6).then("-9:-9", "3");
+      given("-9", "-2:3").setMin(-12).unchanged();
       given("MIN:-9", "-2:3").setMin(-12).then("-15:-9", "-2:3");
-      given("-9", "-2:3").setMin(-11).then("-9", "-2:3");
+      given("-9", "-2:3").setMin(-11).unchanged();
       given("MIN:-9", "-2:3").setMin(-11).then("-14:-9", "-2:3");
       given("-9", "-2:3").setMin(-10).then("-9", "-1:3");
       given("MIN:-9", "-2:3").setMin(-10).then("-13:-9", "-1:3");
@@ -150,29 +146,29 @@ public class AddTest extends AbstractExpressionTest {
       given("MIN:-9", "-2:3").setMin(-8).then("-11:-9", "1:3");
       given("-9", "-2:3").setMin(-7).then("-9", "2:3");
       given("MIN:-9", "-2:3").setMin(-7).then("-10:-9", "2:3");
-      given("-9", "-2:3").setMin(-6).then("-9", "3:3");
-      given("MIN:-9", "-2:3").setMin(-6).then("-9:-9", "3:3");
-      given("0", "0:3").setMin(-1).then("0", "0:3");
+      given("-9", "-2:3").setMin(-6).then("-9", "3");
+      given("MIN:-9", "-2:3").setMin(-6).then("-9", "3");
+      given("0", "0:3").setMin(-1).unchanged();
       given("MIN:0", "0:3").setMin(-1).then("-4:0", "0:3");
-      given("0", "0:3").setMin(0).then("0", "0:3");
+      given("0", "0:3").setMin(0).unchanged();
       given("MIN:0", "0:3").setMin(0).then("-3:0", "0:3");
       given("0", "0:3").setMin(1).then("0", "1:3");
       given("MIN:0", "0:3").setMin(1).then("-2:0", "1:3");
       given("0", "0:3").setMin(2).then("0", "2:3");
       given("MIN:0", "0:3").setMin(2).then("-1:0", "2:3");
-      given("0", "0:3").setMin(3).then("0", "3:3");
-      given("MIN:0", "0:3").setMin(3).then("0:0", "3:3");
+      given("0", "0:3").setMin(3).then("0", "3");
+      given("MIN:0", "0:3").setMin(3).then("0", "3");
       given("0", "1:3").setMin(0).then("0", "1:3");
       given("MIN:0", "1:3").setMin(0).then("-3:0", "1:3");
-      given("0", "1:3").setMin(1).then("0", "1:3");
+      given("0", "1:3").setMin(1).unchanged();
       given("MIN:0", "1:3").setMin(1).then("-2:0", "1:3");
       given("0", "1:3").setMin(2).then("0", "2:3");
       given("MIN:0", "1:3").setMin(2).then("-1:0", "2:3");
-      given("0", "1:3").setMin(3).then("0", "3:3");
-      given("MIN:0", "1:3").setMin(3).then("0:0", "3:3");
-      given("0", "-2:3").setMin(-3).then("0", "-2:3");
+      given("0", "1:3").setMin(3).then("0", "3");
+      given("MIN:0", "1:3").setMin(3).then("0", "3:3");
+      given("0", "-2:3").setMin(-3).unchanged();
       given("MIN:0", "-2:3").setMin(-3).then("-6:0", "-2:3");
-      given("0", "-2:3").setMin(-2).then("0", "-2:3");
+      given("0", "-2:3").setMin(-2).unchanged();
       given("MIN:0", "-2:3").setMin(-2).then("-5:0", "-2:3");
       given("0", "-2:3").setMin(-1).then("0", "-1:3");
       given("MIN:0", "-2:3").setMin(-1).then("-4:0", "-1:3");
@@ -182,29 +178,29 @@ public class AddTest extends AbstractExpressionTest {
       given("MIN:0", "-2:3").setMin(1).then("-2:0", "1:3");
       given("0", "-2:3").setMin(2).then("0", "2:3");
       given("MIN:0", "-2:3").setMin(2).then("-1:0", "2:3");
-      given("0", "-2:3").setMin(3).then("0", "3:3");
-      given("MIN:0", "-2:3").setMin(3).then("0:0", "3:3");
+      given("0", "-2:3").setMin(3).then("0", "3");
+      given("MIN:0", "-2:3").setMin(3).then("0", "3");
 
-      given("9", "0:3").setMax(9).then("9", "0:0");
-      given("9:MAX", "0:3").setMax(9).then("9:9", "0:0");
+      given("9", "0:3").setMax(9).then("9", "0");
+      given("9:MAX", "0:3").setMax(9).then("9", "0");
       given("9", "0:3").setMax(10).then("9", "0:1");
       given("9:MAX", "0:3").setMax(10).then("9:10", "0:1");
       given("9", "0:3").setMax(11).then("9", "0:2");
       given("9:MAX", "0:3").setMax(11).then("9:11", "0:2");
-      given("9", "0:3").setMax(12).then("9", "0:3");
+      given("9", "0:3").setMax(12).unchanged();
       given("9:MAX", "0:3").setMax(12).then("9:12", "0:3");
       given("9", "0:3").setMax(13).then("9", "0:3");
       given("9:MAX", "0:3").setMax(13).then("9:13", "0:3");
-      given("9", "1:3").setMax(10).then("9", "1:1");
-      given("9:MAX", "1:3").setMax(10).then("9:9", "1:1");
+      given("9", "1:3").setMax(10).then("9", "1");
+      given("9:MAX", "1:3").setMax(10).then("9", "1");
       given("9", "1:3").setMax(11).then("9", "1:2");
       given("9:MAX", "1:3").setMax(11).then("9:10", "1:2");
       given("9", "1:3").setMax(12).then("9", "1:3");
       given("9:MAX", "1:3").setMax(12).then("9:11", "1:3");
       given("9", "1:3").setMax(13).then("9", "1:3");
       given("9:MAX", "1:3").setMax(13).then("9:12", "1:3");
-      given("9", "-2:3").setMax(7).then("9", "-2:-2");
-      given("9:MAX", "-2:3").setMax(7).then("9:9", "-2:-2");
+      given("9", "-2:3").setMax(7).then("9", "-2");
+      given("9:MAX", "-2:3").setMax(7).then("9", "-2");
       given("9", "-2:3").setMax(8).then("9", "-2:-1");
       given("9:MAX", "-2:3").setMax(8).then("9:10", "-2:-1");
       given("9", "-2:3").setMax(9).then("9", "-2:0");
@@ -217,8 +213,8 @@ public class AddTest extends AbstractExpressionTest {
       given("9:MAX", "-2:3").setMax(12).then("9:14", "-2:3");
       given("9", "-2:3").setMax(13).then("9", "-2:3");
       given("9:MAX", "-2:3").setMax(13).then("9:15", "-2:3");
-      given("-9", "0:3").setMax(-9).then("-9", "0:0");
-      given("-9:MAX", "0:3").setMax(-9).then("-9:-9", "0:0");
+      given("-9", "0:3").setMax(-9).then("-9", "0");
+      given("-9:MAX", "0:3").setMax(-9).then("-9:-9", "0");
       given("-9", "0:3").setMax(-8).then("-9", "0:1");
       given("-9:MAX", "0:3").setMax(-8).then("-9:-8", "0:1");
       given("-9", "0:3").setMax(-7).then("-9", "0:2");
@@ -227,16 +223,16 @@ public class AddTest extends AbstractExpressionTest {
       given("-9:MAX", "0:3").setMax(-6).then("-9:-6", "0:3");
       given("-9", "0:3").setMax(-5).then("-9", "0:3");
       given("-9:MAX", "0:3").setMax(-5).then("-9:-5", "0:3");
-      given("-9", "1:3").setMax(-8).then("-9", "1:1");
-      given("-9:MAX", "1:3").setMax(-8).then("-9:-9", "1:1");
+      given("-9", "1:3").setMax(-8).then("-9", "1");
+      given("-9:MAX", "1:3").setMax(-8).then("-9:-9", "1");
       given("-9", "1:3").setMax(-7).then("-9", "1:2");
       given("-9:MAX", "1:3").setMax(-7).then("-9:-8", "1:2");
       given("-9", "1:3").setMax(-6).then("-9", "1:3");
       given("-9:MAX", "1:3").setMax(-6).then("-9:-7", "1:3");
       given("-9", "1:3").setMax(-5).then("-9", "1:3");
       given("-9:MAX", "1:3").setMax(-5).then("-9:-6", "1:3");
-      given("-9", "-2:3").setMax(-11).then("-9", "-2:-2");
-      given("-9:MAX", "-2:3").setMax(-11).then("-9:-9", "-2:-2");
+      given("-9", "-2:3").setMax(-11).then("-9", "-2");
+      given("-9:MAX", "-2:3").setMax(-11).then("-9:-9", "-2");
       given("-9", "-2:3").setMax(-10).then("-9", "-2:-1");
       given("-9:MAX", "-2:3").setMax(-10).then("-9:-8", "-2:-1");
       given("-9", "-2:3").setMax(-9).then("-9", "-2:0");
@@ -249,8 +245,8 @@ public class AddTest extends AbstractExpressionTest {
       given("-9:MAX", "-2:3").setMax(-6).then("-9:-4", "-2:3");
       given("-9", "-2:3").setMax(-5).then("-9", "-2:3");
       given("-9:MAX", "-2:3").setMax(-5).then("-9:-3", "-2:3");
-      given("0", "0:3").setMax(0).then("0", "0:0");
-      given("0:MAX", "0:3").setMax(0).then("0:0", "0:0");
+      given("0", "0:3").setMax(0).then("0", "0");
+      given("0:MAX", "0:3").setMax(0).then("0", "0");
       given("0", "0:3").setMax(1).then("0", "0:1");
       given("0:MAX", "0:3").setMax(1).then("0:1", "0:1");
       given("0", "0:3").setMax(2).then("0", "0:2");
@@ -259,16 +255,16 @@ public class AddTest extends AbstractExpressionTest {
       given("0:MAX", "0:3").setMax(3).then("0:3", "0:3");
       given("0", "0:3").setMax(4).then("0", "0:3");
       given("0:MAX", "0:3").setMax(4).then("0:4", "0:3");
-      given("0", "1:3").setMax(1).then("0", "1:1");
-      given("0:MAX", "1:3").setMax(1).then("0:0", "1:1");
+      given("0", "1:3").setMax(1).then("0", "1");
+      given("0:MAX", "1:3").setMax(1).then("0", "1");
       given("0", "1:3").setMax(2).then("0", "1:2");
       given("0:MAX", "1:3").setMax(2).then("0:1", "1:2");
       given("0", "1:3").setMax(3).then("0", "1:3");
       given("0:MAX", "1:3").setMax(3).then("0:2", "1:3");
       given("0", "1:3").setMax(4).then("0", "1:3");
       given("0:MAX", "1:3").setMax(4).then("0:3", "1:3");
-      given("0", "-2:3").setMax(-2).then("0", "-2:-2");
-      given("0:MAX", "-2:3").setMax(-2).then("0:0", "-2:-2");
+      given("0", "-2:3").setMax(-2).then("0", "-2");
+      given("0:MAX", "-2:3").setMax(-2).then("0", "-2");
       given("0", "-2:3").setMax(-1).then("0", "-2:-1");
       given("0:MAX", "-2:3").setMax(-1).then("0:1", "-2:-1");
       given("0", "-2:3").setMax(0).then("0", "-2:0");
@@ -281,159 +277,55 @@ public class AddTest extends AbstractExpressionTest {
       given("0:MAX", "-2:3").setMax(3).then("0:5", "-2:3");
       given("0", "-2:3").setMax(4).then("0", "-2:3");
       given("0:MAX", "-2:3").setMax(4).then("0:6", "-2:3");
-   }
 
-   @DataProvider
-   public static Object[] data() {
-      return new Object[][] {
+      for (String[] o : new String[][] { //
                   {"0", "42"},
-                  {"42", "0"},
                   {"0", "-42"},
-                  {"-42", "0"},
                   {"5", "42"},
-                  {"42", "5"},
                   {"5", "-42"},
-                  {"-42", "5"},
                   {"1:10", "1:10"},
                   {"-10:-1", "-10:-1"},
-                  {"-7:12", "-6:13"}};
-   }
+                  {"-7:12", "-6:13"}}) {
+         assertEquals(o.length, 2);
+         String inputLeft = o[0];
+         String inputRight = o[1];
+         Range range = getMinMax(inputLeft, inputRight);
 
-   @Test(dataProvider = "data")
-   public void testSetMinSuccess(String leftRange, String rightRange) {
-      assertSetMinSuccess(parseRange(leftRange), parseRange(rightRange));
-      assertSetMinSuccess(parseRange(rightRange), parseRange(leftRange));
-   }
+         given(inputLeft, inputRight).setMin(range.min).unchanged();
+         given(inputLeft, inputRight).setMin(range.min - 1).unchanged();
+         given(inputLeft, inputRight).setMin(Long.MIN_VALUE).unchanged();
 
-   private void assertSetMinSuccess(Range leftRange, Range rightRange) {
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      ConstraintStore variables = environment.getConstraintStore();
-      Add a = new Add(environment.getLeft(), environment.getRight());
+         given(inputLeft, inputRight).setMax(range.max).unchanged();
+         given(inputLeft, inputRight).setMax(range.max + 1).unchanged();
+         given(inputLeft, inputRight).setMax(Long.MAX_VALUE).unchanged();
 
-      long max = a.getMax(variables);
-      assertEquals(ExpressionResult.VALID, a.setMin(variables, max));
-      assertEquals(max, a.getMin(variables));
-   }
+         given(inputLeft, inputRight).setMin(range.max + 1).failed();
+         given(inputLeft, inputRight).setMin(Long.MAX_VALUE).failed();
 
-   @Test(dataProvider = "data")
-   public void testSetMaxSuccess(String leftRange, String rightRange) {
-      assertSetMaxSuccess(parseRange(leftRange), parseRange(rightRange));
-      assertSetMaxSuccess(parseRange(rightRange), parseRange(leftRange));
-   }
-
-   private void assertSetMaxSuccess(Range leftRange, Range rightRange) {
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      ConstraintStore variables = environment.getConstraintStore();
-      Add a = new Add(environment.getLeft(), environment.getRight());
-
-      long min = a.getMin(variables);
-      assertEquals(ExpressionResult.VALID, a.setMax(variables, min));
-      assertEquals(min, a.getMax(variables));
-   }
-
-   @Test(dataProvider = "data")
-   public void testSetMinFailed(String leftRange, String rightRange) {
-      assertSetMinFailed(parseRange(leftRange), parseRange(rightRange));
-      assertSetMinFailed(parseRange(rightRange), parseRange(leftRange));
-   }
-
-   private void assertSetMinFailed(Range leftRange, Range rightRange) {
-      for (int i = 1; i < 4; i++) {
-         TestUtils environment = new TestUtils(leftRange, rightRange);
-         Add a = new Add(environment.getLeft(), environment.getRight());
-
-         long max = a.getMax(environment.getConstraintStore());
-         long newMax = max + i;
-         assertEquals(ExpressionResult.INVALID, a.setMin(environment.getConstraintStore(), newMax));
+         given(inputLeft, inputRight).setMax(range.min - 1).failed();
+         given(inputLeft, inputRight).setMax(Long.MIN_VALUE).failed();
       }
-   }
 
-   @Test(dataProvider = "data")
-   public void testSetMaxFailed(String leftRange, String rightRange) {
-      assertSetMaxFailed(parseRange(leftRange), parseRange(rightRange));
-      assertSetMaxFailed(parseRange(rightRange), parseRange(leftRange));
-   }
+      given("MAX", "1").setMax(Long.MAX_VALUE).failed();
+      given("MAX-1", "2").setMax(Long.MAX_VALUE).failed();
+      given("MAX-1", "3").setMax(Long.MAX_VALUE).failed();
+      given("MAX-2", "3").setMax(Long.MAX_VALUE).failed();
+      given("MAX-3", "4").setMax(Long.MAX_VALUE).failed();
 
-   private void assertSetMaxFailed(Range leftRange, Range rightRange) {
-      for (int i = 1; i < 4; i++) {
-         TestUtils environment = new TestUtils(leftRange, rightRange);
-         Add a = new Add(environment.getLeft(), environment.getRight());
+      given("MIN", "-1").setMin(Long.MIN_VALUE).failed();
+      given("MIN+1", "-2").setMin(Long.MIN_VALUE).failed();
+      given("MIN+1", "-3").setMin(Long.MIN_VALUE).failed();
+      given("MIN+2", "-3").setMin(Long.MIN_VALUE).failed();
+      given("MIN+3", "-4").setMin(Long.MIN_VALUE).failed();
 
-         long min = a.getMin(environment.getConstraintStore());
-         long newMin = min - i;
-         assertEquals(ExpressionResult.INVALID, a.setMax(environment.getConstraintStore(), newMin));
-      }
-   }
+      given("3", "5:7").setNot(7).unchanged();
+      given("3", "5:7").setNot(8).then("3", "6:7");
+      given("3", "5:7").setNot(9).unchanged();
+      given("3", "5:7").setNot(10).then("3", "5:6");
+      given("3", "5:7").setNot(11).unchanged();
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"MAX,MAX", "MAX,1", "MAX-1,2", "MAX-1,3", "MAX-2,3", "MAX-3,4",})
-   public void testSetMaxOverflow(String leftRange, String rightRange) {
-      assertSetMaxOverflow(parseRange(leftRange), parseRange(rightRange));
-      assertSetMaxOverflow(parseRange(rightRange), parseRange(leftRange));
-   }
-
-   private static void assertSetMaxOverflow(Range leftRange, Range rightRange) {
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Add a = new Add(environment.getLeft(), environment.getRight());
-
-      assertEquals(ExpressionResult.INVALID, a.setMax(environment.getConstraintStore(), a.getMin(environment.getConstraintStore())));
-   }
-
-   @Test
-   public void testSetNotNoChange() {
-      Range leftRange = parseRange("2:4");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Add a = new Add(environment.getLeft(), environment.getRight());
-      for (long i = a.getMin(variables) - 1; i <= a.getMax(variables) + 1; i++) {
-         assertEquals(ExpressionResult.VALID, a.setNot(variables, i));
-         assertEquals(leftRange.min(), left.getMin(variables));
-         assertEquals(leftRange.max(), left.getMax(variables));
-         assertEquals(rightRange.min(), right.getMin(variables));
-         assertEquals(rightRange.max(), right.getMax(variables));
-      }
-   }
-
-   @Test
-   public void testSetNotUpdatedMin() {
-      Range leftRange = parseRange("3");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Add a = new Add(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.VALID, a.setNot(variables, a.getMin(variables)));
-      assertEquals(leftRange.min(), left.getMin(variables));
-      assertEquals(leftRange.max(), left.getMax(variables));
-      assertEquals(rightRange.min() + 1, right.getMin(variables));
-      assertEquals(rightRange.max(), right.getMax(variables));
-   }
-
-   @Test
-   public void testSetNotUpdatedMax() {
-      Range leftRange = parseRange("3");
-      Range rightRange = parseRange("3:5");
-      TestUtils environment = new TestUtils(leftRange, rightRange);
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      ConstraintStore variables = environment.getConstraintStore();
-      Add a = new Add(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.VALID, a.setNot(variables, a.getMax(variables)));
-      assertEquals(leftRange.min(), left.getMin(variables));
-      assertEquals(leftRange.max(), left.getMax(variables));
-      assertEquals(rightRange.min(), right.getMin(variables));
-      assertEquals(rightRange.max() - 1, right.getMax(variables));
-   }
-
-   @Test
-   public void testSetNotFailed() {
-      TestUtils environment = new TestUtils(parseRange("3"), parseRange("5"));
-      ConstraintStore variables = environment.getConstraintStore();
-      Add a = new Add(environment.getLeft(), environment.getRight());
-      assertEquals(ExpressionResult.INVALID, a.setNot(variables, a.getMax(variables)));
+      given("5", "3").setNot(7).unchanged();
+      given("5", "3").setNot(8).failed();
+      given("5", "3").setNot(9).unchanged();
    }
 }

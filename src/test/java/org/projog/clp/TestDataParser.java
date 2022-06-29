@@ -27,6 +27,7 @@ final class TestDataParser {
       }
       long min = parseLong(input.substring(0, pos));
       long max = parseLong(input.substring(pos + 1));
+      // TODO if min==max then throw exception to force use of "N" rather than "N:N"
       return new Range(min, max);
    }
 
