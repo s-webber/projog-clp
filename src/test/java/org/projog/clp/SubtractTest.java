@@ -15,6 +15,7 @@
  */
 package org.projog.clp;
 
+import static org.projog.clp.TestDataParser.parseRange;
 import static org.testng.Assert.assertEquals;
 
 public class SubtractTest extends AbstractExpressionTest {
@@ -308,6 +309,9 @@ public class SubtractTest extends AbstractExpressionTest {
          given(inputLeft, inputRight).setMax(range.max).unchanged();
          given(inputLeft, inputRight).setMax(range.max + 1).unchanged();
          given(inputLeft, inputRight).setMax(Long.MAX_VALUE).unchanged();
+
+         given(inputLeft, inputRight).setMin(range.max).then("" + parseRange(inputLeft).max, "" + parseRange(inputRight).min);
+         given(inputLeft, inputRight).setMax(range.min).then("" + parseRange(inputLeft).min, "" + parseRange(inputRight).max);
 
          given(inputLeft, inputRight).setMin(range.max + 1).failed();
          given(inputLeft, inputRight).setMin(Long.MAX_VALUE).failed();

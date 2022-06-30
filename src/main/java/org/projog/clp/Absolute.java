@@ -46,13 +46,8 @@ public class Absolute implements Expression {
       return Math.max(safeAbs(min), safeAbs(max));
    }
 
-   private long safeAbs(long v) {
+   private long safeAbs(long v) { // TODO move to MathUtils
       return v == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(v);
-   }
-
-   @Override
-   public ExpressionResult setNot(ConstraintStore s, long not) {
-      return ExpressionResult.VALID; // TODO
    }
 
    @Override

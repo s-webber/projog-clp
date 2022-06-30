@@ -85,17 +85,6 @@ public final class Subtract implements Expression {
    }
 
    @Override
-   public ExpressionResult setNot(ConstraintStore s, long not) {
-      if (getMax(s) == not) {
-         return setMax(s, safeSubtract(not, 1));
-      } else if (getMin(s) == not) {
-         return setMin(s, safeAdd(not, 1));
-      } else {
-         return ExpressionResult.VALID;
-      }
-   }
-
-   @Override
    public void walk(Consumer<Expression> r) {
       r.accept(this);
       left.walk(r);

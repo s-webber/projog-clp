@@ -15,6 +15,9 @@
  */
 package org.projog.clp;
 
+import static org.projog.clp.MathUtils.safeAdd;
+import static org.projog.clp.MathUtils.safeSubtract;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -29,7 +32,15 @@ public interface Expression {
 
    long getMax(ReadConstraintStore constraintStore);
 
-   ExpressionResult setNot(ConstraintStore constraintStore, long not);
+   default ExpressionResult setNot(ConstraintStore store, long not) {
+      if (getMax(store) == not) {
+         return setMax(store, safeSubtract(not, 1));
+      } else if (getMin(store) == not) {
+         return setMin(store, safeAdd(not, 1));
+      } else {
+         return ExpressionResult.VALID;
+      }
+   }
 
    ExpressionResult setMin(ConstraintStore constraintStore, long min);
 

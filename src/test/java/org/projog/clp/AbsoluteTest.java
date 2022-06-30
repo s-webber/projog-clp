@@ -15,255 +15,88 @@
  */
 package org.projog.clp;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.projog.clp.TestDataParser.parseRange;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotSame;
-import static org.testng.Assert.assertSame;
+public class AbsoluteTest extends AbstractSingleArgExpressionTest {
+   public AbsoluteTest() {
+      super(Absolute::new);
 
-import java.util.function.Consumer;
-import java.util.function.Function;
+      when("0").then("0");
+      when("2").then("2");
+      when("-7").then("7");
+      when("0:43").then("0:43");
+      when("-47:0").then("0:47");
+      when("5:42").then("5:42");
+      when("-42:-5").then("5:42");
+      when("-42:5").then("0:42");
+      when("MIN").then("MAX");
+      when("MAX").then("MAX");
+      when("MIN:MAX").then("0:MAX");
 
-import org.testng.annotations.Test;
+      given("0:100").setMin(1).then("1:100");
+      given("0:100").setMin(100).then("100");
+      given("-100:0").setMin(1).then("-100:-1");
+      given("-100:0").setMin(100).then("-100");
+      given("7:100").setMin(8).then("8:100");
+      given("-100:-7").setMin(8).then("-100:-8");
+      given("-45:7").setMin(8).then("-45:-8");
+      given("-7:45").setMin(8).then("8:45");
 
-public class AbsoluteTest {
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({
-               "0,0", // 0
-               "2,2", // +
-               "-7,7", // -
-               "0:43,0:43", // 0/+
-               "-47:0,0:47", // -/0
-               "5:42,5:42", // +/+
-               "-42:-5,5:42", // -/-
-               "-42:5,0:42", // -/+
-               "-5:42,0:42", // -/+
-               "MIN,MAX",
-               "MAX,MAX",
-               "MIN:MAX,0:MAX"})
-   public void testGetMinMax(String input, String expected) {
-      Range inputRange = parseRange(input);
-      Range expectedRange = parseRange(expected);
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable v = b.createVariable();
-      ClpConstraintStore store = b.build();
-      v.setMin(store, inputRange.min());
-      v.setMax(store, inputRange.max());
+      given("0:100").setMin(0).unchanged();
+      given("0:100").setMin(-1).unchanged();
+      given("0:100").setMin(-101).unchanged();
+      given("7:100").setMin(7).unchanged();
+      given("7:100").setMin(6).unchanged();
+      given("7:100").setMin(-1).unchanged();
+      given("-100:0").setMin(0).unchanged();
+      given("-100:0").setMin(-1).unchanged();
+      given("-100:0").setMin(-101).unchanged();
+      given("-100:-7").setMin(7).unchanged();
+      given("-100:-7").setMin(6).unchanged();
+      given("-100:100").setMin(7).unchanged();
+      given("-100:100").setMin(0).unchanged();
 
-      Absolute a = new Absolute(v);
+      given("0:100").setMin(101).failed();
+      given("-100:0").setMin(101).failed();
+      given("-100:100").setMin(101).failed();
 
-      assertEquals(expectedRange.min(), a.getMin(store));
-      assertEquals(expectedRange.max(), a.getMax(store));
-   }
+      given("0:100").setMax(0).then("0");
+      given("0:100").setMax(1).then("0:1");
+      given("0:100").setMax(99).then("0:99");
+      given("-100:0").setMax(0).then("0");
+      given("-100:0").setMax(1).then("-1:0");
+      given("-100:0").setMax(99).then("-99:0");
+      given("7:100").setMax(7).then("7");
+      given("7:100").setMax(8).then("7:8");
+      given("-100:-7").setMax(7).then("-7");
+      given("-100:-7").setMax(8).then("-8:-7");
+      given("-45:7").setMax(6).then("-6:6");
+      given("-7:45").setMax(6).then("-6:6");
+      given("-45:7").setMax(8).then("-8:7");
+      given("-7:45").setMax(8).then("-7:8");
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({ //
-               "0:100,1,1:100",
-               "0:100,100,100",
-               "-100:0,1,-100:-1",
-               "-100:1,100,-100",
-               "7:100,8,8:100",
-               "-100:-7,8,-100:-8",
-               "-45:7,8,-45:-8",
-               "-7:45,8,8:45"})
-   public void testSetMin_updated(String input, Long min, String expected) {
-      Range inputRange = parseRange(input);
-      Range expectedRange = parseRange(expected);
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable v = b.createVariable();
-      ClpConstraintStore store = b.build();
-      v.setMin(store, inputRange.min());
-      v.setMax(store, inputRange.max());
+      given("0:100").setMax(100).unchanged();
+      given("0:100").setMax(101).unchanged();
+      given("7:100").setMax(100).unchanged();
+      given("7:100").setMax(101).unchanged();
+      given("-100:0").setMax(100).unchanged();
+      given("-100:0").setMax(101).unchanged();
+      given("-100:-7").setMax(100).unchanged();
+      given("-100:-7").setMax(101).unchanged();
+      given("-100:100").setMax(100).unchanged();
+      given("-100:100").setMax(101).unchanged();
 
-      Absolute a = new Absolute(v);
-      ExpressionResult result = a.setMin(store, min);
+      given("1:100").setMax(0).failed();
+      given("-100:-1").setMax(0).failed();
+      given("-100:100").setMax(-101).failed();
+      given("0").setMax(-1).failed();
 
-      assertSame(ExpressionResult.VALID, result);
-      assertEquals(expectedRange.min(), v.getMin(store));
-      assertEquals(expectedRange.max(), v.getMax(store));
-      assertEquals(min, a.getMin(store));
-   }
+      given("7").setNot(6).unchanged();
+      given("7").setNot(7).failed();
+      given("7").setNot(8).unchanged();
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({ //
-               "0:100,0",
-               "0:100,-1",
-               "0:100,-101",
-               "7:100,-1",
-               "7:100,7",
-               "7:100,6",
-               "-100:0,0",
-               "-100:0,-1",
-               "-100:0,-101",
-               "-100:-7,-1",
-               "-100:-7,7",
-               "-100:-7,6",
-               "-100:100,7",
-               "-100:100,0"})
-   public void testSetMin_no_change(String input, Long min) {
-      Range inputRange = parseRange(input);
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable v = b.createVariable();
-      ClpConstraintStore store = b.build();
-      v.setMin(store, inputRange.min());
-      v.setMax(store, inputRange.max());
-
-      Absolute a = new Absolute(v);
-      ExpressionResult result = a.setMin(store, min);
-
-      assertSame(ExpressionResult.VALID, result);
-      assertEquals(inputRange.min(), v.getMin(store));
-      assertEquals(inputRange.max(), v.getMax(store));
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"0:100,101", "-100:0,101", "-100:100,101"})
-   public void testSetMin_failed(String input, Long min) {
-      Range inputRange = parseRange(input);
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable v = b.createVariable();
-      ClpConstraintStore store = b.build();
-      v.setMin(store, inputRange.min());
-      v.setMax(store, inputRange.max());
-
-      Absolute a = new Absolute(v);
-      ExpressionResult result = a.setMin(store, min);
-
-      assertSame(ExpressionResult.INVALID, result);
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({ //
-               "0:100,0,0",
-               "0:100,1,0:1",
-               "0:100,99,0:99",
-               "-100:0,0,0",
-               "-100:0,1,-1:0",
-               "-100:0,99,-99:0",
-               "7:100,7,7",
-               "7:100,8,7:8",
-               "-100:-7,7,-7",
-               "-100:-7,8,-8:-7",
-               "-45:7,6,-6:6",
-               "-7:45,6,-6:6",
-               "-45:7,8,-8:7",
-               "-7:45,8,-7:8"})
-   public void testSetMax_updated(String input, Long max, String expected) {
-      Range inputRange = parseRange(input);
-      Range expectedRange = parseRange(expected);
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable v = b.createVariable();
-      ClpConstraintStore store = b.build();
-      v.setMin(store, inputRange.min());
-      v.setMax(store, inputRange.max());
-
-      Absolute a = new Absolute(v);
-      ExpressionResult result = a.setMax(store, max);
-
-      assertSame(ExpressionResult.VALID, result);
-      assertEquals(expectedRange.min(), v.getMin(store));
-      assertEquals(expectedRange.max(), v.getMax(store));
-      assertEquals(max, a.getMax(store));
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({ //
-               "0:100,101",
-               "0:100,100",
-               "7:100,100",
-               "7:100,101",
-               "-100:0,100",
-               "-100:0,101",
-               "-100:-7,100",
-               "-100:-7,101",
-               "-100:100,100",
-               "-100:100,101"})
-   public void testSetMax_no_change(String input, Long max) {
-      Range inputRange = parseRange(input);
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable v = b.createVariable();
-      ClpConstraintStore store = b.build();
-      v.setMin(store, inputRange.min());
-      v.setMax(store, inputRange.max());
-
-      Absolute a = new Absolute(v);
-      ExpressionResult result = a.setMax(store, max);
-
-      assertSame(ExpressionResult.VALID, result);
-      assertEquals(inputRange.min(), v.getMin(store));
-      assertEquals(inputRange.max(), v.getMax(store));
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"1:100,0", "-100:-1,0", "-100:100,-101"})
-   public void testSetMax_failed(String input, Long max) {
-      Range inputRange = parseRange(input);
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable v = b.createVariable();
-      ClpConstraintStore store = b.build();
-      v.setMin(store, inputRange.min());
-      v.setMax(store, inputRange.max());
-
-      Absolute a = new Absolute(v);
-      ExpressionResult result = a.setMax(store, max);
-
-      assertSame(ExpressionResult.INVALID, result);
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"1:3,1", "1:3,2", "1:3,2", "1,1", "-3:3,3"})
-   public void testSetNot(String input, Long not) {
-      Range inputRange = parseRange(input);
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable v = b.createVariable();
-      ClpConstraintStore store = b.build();
-      v.setMin(store, inputRange.min());
-      v.setMax(store, inputRange.max());
-
-      Absolute a = new Absolute(v);
-      ExpressionResult result = a.setNot(store, not);
-
-      assertSame(ExpressionResult.VALID, result);
-      assertEquals(inputRange.min(), v.getMin(store));
-      assertEquals(inputRange.max(), v.getMax(store));
-   }
-
-   @Test
-   public void testWalk() {
-      // given
-      @SuppressWarnings("unchecked")
-      Consumer<Expression> consumer = mock(Consumer.class);
-      Expression e = mock(Expression.class);
-      Absolute testObject = new Absolute(e);
-
-      // when
-      testObject.walk(consumer);
-
-      // then
-      verify(consumer).accept(testObject);
-      verify(e).walk(consumer);
-      verifyNoMoreInteractions(consumer, e);
-   }
-
-   @Test
-   public void testReplaceVariables() {
-      // given
-      @SuppressWarnings("unchecked")
-      Function<Variable, Variable> function = mock(Function.class);
-      Expression e = mock(Expression.class);
-      Absolute testObject = new Absolute(e);
-      when(e.replaceVariables(function)).thenReturn(new FixedValue(42));
-
-      // when
-      Absolute replacement = testObject.replaceVariables(function);
-      assertNotSame(testObject, replacement);
-      assertEquals("Absolute [e=FixedValue [value=42]]", replacement.toString());
-
-      // then
-      verify(e).replaceVariables(function);
-      verifyNoMoreInteractions(function, e);
+      given("6:8").setNot(5).unchanged();
+      given("6:8").setNot(6).then("7:8");
+      given("6:8").setNot(7).unchanged();
+      given("6:8").setNot(8).then("6:7");
+      given("6:8").setNot(9).unchanged();
    }
 }

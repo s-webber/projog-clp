@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -40,16 +39,14 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-abstract class AbstractExpressionTest {
+abstract class AbstractSingleArgExpressionTest {
    private final Map<String, GetterTest> getterTests = new LinkedHashMap<>();
    private final List<SetterTest> setterTests = new ArrayList<>();
-   private final BiFunction<Expression, Expression, Expression> factory;
-   private final boolean flip;
+   private final Function<Expression, Expression> factory;
    private boolean running;
 
-   AbstractExpressionTest(BiFunction<Expression, Expression, Expression> factory, boolean flip) {
+   AbstractSingleArgExpressionTest(Function<Expression, Expression> factory) {
       this.factory = Objects.requireNonNull(factory);
-      this.flip = flip;
    }
 
    @BeforeTest
@@ -86,12 +83,15 @@ abstract class AbstractExpressionTest {
 
    @Test(dataProvider = "getTests")
    public final void testGetters(GetterTest t) {
-      TestUtils environment = new TestUtils(t.inputLeft, t.inputRight);
-      ConstraintStore store = environment.getConstraintStore();
-      Expression a = factory.apply(environment.getLeft(), environment.getRight());
+      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
+      Variable variable = b.createVariable();
+      ConstraintStore store = b.build();
+      Expression e = factory.apply(variable);
+      variable.setMin(store, t.input.min());
+      variable.setMax(store, t.input.max());
 
-      assertEquals(t.expected.min(), a.getMin(store));
-      assertEquals(t.expected.max(), a.getMax(store));
+      assertEquals(t.expected.min(), e.getMin(store));
+      assertEquals(t.expected.max(), e.getMax(store));
    }
 
    @Test(dataProvider = "setMinTests")
@@ -110,21 +110,20 @@ abstract class AbstractExpressionTest {
    }
 
    private void testSetter(SetterTest t) {
-      TestUtils environment = new TestUtils(t.inputLeft, t.inputRight);
-      ConstraintStore store = environment.getConstraintStore();
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      Expression e = factory.apply(left, right);
+      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
+      Variable variable = b.createVariable();
+      ConstraintStore store = b.build();
+      Expression e = factory.apply(variable);
+      variable.setMin(store, t.input.min());
+      variable.setMax(store, t.input.max());
 
-      assertSame(t.result, t.action.set(e, store, t.value));
+      assertSame(t.result, t.action.set(e, store, t.value), t.input + " " + t.value + " " + t.output);
       if (t.result == ExpressionResult.VALID) {
-         assertEquals(t.outputLeft.min(), left.getMin(store));
-         assertEquals(t.outputLeft.max(), left.getMax(store));
-         assertEquals(t.outputRight.min(), right.getMin(store));
-         assertEquals(t.outputRight.max(), right.getMax(store));
+         assertEquals(t.output.min(), variable.getMin(store));
+         assertEquals(t.output.max(), variable.getMax(store));
       } else {
-         assertNull(t.outputLeft);
-         assertNull(t.outputRight);
+         assertSame(t.result, ExpressionResult.INVALID);
+         assertNull(t.output);
       }
    }
 
@@ -133,18 +132,16 @@ abstract class AbstractExpressionTest {
       // given
       @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
-      Expression testObject = factory.apply(left, right);
+      Expression input = mock(Expression.class);
+      Expression testObject = factory.apply(input);
 
       // when
       testObject.walk(consumer);
 
       // then
       verify(consumer).accept(testObject);
-      verify(left).walk(consumer);
-      verify(right).walk(consumer);
-      verifyNoMoreInteractions(consumer, left, right);
+      verify(input).walk(consumer);
+      verifyNoMoreInteractions(consumer, input);
    }
 
    @Test
@@ -152,23 +149,20 @@ abstract class AbstractExpressionTest {
       // given
       @SuppressWarnings("unchecked")
       Function<Variable, Variable> function = mock(Function.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
-      Expression testObject = factory.apply(left, right);
-      org.mockito.Mockito.when(left.replaceVariables(function)).thenReturn(new FixedValue(42));
-      org.mockito.Mockito.when(right.replaceVariables(function)).thenReturn(new FixedValue(180));
+      Expression input = mock(Expression.class);
+      Expression testObject = factory.apply(input);
+      org.mockito.Mockito.when(input.replaceVariables(function)).thenReturn(new FixedValue(42));
 
       // when
       Expression replacement = testObject.replaceVariables(function);
       assertSame(testObject.getClass(), replacement.getClass());
       assertNotSame(testObject, replacement);
       String name = testObject.getClass().getName();
-      assertEquals(name.substring(name.lastIndexOf('.') + 1) + " [left=FixedValue [value=42], right=FixedValue [value=180]]", replacement.toString());
+      assertEquals(name.substring(name.lastIndexOf('.') + 1) + " [e=FixedValue [value=42]]", replacement.toString());
 
       // then
-      verify(left).replaceVariables(function);
-      verify(right).replaceVariables(function);
-      verifyNoMoreInteractions(function, left, right);
+      verify(input).replaceVariables(function);
+      verifyNoMoreInteractions(function, input);
    }
 
    @DataProvider
@@ -176,9 +170,6 @@ abstract class AbstractExpressionTest {
       List<Object[]> result = new ArrayList<>();
       for (GetterTest s : getterTests.values()) {
          result.add(new Object[] {s});
-         if (flip && !s.inputLeft.equals(s.inputRight)) {
-            result.add(new Object[] {s.flip()});
-         }
       }
       return result.toArray(new Object[result.size()][]);
    }
@@ -207,62 +198,43 @@ abstract class AbstractExpressionTest {
          }
 
          result.add(new Object[] {s});
-         if (flip && !s.inputLeft.equals(s.inputRight)) {
-            result.add(new Object[] {s.flip()});
-         }
       }
 
       return result.toArray(new Object[result.size()][]);
    }
 
-   Range getMinMax(String inputLeft, String inputRight) {
-      TestUtils environment = new TestUtils(TestDataParser.parseRange(inputLeft), TestDataParser.parseRange(inputRight));
-      ConstraintStore store = environment.getConstraintStore();
-      Variable left = environment.getLeft();
-      Variable right = environment.getRight();
-      Expression e = factory.apply(left, right);
-
-      return new Range(e.getMin(store), e.getMax(store));
-   }
-
-   SetterTest given(String left, String right) {
+   SetterTest given(String input) {
       assertFalse(running);
 
-      SetterTest g = new SetterTest(left, right);
+      SetterTest g = new SetterTest(input);
       setterTests.add(g);
       return g;
    }
 
-   GetterTest when(String left, String right) {
+   GetterTest when(String input) {
       assertFalse(running);
 
-      GetterTest w = new GetterTest(left, right);
-      String key = left + "," + right;
+      GetterTest w = new GetterTest(input);
+      String key = input;
       if (getterTests.put(key, w) != null) {
-         throw new IllegalStateException(key);
-      }
-      if (flip && !left.equals(right) && getterTests.containsKey(right + "," + left)) {
          throw new IllegalStateException(key);
       }
       return w;
    }
 
    static class SetterTest {
-      private final Range inputLeft;
-      private final Range inputRight;
+      private final Range input;
       private SetAction action;
       private Long value;
       private ExpressionResult result;
-      private Range outputLeft;
-      private Range outputRight;
+      private Range output;
 
-      private SetterTest(String inputLeft, String inputRight) {
-         this(TestDataParser.parseRange(inputLeft), TestDataParser.parseRange(inputRight));
+      private SetterTest(String input) {
+         this(TestDataParser.parseRange(input));
       }
 
-      private SetterTest(Range inputLeft, Range inputRight) {
-         this.inputLeft = inputLeft;
-         this.inputRight = inputRight;
+      private SetterTest(Range input) {
+         this.input = input;
       }
 
       SetterTest setMin(long value) {
@@ -286,60 +258,41 @@ abstract class AbstractExpressionTest {
          return this;
       }
 
-      void then(String outputLeft, String outputRight) {
-         // TODO if inputLeft==outputLeft and inputRight==outputRight then throw exception to force use of unchanged()
-         then(TestDataParser.parseRange(outputLeft), TestDataParser.parseRange(outputRight));
+      void then(String output) {
+         // TODO if output==input then throw exception to force use of unchanged()
+         then(TestDataParser.parseRange(output));
       }
 
-      void then(Range outputLeft, Range outputRight) {
+      void then(Range output) {
          assertNull(this.result);
          this.result = ExpressionResult.VALID;
-         this.outputLeft = outputLeft;
-         this.outputRight = outputRight;
+         this.output = output;
       }
 
       void unchanged() {
-         then(inputLeft, inputRight);
+         then(input);
       }
 
       void failed() {
          assertNull(this.result);
          this.result = ExpressionResult.INVALID;
       }
-
-      private SetterTest flip() {
-         SetterTest flip = new SetterTest(inputRight, inputLeft);
-         flip.action = this.action;
-         flip.value = this.value;
-         flip.result = this.result;
-         flip.outputLeft = this.outputRight;
-         flip.outputRight = this.outputLeft;
-         return flip;
-      }
    }
 
    static class GetterTest {
-      private final Range inputLeft;
-      private final Range inputRight;
+      private final Range input;
       private Range expected;
 
-      private GetterTest(String inputLeft, String inputRight) {
-         this(TestDataParser.parseRange(inputLeft), TestDataParser.parseRange(inputRight));
+      private GetterTest(String input) {
+         this(TestDataParser.parseRange(input));
       }
 
-      private GetterTest(Range inputLeft, Range inputRight) {
-         this.inputLeft = inputLeft;
-         this.inputRight = inputRight;
+      private GetterTest(Range input) {
+         this.input = input;
       }
 
       void then(String expected) {
          this.expected = TestDataParser.parseRange(expected);
-      }
-
-      private GetterTest flip() {
-         GetterTest flip = new GetterTest(inputRight, inputLeft);
-         flip.expected = this.expected;
-         return flip;
       }
    }
 
@@ -361,4 +314,5 @@ abstract class AbstractExpressionTest {
          }
       }
    }
+
 }

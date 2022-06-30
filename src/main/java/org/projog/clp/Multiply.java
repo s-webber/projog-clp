@@ -15,9 +15,7 @@
  */
 package org.projog.clp;
 
-import static org.projog.clp.MathUtils.safeAdd;
 import static org.projog.clp.MathUtils.safeMultiply;
-import static org.projog.clp.MathUtils.safeSubtract;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -274,17 +272,6 @@ public final class Multiply implements Expression {
          return result - 1;
       } else {
          return result + 1;
-      }
-   }
-
-   @Override
-   public ExpressionResult setNot(ConstraintStore s, long not) {
-      if (getMax(s) == not) {
-         return setMax(s, safeSubtract(not, 1));
-      } else if (getMin(s) == not) {
-         return setMin(s, safeAdd(not, 1));
-      } else {
-         return ExpressionResult.VALID;
       }
    }
 
