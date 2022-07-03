@@ -23,9 +23,9 @@ import static org.projog.clp.example.ExpressionUtils.multiply;
 import org.testng.annotations.Test;
 import org.projog.clp.BruteForceSearch;
 import org.projog.clp.ClpConstraintStore;
-import org.projog.clp.EqualTo;
 import org.projog.clp.Expression;
 import org.projog.clp.Variable;
+import org.projog.clp.compare.EqualTo;
 
 public class SendMoreMoneyTest {
    @Test

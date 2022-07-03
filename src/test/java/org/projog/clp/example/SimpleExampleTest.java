@@ -15,15 +15,25 @@
  */
 package org.projog.clp.example;
 
+import static org.projog.clp.example.ExpressionUtils.add;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
-import static org.projog.clp.example.ExpressionUtils.add;
 
-import org.testng.annotations.Test;
 import org.projog.clp.BruteForceSearch;
 import org.projog.clp.ClpConstraintStore;
 import org.projog.clp.Variable;
+import org.testng.annotations.Test;
 
+/**
+ * Example of finding solutions to a simple problem involving 3 variables.
+ * <p>
+ * <ol>
+ * <li>X is between 1 and 5 (inclusive).</li>
+ * <li>Y is between 0 and 4 (inclusive).</li>
+ * <li>X is less than Y.</li>
+ * <li>Z = 1 + X + Y.</li>
+ * </ol>
+ */
 public class SimpleExampleTest {
    @Test
    public void test() {
@@ -33,12 +43,12 @@ public class SimpleExampleTest {
       Variable z = builder.createVariable();
 
       // x in 1..5
-      // y in 0..4
-      // x < y
-      // z = 1 + x + y
       builder.enforce(x).between(1, 5);
+      // y in 0..4
       builder.enforce(y).between(0, 4);
+      // x < y
       builder.enforce(x).lessThan(y);
+      // z = 1 + x + y
       builder.enforce(z).equalTo(add(1, x, y));
 
       ClpConstraintStore environment = builder.build();

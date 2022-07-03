@@ -21,6 +21,11 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+/**
+ * Example of solving a sudoku puzzle.
+ * <p>
+ * See: https://en.wikipedia.org/wiki/Sudoku
+ */
 public class SudokuTest {
    @Test
    public void test() {

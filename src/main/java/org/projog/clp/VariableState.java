@@ -15,6 +15,8 @@
  */
 package org.projog.clp;
 
+import org.projog.clp.math.MathUtils;
+
 /** Represents the possible values for a variable. */
 public final class VariableState {
    /**

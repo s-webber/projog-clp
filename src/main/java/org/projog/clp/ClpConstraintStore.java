@@ -24,6 +24,13 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.projog.clp.bool.Equivalent;
+import org.projog.clp.compare.Between;
+import org.projog.clp.compare.EqualTo;
+import org.projog.clp.compare.LessThan;
+import org.projog.clp.compare.LessThanOrEqualTo;
+import org.projog.clp.compare.NotEqualTo;
+
 /** A collection of constraints and variables that represent a problem domain. */
 public final class ClpConstraintStore implements ConstraintStore {
    // variables

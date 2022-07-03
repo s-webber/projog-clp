@@ -283,3 +283,62 @@ public final class VariableTest {
       verifyNoMoreInteractions(function);
    }
 }
+
+class DummyConstraintStore implements ConstraintStore {
+   private final Variable variable;
+   private final VariableState state;
+
+   DummyConstraintStore(Variable variable, long value) {
+      this(variable, value, value);
+   }
+
+   DummyConstraintStore(Variable variable, long min, long max) {
+      if (max < min) {
+         throw new IllegalArgumentException();
+      }
+      this.variable = variable;
+      this.state = new VariableState();
+      state.setMin(min);
+      state.setMax(max);
+   }
+
+   @Override
+   public long getMin(Expression id) {
+      assertSame(variable, id);
+      return state.getMin();
+   }
+
+   @Override
+   public long getMax(Expression id) {
+      assertSame(variable, id);
+      return state.getMax();
+   }
+
+   @Override
+   public ExpressionResult setValue(Expression id, long value) {
+      assertSame(variable, id);
+      return toResult(state.setValue(value));
+   }
+
+   @Override
+   public ExpressionResult setMin(Expression id, long min) {
+      assertSame(variable, id);
+      return toResult(state.setMin(min));
+   }
+
+   @Override
+   public ExpressionResult setMax(Expression id, long max) {
+      assertSame(variable, id);
+      return toResult(state.setMax(max));
+   }
+
+   @Override
+   public ExpressionResult setNot(Expression id, long not) {
+      assertSame(variable, id);
+      return toResult(state.setNot(not));
+   }
+
+   private ExpressionResult toResult(VariableStateResult s) {
+      return s == VariableStateResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID;
+   }
+}

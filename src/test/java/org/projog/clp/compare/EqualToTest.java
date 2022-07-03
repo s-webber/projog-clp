@@ -13,33 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.projog.clp.example;
+package org.projog.clp.compare;
 
-import org.projog.clp.Expression;
-import org.projog.clp.FixedValue;
-import org.projog.clp.compare.EqualTo;
+public class EqualToTest extends AbstractConstraintTest {
+   public EqualToTest() {
+      super(EqualTo::new, true);
 
-final class ConstraintUtils {
-   private ConstraintUtils() {
-   }
+      enforce("1", "1").matched("1");
+      enforce("8", "7:9").matched("8");
+      enforce("-8:14", "14:42").matched("14");
 
-   static Builder is(long v) {
-      return is(new FixedValue(v));
-   }
+      enforce("0:9", "0:9").unresolved("0:9");
+      enforce("-8:14", "12:42").unresolved("12:14");
 
-   static Builder is(Expression e) {
-      return new Builder(e);
-   }
+      enforce("-1", "0:9").failed();
+      enforce("10", "0:9").failed();
+      enforce("-9:-1", "1:9").failed();
+      enforce("12:14", "15:22").failed();
 
-   static class Builder {
-      private final Expression left;
-
-      private Builder(Expression e) {
-         this.left = e;
-      }
-
-      EqualTo equalTo(Expression right) {
-         return new EqualTo(left, right);
-      }
+      prevent("7", "8").matched();
+      prevent("7", "7").failed();
    }
 }

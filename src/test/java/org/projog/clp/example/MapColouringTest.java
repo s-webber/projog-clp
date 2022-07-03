@@ -18,11 +18,16 @@ package org.projog.clp.example;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
-import org.testng.annotations.Test;
 import org.projog.clp.BruteForceSearch;
 import org.projog.clp.ClpConstraintStore;
 import org.projog.clp.Variable;
+import org.testng.annotations.Test;
 
+/**
+ * Example of map colouring.
+ * <p>
+ * See: https://en.wikipedia.org/wiki/Map_coloring
+ */
 public class MapColouringTest {
    @Test
    public void test() {

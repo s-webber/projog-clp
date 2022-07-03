@@ -15,11 +15,13 @@
  */
 package org.projog.clp;
 
-import static org.projog.clp.MathUtils.safeAdd;
-import static org.projog.clp.MathUtils.safeSubtract;
+import static org.projog.clp.math.MathUtils.safeAdd;
+import static org.projog.clp.math.MathUtils.safeSubtract;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.projog.clp.math.Add;
 
 /**
  * Represents something that can have a range of numeric values.

@@ -26,6 +26,20 @@ import org.projog.clp.ClpConstraintStore;
 import org.projog.clp.Variable;
 import org.testng.annotations.Test;
 
+/**
+ * Example of solving a multiple choice question.
+ * <p>
+ * Which answer in this list is the correct answer to this question?
+ * <ol>
+ * <li>All of the below.</li>
+ * <li>None of the below.</li>
+ * <li>All of the above.</li>
+ * <li>One of the above.</li>
+ * <li>None of the above.</li>
+ * <li>None of the above.</li>
+ * </ol>
+ * See: https://www.youtube.com/watch?v=h_fLW4xlOyA
+ */
 public class SingleAnswerTest {
    @Test
    public void test() {

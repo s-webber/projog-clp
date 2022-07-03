@@ -20,15 +20,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import org.projog.clp.Absolute;
-import org.projog.clp.Add;
 import org.projog.clp.Expression;
 import org.projog.clp.FixedValue;
-import org.projog.clp.Multiply;
-import org.projog.clp.Subtract;
+import org.projog.clp.math.Absolute;
+import org.projog.clp.math.Add;
+import org.projog.clp.math.Multiply;
+import org.projog.clp.math.Subtract;
 
 // added to support construction of examples TODO if useful then move from test to main
 final class ExpressionUtils {
+   private ExpressionUtils() {
+   }
+
    static Expression diff(Expression left, Expression right) {
       return new Absolute(new Subtract(left, right));
    }

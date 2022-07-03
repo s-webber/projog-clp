@@ -27,6 +27,11 @@ import java.util.Map;
 import org.projog.clp.Variable;
 import org.testng.annotations.Test;
 
+/**
+ * Example of solving a killer sudoku puzzle.
+ * <p>
+ * See: https://en.wikipedia.org/wiki/Killer_sudoku
+ */
 public class KillerSudokuTest {
    @Test
    public void test() {

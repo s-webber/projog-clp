@@ -15,17 +15,22 @@
  */
 package org.projog.clp.example;
 
+import static org.projog.clp.example.ExpressionUtils.add;
+import static org.projog.clp.example.ExpressionUtils.diff;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
-import static org.projog.clp.example.ExpressionUtils.add;
-import static org.projog.clp.example.ExpressionUtils.diff;
 
-import org.testng.annotations.Test;
 import org.projog.clp.BruteForceSearch;
 import org.projog.clp.ClpConstraintStore;
 import org.projog.clp.Variable;
+import org.testng.annotations.Test;
 
+/**
+ * Example of solving the zebra puzzle.
+ * <p>
+ * See: https://en.wikipedia.org/wiki/Zebra_Puzzle
+ */
 public class ZebraPuzzleTest {
    @Test
    public void test() {

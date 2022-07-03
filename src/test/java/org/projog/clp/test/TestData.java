@@ -13,33 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.projog.clp.example;
+package org.projog.clp.test;
 
-import org.projog.clp.Expression;
-import org.projog.clp.FixedValue;
-import org.projog.clp.compare.EqualTo;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-final class ConstraintUtils {
-   private ConstraintUtils() {
-   }
-
-   static Builder is(long v) {
-      return is(new FixedValue(v));
-   }
-
-   static Builder is(Expression e) {
-      return new Builder(e);
-   }
-
-   static class Builder {
-      private final Expression left;
-
-      private Builder(Expression e) {
-         this.left = e;
-      }
-
-      EqualTo equalTo(Expression right) {
-         return new EqualTo(left, right);
-      }
-   }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface TestData {
+   String[] value();
 }
