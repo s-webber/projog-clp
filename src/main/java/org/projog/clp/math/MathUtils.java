@@ -17,7 +17,7 @@ package org.projog.clp.math;
 
 /**
  * Contains methods for performing basic numeric operations which handle overflow errors by rounding down to
- * {@link Long.MAX_VALUE} or up to {@link Long.MIN_VALUE}.
+ * {@code java.lang.Long.MAX_VALUE} or up to {@code java.lang.Long.MIN_VALUE}.
  */
 public final class MathUtils {
    private MathUtils() {
@@ -27,8 +27,8 @@ public final class MathUtils {
     * Returns the sum of the arguments, rounding up or down if the result overflows a long.
     * <p>
     * e.g.:<br>
-    * {@code safeAdd(Long.MAX_Value, 1)} returns {@link Long.MAX_VALUE}.<br>
-    * {@code safeAdd(Long.MIN_Value, -1)} returns {@link Long.MIN_VALUE}.
+    * {@code safeAdd(Long.MAX_Value, 1)} returns {@code Long.MAX_VALUE}.<br>
+    * {@code safeAdd(Long.MIN_Value, -1)} returns {@code Long.MIN_VALUE}.
     *
     * @see java.lang.Math#addExact(long, long)
     */
@@ -44,8 +44,8 @@ public final class MathUtils {
     * Returns the difference of the arguments, rounding up or down if the result overflows a long.
     * <p>
     * e.g.:<br>
-    * {@code safeSubtract(Long.MAX_Value, -1)} returns {@link Long.MAX_VALUE}.<br>
-    * {@code safeSubtract(Long.MIN_Value, 1)} returns {@link Long.MIN_VALUE}.
+    * {@code safeSubtract(Long.MAX_Value, -1)} returns {@code Long.MAX_VALUE}.<br>
+    * {@code safeSubtract(Long.MIN_Value, 1)} returns {@code Long.MIN_VALUE}.
     *
     * @see java.lang.Math#subtractExact(long, long)
     */
@@ -61,8 +61,8 @@ public final class MathUtils {
     * Returns the product of the arguments, rounding up or down if the result overflows a long.
     * <p>
     * e.g.:<br>
-    * {@code safeMultiply(Long.MAX_Value, 1)} returns {@link Long.MAX_VALUE}.<br>
-    * {@code safeMultiply(Long.MIN_Value, 1)} returns {@link Long.MIN_VALUE}.
+    * {@code safeMultiply(Long.MAX_Value, 1)} returns {@code Long.MAX_VALUE}.<br>
+    * {@code safeMultiply(Long.MIN_Value, 1)} returns {@code Long.MIN_VALUE}.
     *
     * @see java.lang.Math#multiplyExact(long, long)
     */
@@ -79,8 +79,8 @@ public final class MathUtils {
    /**
     * Returns the absolute value of a {@code long} value.
     * <p>
-    * {@code safeAbs(Long.MIN_VALUE)} returns {@link Long.MAX_VALUE} whereas {@code Math.abs(Long.MIN_Value)} returns
-    * {@link Long.MIN_VALUE}.
+    * {@code safeAbs(Long.MIN_VALUE)} returns {@code Long.MAX_VALUE} whereas {@code Math.abs(Long.MIN_Value)} returns
+    * {@code Long.MIN_VALUE}.
     *
     * @see java.lang.Math#abs(long)
     */
