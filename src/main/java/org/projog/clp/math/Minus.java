@@ -24,8 +24,8 @@ import java.util.function.Function;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 public final class Minus implements Expression {
    private final Expression e;
@@ -61,8 +61,8 @@ public final class Minus implements Expression {
    }
 
    @Override
-   public Minus replaceVariables(Function<Variable, Variable> function) {
-      return new Minus(e.replaceVariables(function));
+   public Minus replace(Function<LeafExpression, LeafExpression> function) {
+      return new Minus(e.replace(function));
    }
 
    @Override

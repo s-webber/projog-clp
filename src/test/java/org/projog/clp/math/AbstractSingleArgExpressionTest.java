@@ -41,6 +41,7 @@ import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
 import org.projog.clp.FixedValue;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.Variable;
 import org.projog.clp.test.Range;
 import org.projog.clp.test.RangeParser;
@@ -155,23 +156,23 @@ abstract class AbstractSingleArgExpressionTest {
    }
 
    @Test
-   public final void testReplaceVariables() {
+   public final void testReplace() {
       // given
       @SuppressWarnings("unchecked")
-      Function<Variable, Variable> function = mock(Function.class);
+      Function<LeafExpression, LeafExpression> function = mock(Function.class);
       Expression input = mock(Expression.class);
       Expression testObject = factory.apply(input);
-      org.mockito.Mockito.when(input.replaceVariables(function)).thenReturn(new FixedValue(42));
+      org.mockito.Mockito.when(input.replace(function)).thenReturn(new FixedValue(42));
 
       // when
-      Expression replacement = testObject.replaceVariables(function);
+      Expression replacement = testObject.replace(function);
       assertSame(testObject.getClass(), replacement.getClass());
       assertNotSame(testObject, replacement);
       String name = testObject.getClass().getName();
       assertEquals(name.substring(name.lastIndexOf('.') + 1) + " [e=FixedValue [value=42]]", replacement.toString());
 
       // then
-      verify(input).replaceVariables(function);
+      verify(input).replace(function);
       verifyNoMoreInteractions(function, input);
    }
 

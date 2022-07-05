@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /** Represents a single immutable number. */
-public final class FixedValue implements Expression, Constraint {
+public final class FixedValue implements LeafExpression {
    private static final int TRUE = 1;
    private static final int FALSE = 0;
 
@@ -87,7 +87,11 @@ public final class FixedValue implements Expression, Constraint {
    }
 
    @Override
-   public FixedValue replaceVariables(Function<Variable, Variable> r) {
+   public LeafExpression replace(Function<LeafExpression, LeafExpression> function) {
+      LeafExpression r = function.apply(this);
+      if (r != null) {
+         return r;
+      }
       return this;
    }
 

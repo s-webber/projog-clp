@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /** An expression that can have one or more possible numeric values. */
-public final class Variable implements Expression, Constraint {
+public final class Variable implements LeafExpression {
    private static final int TRUE = 1;
    private static final int FALSE = 0;
 
@@ -111,8 +111,8 @@ public final class Variable implements Expression, Constraint {
    }
 
    @Override
-   public Variable replaceVariables(Function<Variable, Variable> function) {
-      Variable r = function.apply(this);
+   public LeafExpression replace(Function<LeafExpression, LeafExpression> function) {
+      LeafExpression r = function.apply(this);
       if (r != null) {
          return r;
       }

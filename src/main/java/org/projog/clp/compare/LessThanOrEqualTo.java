@@ -23,8 +23,8 @@ import org.projog.clp.ConstraintResult;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 /** Enforces that the value of one {@code Expression} is less than or equal to another. */
 public final class LessThanOrEqualTo implements Constraint {
@@ -73,7 +73,7 @@ public final class LessThanOrEqualTo implements Constraint {
 
    @Override
    public ConstraintResult prevent(ConstraintStore constraintStore) {
-      return LessThan.enforce(right, left,constraintStore);
+      return LessThan.enforce(right, left, constraintStore);
    }
 
    @Override
@@ -83,8 +83,8 @@ public final class LessThanOrEqualTo implements Constraint {
    }
 
    @Override
-   public LessThanOrEqualTo replaceVariables(Function<Variable, Variable> r) {
-      return new LessThanOrEqualTo(left.replaceVariables(r), right.replaceVariables(r));
+   public LessThanOrEqualTo replace(Function<LeafExpression, LeafExpression> r) {
+      return new LessThanOrEqualTo(left.replace(r), right.replace(r));
    }
 
    @Override

@@ -30,6 +30,7 @@ import org.projog.clp.ConstraintResult;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.FixedValue;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.Variable;
 import org.projog.clp.test.TestData;
 import org.projog.clp.test.TestDataProvider;
@@ -125,21 +126,21 @@ public class BetweenTest {
    }
 
    @Test
-   public void testReplaceVariables() {
+   public void testReplace() {
       // given
       @SuppressWarnings("unchecked")
-      Function<Variable, Variable> function = mock(Function.class);
+      Function<LeafExpression, LeafExpression> function = mock(Function.class);
       Expression expression = mock(Expression.class);
       Between testObject = new Between(expression, 7, 42);
-      when(expression.replaceVariables(function)).thenReturn(new FixedValue(30));
+      when(expression.replace(function)).thenReturn(new FixedValue(30));
 
       // when
-      Between replacement = testObject.replaceVariables(function);
+      Between replacement = testObject.replace(function);
       assertNotSame(testObject, replacement);
       assertEquals("Between [e=FixedValue [value=30], min=7, max=42]", replacement.toString());
 
       // then
-      verify(expression).replaceVariables(function);
+      verify(expression).replace(function);
       verifyNoMoreInteractions(function, expression);
    }
 }

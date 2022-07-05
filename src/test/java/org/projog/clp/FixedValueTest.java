@@ -18,6 +18,7 @@ package org.projog.clp;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -154,17 +155,37 @@ public class FixedValueTest {
    }
 
    @Test
-   public void testReplaceVariables() {
+   public void testReplace_null() {
       // given
-      FixedValue testObject = new FixedValue(7);
       @SuppressWarnings("unchecked")
-      Function<Variable, Variable> function = mock(Function.class);
+      Function<LeafExpression, LeafExpression> function = mock(Function.class);
+      FixedValue testObject = new FixedValue(7);
+      when(function.apply(testObject)).thenReturn(null);
 
       // when
-      FixedValue replacement = testObject.replaceVariables(function);
+      LeafExpression replacement = testObject.replace(function);
       assertSame(testObject, replacement);
 
       // then
+      verify(function).apply(testObject);
+      verifyNoMoreInteractions(function);
+   }
+
+   @Test
+   public void testReplace_other() {
+      // given
+      @SuppressWarnings("unchecked")
+      Function<LeafExpression, LeafExpression> function = mock(Function.class);
+      FixedValue testObject = new FixedValue(7);
+      Variable expected = new Variable(30);
+      when(function.apply(testObject)).thenReturn(expected);
+
+      // when
+      LeafExpression replacement = testObject.replace(function);
+      assertSame(expected, replacement);
+
+      // then
+      verify(function).apply(testObject);
       verifyNoMoreInteractions(function);
    }
 }

@@ -58,13 +58,13 @@ public interface Expression {
    void walk(Consumer<Expression> consumer);
 
    /**
-    * Returns a {@code Expression} with {@code Variable}s in this {@code Expression} replaced with values returned from
-    * the given function.
+    * Returns a {@code Expression} with {@code LeafExpression}s in this {@code Expression} replaced with values returned
+    * from the given function.
     *
-    * @param function returns the {@code Variable} to use as a replacement for the {@code Variable} it is called with,
-    * or {@code null} if the original {@code Variable} should continue to be used.
-    * @return a new {@code Expression} with {@code Variable}s in this {@code Expression} replaced with versions returned
-    * from {@code function}.
+    * @param function returns the {@code LeafExpression} to use as a replacement for the {@code LeafExpression} it is
+    * called with, or {@code null} if the original {@code LeafExpression} should continue to be used.
+    * @return a new {@code Expression} with {@code LeafExpression}s in this {@code Expression} replaced with versions
+    * returned from {@code function}.
     */
-   Expression replaceVariables(Function<Variable, Variable> function);
+   Expression replace(Function<LeafExpression, LeafExpression> function);
 }

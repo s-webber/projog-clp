@@ -25,8 +25,8 @@ import java.util.function.Function;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 /** The difference of two {@code Expression}s. */
 public final class Subtract implements Expression {
@@ -98,8 +98,8 @@ public final class Subtract implements Expression {
    }
 
    @Override
-   public Subtract replaceVariables(Function<Variable, Variable> r) {
-      return new Subtract(left.replaceVariables(r), right.replaceVariables(r));
+   public Subtract replace(Function<LeafExpression, LeafExpression> r) {
+      return new Subtract(left.replace(r), right.replace(r));
    }
 
    @Override

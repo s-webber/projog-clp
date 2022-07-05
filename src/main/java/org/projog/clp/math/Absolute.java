@@ -25,8 +25,8 @@ import java.util.function.Function;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 public final class Absolute implements Expression {
    private final Expression e;
@@ -98,8 +98,8 @@ public final class Absolute implements Expression {
    }
 
    @Override
-   public Absolute replaceVariables(Function<Variable, Variable> function) {
-      return new Absolute(e.replaceVariables(function));
+   public Absolute replace(Function<LeafExpression, LeafExpression> function) {
+      return new Absolute(e.replace(function));
    }
 
    @Override

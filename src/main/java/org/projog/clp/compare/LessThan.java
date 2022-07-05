@@ -23,8 +23,8 @@ import org.projog.clp.ConstraintResult;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 /** Enforces that the value of one {@code Expression} is less than another. */
 public final class LessThan implements Constraint {
@@ -83,8 +83,8 @@ public final class LessThan implements Constraint {
    }
 
    @Override
-   public LessThan replaceVariables(Function<Variable, Variable> r) {
-      return new LessThan(left.replaceVariables(r), right.replaceVariables(r));
+   public LessThan replace(Function<LeafExpression, LeafExpression> r) {
+      return new LessThan(left.replace(r), right.replace(r));
    }
 
    @Override

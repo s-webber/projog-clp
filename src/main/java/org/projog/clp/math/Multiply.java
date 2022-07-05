@@ -25,8 +25,8 @@ import java.util.function.Function;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 /** The product of two {@code Expression}s. */
 public final class Multiply implements Expression {
@@ -289,8 +289,8 @@ public final class Multiply implements Expression {
    }
 
    @Override
-   public Multiply replaceVariables(Function<Variable, Variable> r) {
-      return new Multiply(left.replaceVariables(r), right.replaceVariables(r));
+   public Multiply replace(Function<LeafExpression, LeafExpression> r) {
+      return new Multiply(left.replace(r), right.replace(r));
    }
 
    @Override

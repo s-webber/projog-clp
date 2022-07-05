@@ -40,7 +40,7 @@ import org.testng.annotations.Test;
  * </ol>
  * See: https://www.youtube.com/watch?v=h_fLW4xlOyA
  */
-public class SingleAnswerTest {
+public class MultipleChoiceTest {
    @Test
    public void test() {
       ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();

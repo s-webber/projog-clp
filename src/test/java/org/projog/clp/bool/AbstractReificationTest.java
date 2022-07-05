@@ -34,7 +34,7 @@ import org.projog.clp.Constraint;
 import org.projog.clp.ConstraintResult;
 import org.projog.clp.Expression;
 import org.projog.clp.FixedValue;
-import org.projog.clp.Variable;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.test.TestUtils;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
@@ -120,26 +120,26 @@ abstract class AbstractReificationTest {
    }
 
    @Test
-   public final void testReplaceVariables() {
+   public final void testReplace() {
       // given
       @SuppressWarnings("unchecked")
-      Function<Variable, Variable> function = mock(Function.class);
+      Function<LeafExpression, LeafExpression> function = mock(Function.class);
       Constraint left = mock(Constraint.class);
       Constraint right = mock(Constraint.class);
       Constraint testObject = factory.apply(left, right);
-      when(left.replaceVariables(function)).thenReturn(new FixedValue(42));
-      when(right.replaceVariables(function)).thenReturn(new FixedValue(180));
+      when(left.replace(function)).thenReturn(new FixedValue(42));
+      when(right.replace(function)).thenReturn(new FixedValue(180));
 
       // when
-      Constraint replacement = testObject.replaceVariables(function);
+      Constraint replacement = testObject.replace(function);
       assertSame(testObject.getClass(), replacement.getClass());
       assertNotSame(testObject, replacement);
       String name = testObject.getClass().getName();
       assertEquals(name.substring(name.lastIndexOf('.') + 1) + " [left=FixedValue [value=42], right=FixedValue [value=180]]", replacement.toString());
 
       // then
-      verify(left).replaceVariables(function);
-      verify(right).replaceVariables(function);
+      verify(left).replace(function);
+      verify(right).replace(function);
       verifyNoMoreInteractions(function, left, right);
    }
 

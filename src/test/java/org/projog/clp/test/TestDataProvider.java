@@ -44,6 +44,8 @@ public final class TestDataProvider {
             row[i] = Enum.valueOf(type, element);
          } else if (type == Long.class) {
             row[i] = Long.parseLong(element);
+         } else if (type == Range.class) {
+            row[i] = RangeParser.parseRange(element);
          } else {
             row[i] = element;
          }

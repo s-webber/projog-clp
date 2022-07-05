@@ -21,6 +21,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
+import static org.testng.Assert.fail;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -145,18 +146,28 @@ public final class VariableTest {
       assertSame(ConstraintResult.UNRESOLVED, v.reify(s));
    }
 
-   @Test(expectedExceptions = IllegalStateException.class)
+   @Test
    public void testReifyToHigh() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, 2);
-      assertSame(ConstraintResult.FAILED, v.reify(s));
+      try {
+         v.reify(s);
+         fail();
+      } catch (IllegalStateException e) {
+         assertEquals("Expected 0 or 1 but got 2", e.getMessage());
+      }
    }
 
-   @Test(expectedExceptions = IllegalStateException.class)
+   @Test
    public void testReifyToLow() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, -1);
-      assertSame(ConstraintResult.FAILED, v.reify(s));
+      try {
+         v.reify(s);
+         fail();
+      } catch (IllegalStateException e) {
+         assertEquals("Expected 0 or 1 but got -1", e.getMessage());
+      }
    }
 
    @Test
@@ -182,18 +193,28 @@ public final class VariableTest {
       assertSame(ConstraintResult.FAILED, v.enforce(s));
    }
 
-   @Test(expectedExceptions = IllegalStateException.class)
+   @Test
    public void testEnforceToHigh() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, 2);
-      assertSame(ConstraintResult.FAILED, v.enforce(s));
+      try {
+         v.enforce(s);
+         fail();
+      } catch (IllegalStateException e) {
+         assertEquals("Expected 0 or 1", e.getMessage());
+      }
    }
 
-   @Test(expectedExceptions = IllegalStateException.class)
+   @Test
    public void testEnforceToLow() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, -1);
-      assertSame(ConstraintResult.FAILED, v.enforce(s));
+      try {
+         v.enforce(s);
+         fail();
+      } catch (IllegalStateException e) {
+         assertEquals("Expected 0 or 1", e.getMessage());
+      }
    }
 
    @Test
@@ -219,18 +240,28 @@ public final class VariableTest {
       assertSame(ConstraintResult.FAILED, v.prevent(s));
    }
 
-   @Test(expectedExceptions = IllegalStateException.class)
+   @Test
    public void testPreventToHigh() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, 2);
-      assertSame(ConstraintResult.FAILED, v.prevent(s));
+      try {
+         v.prevent(s);
+         fail();
+      } catch (IllegalStateException e) {
+         assertEquals("Expected 0 or 1", e.getMessage());
+      }
    }
 
-   @Test(expectedExceptions = IllegalStateException.class)
+   @Test
    public void testPreventToLow() {
       Variable v = new Variable(99);
       ConstraintStore s = new DummyConstraintStore(v, -1);
-      assertSame(ConstraintResult.FAILED, v.prevent(s));
+      try {
+         v.prevent(s);
+         fail();
+      } catch (IllegalStateException e) {
+         assertEquals("Expected 0 or 1", e.getMessage());
+      }
    }
 
    @Test
@@ -249,15 +280,15 @@ public final class VariableTest {
    }
 
    @Test
-   public void testReplaceVariables_null() {
+   public void testReplace_null() {
       // given
       @SuppressWarnings("unchecked")
-      Function<Variable, Variable> function = mock(Function.class);
+      Function<LeafExpression, LeafExpression> function = mock(Function.class);
       Variable testObject = new Variable(1);
       when(function.apply(testObject)).thenReturn(null);
 
       // when
-      Expression replacement = testObject.replaceVariables(function);
+      LeafExpression replacement = testObject.replace(function);
       assertSame(testObject, replacement);
 
       // then
@@ -266,16 +297,16 @@ public final class VariableTest {
    }
 
    @Test
-   public void testReplaceVariables_other() {
+   public void testReplace_other() {
       // given
       @SuppressWarnings("unchecked")
-      Function<Variable, Variable> function = mock(Function.class);
+      Function<LeafExpression, LeafExpression> function = mock(Function.class);
       Variable testObject = new Variable(1);
       Variable expected = new Variable(30);
       when(function.apply(testObject)).thenReturn(expected);
 
       // when
-      Variable replacement = testObject.replaceVariables(function);
+      LeafExpression replacement = testObject.replace(function);
       assertSame(expected, replacement);
 
       // then

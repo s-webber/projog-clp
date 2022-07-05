@@ -23,8 +23,8 @@ import org.projog.clp.Constraint;
 import org.projog.clp.ConstraintResult;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 public final class Equivalent implements Constraint {
    private final Constraint left;
@@ -83,8 +83,8 @@ public final class Equivalent implements Constraint {
    }
 
    @Override
-   public Equivalent replaceVariables(Function<Variable, Variable> r) {
-      return new Equivalent(left.replaceVariables(r), right.replaceVariables(r));
+   public Equivalent replace(Function<LeafExpression, LeafExpression> r) {
+      return new Equivalent(left.replace(r), right.replace(r));
    }
 
    @Override

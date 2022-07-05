@@ -23,8 +23,8 @@ import org.projog.clp.ConstraintResult;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 /** Enforces that the possible values of a given {@code Expression} are within the given range. */
 public final class Between implements Constraint {
@@ -89,8 +89,8 @@ public final class Between implements Constraint {
    }
 
    @Override
-   public Between replaceVariables(Function<Variable, Variable> r) {
-      return new Between(e.replaceVariables(r), min, max);
+   public Between replace(Function<LeafExpression, LeafExpression> r) {
+      return new Between(e.replace(r), min, max);
    }
 
    @Override

@@ -23,8 +23,8 @@ import org.projog.clp.ConstraintResult;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 /** Enforces that two {@code Expression}s do not have the same value. */
 public final class NotEqualTo implements Constraint {
@@ -90,8 +90,8 @@ public final class NotEqualTo implements Constraint {
    }
 
    @Override
-   public NotEqualTo replaceVariables(Function<Variable, Variable> r) {
-      return new NotEqualTo(left.replaceVariables(r), right.replaceVariables(r));
+   public NotEqualTo replace(Function<LeafExpression, LeafExpression> r) {
+      return new NotEqualTo(left.replace(r), right.replace(r));
    }
 
    @Override

@@ -24,8 +24,8 @@ import org.projog.clp.ConstraintResult;
 import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.ExpressionResult;
+import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
-import org.projog.clp.Variable;
 
 /** Enforces that two {@code Expression}s have the same value. */
 public final class EqualTo implements Constraint {
@@ -89,8 +89,8 @@ public final class EqualTo implements Constraint {
    }
 
    @Override
-   public EqualTo replaceVariables(Function<Variable, Variable> r) {
-      return new EqualTo(left.replaceVariables(r), right.replaceVariables(r));
+   public EqualTo replace(Function<LeafExpression, LeafExpression> r) {
+      return new EqualTo(left.replace(r), right.replace(r));
    }
 
    @Override

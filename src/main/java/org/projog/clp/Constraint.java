@@ -36,13 +36,13 @@ public interface Constraint {
    void walk(Consumer<Expression> consumer);
 
    /**
-    * Returns new {@code Constraint} with {@code Variable}s in this {@code Constraint} replaced with values returned
-    * from the given function.
+    * Returns new {@code Constraint} with {@code LeafExpression}s in this {@code Constraint} replaced with values
+    * returned from the given function.
     *
-    * @param function returns the {@code Variable} to use as a replacement for the {@code Variable} it is called with,
-    * or {@code null} if the original {@code Variable} should continue to be used.
-    * @return a new {@code Constraint} with {@code Variable}s in this {@code Constraint} replaced with versions returned
-    * from {@code function}.
+    * @param function returns the {@code LeafExpression} to use as a replacement for the {@code LeafExpression} it is
+    * called with, or {@code null} if the original {@code LeafExpression} should continue to be used.
+    * @return a new {@code Constraint} with {@code LeafExpression}s in this {@code Constraint} replaced with versions
+    * returned from {@code function}.
     */
-   Constraint replaceVariables(Function<Variable, Variable> function);
+   Constraint replace(Function<LeafExpression, LeafExpression> function);
 }
