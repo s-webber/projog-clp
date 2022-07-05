@@ -354,7 +354,7 @@ public final class VariableState {
    }
 
    private void validate() {
-      if (bitset == CORRUPT) {
+      if (isCorrupt()) {
          throw new IllegalStateException();
       }
    }
@@ -364,9 +364,13 @@ public final class VariableState {
       return min == max;
    }
 
+   public boolean isCorrupt() {
+      return bitset == CORRUPT;
+   }
+
    @Override
    public String toString() {
-      if (bitset == CORRUPT) {
+      if (isCorrupt()) {
          return "corrupt";
       } else if (isSingleValue()) {
          return Long.toString(min);

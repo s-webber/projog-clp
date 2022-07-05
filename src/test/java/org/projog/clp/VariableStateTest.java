@@ -42,6 +42,53 @@ public class VariableStateTest {
       assertEquals(Long.MIN_VALUE, v.getMin());
       assertEquals(Long.MAX_VALUE, v.getMax());
       assertEquals(Long.MAX_VALUE, v.count());
+      assertFalse(v.isSingleValue());
+      assertFalse(v.isCorrupt());
+   }
+
+   @Test
+   public void testSetMinSetMax() {
+      int value = 7;
+
+      VariableState v = new VariableState();
+      assertFalse(v.isSingleValue());
+
+      assertSame(VariableStateResult.UPDATED, v.setMin(value));
+      assertFalse(v.isSingleValue());
+
+      assertSame(VariableStateResult.UPDATED, v.setMax(value));
+      assertTrue(v.isSingleValue());
+
+      assertEquals(value, v.getMin());
+      assertEquals(value, v.getMax());
+      assertEquals(1, v.count());
+
+      assertSame(VariableStateResult.NO_CHANGE, v.setMin(value));
+      assertSame(VariableStateResult.NO_CHANGE, v.setMax(value));
+   }
+
+   @Test
+   public void testSetValue() {
+      int value = 7;
+
+      VariableState v = new VariableState();
+      assertFalse(v.isSingleValue());
+      assertFalse(v.isCorrupt());
+
+      assertSame(VariableStateResult.UPDATED, v.setValue(value));
+      assertTrue(v.isSingleValue());
+      assertFalse(v.isCorrupt());
+
+      assertEquals(value, v.getMin());
+      assertEquals(value, v.getMax());
+      assertEquals(1, v.count());
+
+      assertSame(VariableStateResult.NO_CHANGE, v.setValue(value));
+      assertTrue(v.isSingleValue());
+      assertFalse(v.isCorrupt());
+
+      assertSame(VariableStateResult.FAILED, v.setValue(value + 1));
+      assertTrue(v.isCorrupt());
    }
 
    @Test
@@ -999,6 +1046,10 @@ public class VariableStateTest {
       // test min/max
       assertEquals(min, state.getMin());
       assertEquals(max, state.getMax());
+      // test single value
+      assertEquals(state.getMax() == state.getMin(), state.isSingleValue());
+      // test not corrupt
+      assertFalse(state.isCorrupt());
       // test all possibilities
       Possibilities p = state.getPossibilities();
       for (long i = min; i <= max && i >= min; i++) { // do i>min to avoid overflow
@@ -1035,6 +1086,7 @@ public class VariableStateTest {
       assertEquals(VariableStateResult.FAILED, f.apply(copy));
 
       assertEquals("corrupt", copy.toString());
+      assertTrue(copy.isCorrupt());
       assertThrows(IllegalStateException.class, () -> copy.copy());
       assertThrows(IllegalStateException.class, () -> copy.count());
       assertThrows(IllegalStateException.class, () -> copy.getMax());
