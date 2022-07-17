@@ -334,6 +334,25 @@ abstract class AbstractTwoArgsExpressionTest {
          flip.outputRight = this.outputLeft;
          return flip;
       }
+
+      @Override
+      public String toString() {
+         return "SetterTest [inputLeft="
+                + inputLeft
+                + ", inputRight="
+                + inputRight
+                + ", action="
+                + action
+                + ", value="
+                + value
+                + ", result="
+                + result
+                + ", outputLeft="
+                + outputLeft
+                + ", outputRight="
+                + outputRight
+                + "]";
+      }
    }
 
    static class GetterTest {
@@ -358,6 +377,11 @@ abstract class AbstractTwoArgsExpressionTest {
          GetterTest flip = new GetterTest(inputRight, inputLeft);
          flip.expected = this.expected;
          return flip;
+      }
+
+      @Override
+      public String toString() {
+         return "GetterTest [inputLeft=" + inputLeft + ", inputRight=" + inputRight + ", expected=" + expected + "]";
       }
    }
 
