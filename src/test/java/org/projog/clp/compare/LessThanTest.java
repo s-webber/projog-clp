@@ -15,6 +15,8 @@
  */
 package org.projog.clp.compare;
 
+import org.projog.clp.AbstractConstraintTest;
+
 public class LessThanTest extends AbstractConstraintTest {
    public LessThanTest() {
       super(LessThan::new, false);

@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /** A rule that restricts the numeric values that can be used to solve a problem. */
-public interface Constraint {
+public interface Constraint extends Expression {
    /** Attempts to enforce this constraint using the given {@code ConstraintStore}. */
    ConstraintResult enforce(ConstraintStore constraintStore);
 
@@ -33,6 +33,7 @@ public interface Constraint {
     *
     * @param consumer will be called for each {@code Expression} contained within this {@code Constraint}.
     */
+   @Override
    void walk(Consumer<Expression> consumer);
 
    /**
@@ -44,5 +45,42 @@ public interface Constraint {
     * @return a new {@code Constraint} with {@code LeafExpression}s in this {@code Constraint} replaced with versions
     * returned from {@code function}.
     */
+   @Override
    Constraint replace(Function<LeafExpression, LeafExpression> function);
+
+   @Override
+   default long getMin(ReadConstraintStore constraintStore) {
+      ConstraintResult r = reify(constraintStore);
+      return r == ConstraintResult.MATCHED ? 1 : 0;
+   }
+
+   @Override
+   default long getMax(ReadConstraintStore constraintStore) {
+      ConstraintResult r = reify(constraintStore);
+      return r == ConstraintResult.FAILED ? 0 : 1;
+   }
+
+   @Override
+   default ExpressionResult setMin(ConstraintStore constraintStore, long min) {
+      if (min == 1) {
+         ConstraintResult r = enforce(constraintStore);
+         return r == ConstraintResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID;
+      } else if (min > 1) {
+         return ExpressionResult.INVALID;
+      } else {
+         return ExpressionResult.VALID;
+      }
+   }
+
+   @Override
+   default ExpressionResult setMax(ConstraintStore constraintStore, long max) {
+      if (max == 0) {
+         ConstraintResult r = prevent(constraintStore);
+         return r == ConstraintResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID;
+      } else if (max < 0) {
+         return ExpressionResult.INVALID;
+      } else {
+         return ExpressionResult.VALID;
+      }
+   }
 }

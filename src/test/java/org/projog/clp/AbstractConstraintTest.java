@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.projog.clp.compare;
+package org.projog.clp;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -36,34 +36,42 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.projog.clp.Constraint;
-import org.projog.clp.ConstraintResult;
-import org.projog.clp.Expression;
-import org.projog.clp.FixedValue;
-import org.projog.clp.LeafExpression;
 import org.projog.clp.test.Range;
 import org.projog.clp.test.RangeParser;
+import org.projog.clp.test.TestData;
+import org.projog.clp.test.TestDataProvider;
 import org.projog.clp.test.TestUtils;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-abstract class AbstractConstraintTest {
+public abstract class AbstractConstraintTest {
+   private static final Range FULL_RANGE = new Range(Long.MIN_VALUE, Long.MAX_VALUE);
+
    private final Map<String, TestCase> enforceTests = new LinkedHashMap<>();
    private final Map<String, TestCase> preventTests = new LinkedHashMap<>();
-   private final BiFunction<Expression, Expression, Constraint> factory;
+   private final Map<String, TestCase> reifyTests = new LinkedHashMap<>();
+   private final BiFunction<LeafExpression, LeafExpression, Constraint> factory;
    private final boolean flip;
    private final TestUtils.Action enforce;
    private final TestUtils.Action prevent;
    private final TestUtils.Action reify;
+   private final TestUtils.Action setTrue;
+   private final TestUtils.Action setFalse;
+   private final TestUtils.Action setNotTrue;
+   private final TestUtils.Action setNotFalse;
    private boolean running;
 
-   AbstractConstraintTest(BiFunction<Expression, Expression, Constraint> factory, boolean flip) {
+   protected AbstractConstraintTest(BiFunction<LeafExpression, LeafExpression, Constraint> factory, boolean flip) {
       this.factory = Objects.requireNonNull(factory);
       this.flip = flip;
       this.enforce = (v, x, y) -> factory.apply(x, y).enforce(v);
       this.prevent = (v, x, y) -> factory.apply(x, y).prevent(v);
       this.reify = (v, x, y) -> factory.apply(x, y).reify(v);
+      this.setTrue = (v, x, y) -> factory.apply(x, y).setMin(v, 1);
+      this.setFalse = (v, x, y) -> factory.apply(x, y).setMax(v, 0);
+      this.setNotTrue = (v, x, y) -> factory.apply(x, y).setNot(v, 1);
+      this.setNotFalse = (v, x, y) -> factory.apply(x, y).setNot(v, 0);
    }
 
    @BeforeTest
@@ -113,21 +121,110 @@ abstract class AbstractConstraintTest {
       test(reify, t);
    }
 
+   @Test(dataProvider = "enforceTest")
+   public final void testSetTrue(TestCase t) {
+      test(setTrue, t, t.result == ConstraintResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID);
+   }
+
+   @Test(dataProvider = "preventTest")
+   public final void testSetFalse(TestCase t) {
+      test(setFalse, t, t.result == ConstraintResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID);
+   }
+
+   @Test(dataProvider = "enforceTest")
+   public final void testSetNotFalse(TestCase t) {
+      test(setNotFalse, t, t.result == ConstraintResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID);
+   }
+
+   @Test(dataProvider = "preventTest")
+   public final void testSetNotTrue(TestCase t) {
+      test(setNotTrue, t, t.result == ConstraintResult.FAILED ? ExpressionResult.INVALID : ExpressionResult.VALID);
+   }
+
    private void test(TestUtils.Action action, TestCase t) {
+      test(action, t, t.result);
+   }
+
+   private void test(TestUtils.Action action, TestCase t, Object expected) {
       if (t.result == ConstraintResult.FAILED) {
-         given(t.inputLeft, t.inputRight).when(action).then(t.result);
+         given(t.inputLeft, t.inputRight).when(action).then(expected);
       } else {
-         given(t.inputLeft, t.inputRight).when(action).then(t.result, t.outputLeft, t.outputRight);
+         given(t.inputLeft, t.inputRight).when(action).then(expected, t.outputLeft, t.outputRight);
       }
    }
 
+   @Test(dataProvider = "reifyTest")
+   public final void testGetMin(TestCase t) {
+      Long expectedResult = t.result == ConstraintResult.MATCHED ? 1L : 0L;
+
+      TestUtils.given(t.inputLeft, t.inputRight).when((s, x, y) -> {
+         Constraint c = factory.apply(x, y);
+         return c.getMin(s);
+      }).then(expectedResult, t.inputLeft, t.inputRight);
+   }
+
+   @Test(dataProvider = "reifyTest")
+   public final void testGetMax(TestCase t) {
+      Long expectedResult = t.result == ConstraintResult.FAILED ? 0L : 1L;
+
+      TestUtils.given(t.inputLeft, t.inputRight).when((s, x, y) -> {
+         Constraint c = factory.apply(x, y);
+         return c.getMax(s);
+      }).then(expectedResult, t.inputLeft, t.inputRight);
+   }
+
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"2", "3", "" + Long.MAX_VALUE, "-1", "-2", "" + Long.MIN_VALUE})
+   public final void testSetNotOutsideRange(Long valueOutsideRange) {
+      TestUtils.given(FULL_RANGE, FULL_RANGE).when((s, x, y) -> {
+         Constraint c = factory.apply(x, y);
+         return c.setNot(s, valueOutsideRange);
+      }).then(ExpressionResult.VALID, FULL_RANGE, FULL_RANGE);
+   }
+
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"-1", "-2", "" + Long.MIN_VALUE})
+   public final void testSetMinBelowZero(Long valueBelowZero) {
+      TestUtils.given(FULL_RANGE, FULL_RANGE).when((s, x, y) -> {
+         Constraint c = factory.apply(x, y);
+         return c.setMin(s, valueBelowZero);
+      }).then(ExpressionResult.VALID, FULL_RANGE, FULL_RANGE);
+   }
+
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"2", "3", "" + Long.MAX_VALUE})
+   public final void testSetMaxAboveOne(Long valueAboveOne) {
+      TestUtils.given(FULL_RANGE, FULL_RANGE).when((s, x, y) -> {
+         Constraint c = factory.apply(x, y);
+         return c.setMax(s, valueAboveOne);
+      }).then(ExpressionResult.VALID, FULL_RANGE, FULL_RANGE);
+   }
+
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"2", "3", "" + Long.MAX_VALUE})
+   public final void testSetMinTooHigh(Long valueAboveOne) {
+      TestUtils.given(FULL_RANGE, FULL_RANGE).when((s, x, y) -> {
+         Constraint c = factory.apply(x, y);
+         return c.setMin(s, valueAboveOne);
+      }).then(ExpressionResult.INVALID, FULL_RANGE, FULL_RANGE);
+   }
+
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({"-1", "-2", "" + Long.MIN_VALUE})
+   public final void testSetMaxTooLow(Long valueBelowZero) {
+      TestUtils.given(FULL_RANGE, FULL_RANGE).when((s, x, y) -> {
+         Constraint c = factory.apply(x, y);
+         return c.setMax(s, valueBelowZero);
+      }).then(ExpressionResult.INVALID, FULL_RANGE, FULL_RANGE);
+   }
+
    @Test
-   public final void testWalk() {
+   public void testWalk() {
       // given
       @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
+      LeafExpression left = mock(LeafExpression.class);
+      LeafExpression right = mock(LeafExpression.class);
       Constraint testObject = factory.apply(left, right);
 
       // when
@@ -140,12 +237,12 @@ abstract class AbstractConstraintTest {
    }
 
    @Test
-   public final void testReplace() {
+   public void testReplace() {
       // given
       @SuppressWarnings("unchecked")
       Function<LeafExpression, LeafExpression> function = mock(Function.class);
-      Expression left = mock(Expression.class);
-      Expression right = mock(Expression.class);
+      LeafExpression left = mock(LeafExpression.class);
+      LeafExpression right = mock(LeafExpression.class);
       Constraint testObject = factory.apply(left, right);
       when(left.replace(function)).thenReturn(new FixedValue(42));
       when(right.replace(function)).thenReturn(new FixedValue(180));
@@ -175,6 +272,10 @@ abstract class AbstractConstraintTest {
 
    @DataProvider
    public Object[][] reifyTest() {
+      if (!reifyTests.isEmpty()) {
+         return toArray(reifyTests);
+      }
+
       List<Object[]> result = new ArrayList<>();
       for (TestCase s : enforceTests.values()) {
          ConstraintResult expected;
@@ -210,12 +311,16 @@ abstract class AbstractConstraintTest {
       return flip && !s.inputLeft.equals(s.inputRight);
    }
 
-   TestCase enforce(String left, String right) {
+   protected TestCase enforce(String left, String right) {
       return add(enforceTests, left, right);
    }
 
-   TestCase prevent(String left, String right) {
+   protected TestCase prevent(String left, String right) {
       return add(preventTests, left, right);
+   }
+
+   protected TestCase reify(String left, String right) {
+      return add(reifyTests, left, right);
    }
 
    private TestCase add(Map<String, TestCase> testCases, String left, String right) {
@@ -232,14 +337,14 @@ abstract class AbstractConstraintTest {
       return testCase;
    }
 
-   static class TestCase {
+   protected static class TestCase {
       private final Range inputLeft;
       private final Range inputRight;
       private ConstraintResult result;
       private Range outputLeft;
       private Range outputRight;
 
-      public TestCase(String left, String right) {
+      private TestCase(String left, String right) {
          this(RangeParser.parseRange(left), RangeParser.parseRange(right));
       }
 
@@ -248,33 +353,41 @@ abstract class AbstractConstraintTest {
          this.inputRight = right;
       }
 
-      void matched() {
+      public void matched() {
          set(ConstraintResult.MATCHED, inputLeft, inputRight);
       }
 
-      void matched(String output) {
+      public void matched(String output) {
          set(ConstraintResult.MATCHED, output, output);
       }
 
-      void matched(String outputLeft, String outputRight) {
+      public void matched(String outputLeft, String outputRight) {
          set(ConstraintResult.MATCHED, outputLeft, outputRight);
       }
 
-      void unresolved() {
+      public void unresolved() {
          set(ConstraintResult.UNRESOLVED, inputLeft, inputRight);
       }
 
-      void unresolved(String output) {
+      public void unresolved(String output) {
          set(ConstraintResult.UNRESOLVED, output, output);
       }
 
-      void unresolved(String outputLeft, String outputRight) {
+      public void unresolved(String outputLeft, String outputRight) {
          set(ConstraintResult.UNRESOLVED, outputLeft, outputRight);
       }
 
-      void failed() {
+      public void failed() {
          assertNull(this.result);
          this.result = ConstraintResult.FAILED;
+      }
+
+      public void then(ConstraintResult result, String outputLeft, String outputRight) {
+         if (result == ConstraintResult.FAILED) {
+            failed();
+         } else {
+            set(result, outputLeft, outputRight);
+         }
       }
 
       private void set(ConstraintResult result, String outputLeft, String outputRight) {

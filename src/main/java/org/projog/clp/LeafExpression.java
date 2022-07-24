@@ -17,7 +17,7 @@ package org.projog.clp;
 
 import java.util.function.Function;
 
-public interface LeafExpression extends Expression, Constraint {
+public interface LeafExpression extends Constraint {
    @Override
    LeafExpression replace(Function<LeafExpression, LeafExpression> function);
 }

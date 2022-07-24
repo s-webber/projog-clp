@@ -19,76 +19,39 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.projog.clp.ClpConstraintStore;
+import org.projog.clp.AbstractConstraintTest;
 import org.projog.clp.Constraint;
-import org.projog.clp.ConstraintResult;
-import org.projog.clp.ConstraintStore;
 import org.projog.clp.Expression;
 import org.projog.clp.FixedValue;
 import org.projog.clp.LeafExpression;
-import org.projog.clp.Variable;
-import org.projog.clp.test.Range;
-import org.projog.clp.test.TestData;
-import org.projog.clp.test.TestDataProvider;
 import org.testng.annotations.Test;
 
-public class NotTest {
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"0,MATCHED", "1,FAILED", "0:1,MATCHED"})
-   public void testEnforce(Range input, ConstraintResult result) {
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable variable = b.createVariable();
-      ConstraintStore store = b.build();
-      Not not = new Not(variable);
-      variable.setMin(store, input.min());
-      variable.setMax(store, input.max());
+public class NotTest extends AbstractConstraintTest {
+   private static final String IGNORE = "MIN:MAX";
 
-      assertSame(result, not.enforce(store));
+   public NotTest() {
+      super((x, y) -> new Not(x), false);
 
-      if (result == ConstraintResult.MATCHED) {
-         assertEquals(0, variable.getMin(store));
-         assertEquals(0, variable.getMax(store));
-      }
+      enforce("0", IGNORE).matched();
+      enforce("1", IGNORE).failed();
+      enforce("0:1", IGNORE).matched("0", IGNORE);
+
+      prevent("0", IGNORE).failed();
+      prevent("1", IGNORE).matched();
+      prevent("0:1", IGNORE).matched("1", IGNORE);
+
+      reify("0", IGNORE).matched();
+      reify("1", IGNORE).failed();
+      reify("0:1", IGNORE).unresolved();
    }
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"0,FAILED", "1,MATCHED", "0:1,MATCHED"})
-   public void testPrevent(Range input, ConstraintResult result) {
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable variable = b.createVariable();
-      ConstraintStore store = b.build();
-      Not not = new Not(variable);
-      variable.setMin(store, input.min());
-      variable.setMax(store, input.max());
-
-      assertSame(result, not.prevent(store));
-
-      if (result == ConstraintResult.MATCHED) {
-         assertEquals(1, variable.getMin(store));
-         assertEquals(1, variable.getMax(store));
-      }
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"0,MATCHED", "1,FAILED", "0:1,UNRESOLVED"})
-   public void testReify(Range input, ConstraintResult result) {
-      ClpConstraintStore.Builder b = new ClpConstraintStore.Builder();
-      Variable variable = b.createVariable();
-      ConstraintStore store = b.build();
-      Not not = new Not(variable);
-      variable.setMin(store, input.min());
-      variable.setMax(store, input.max());
-
-      assertSame(result, not.reify(store));
-   }
-
+   @Override
    @Test
-   public final void testWalk() {
+   public void testWalk() {
       // given
       @SuppressWarnings("unchecked")
       Consumer<Expression> consumer = mock(Consumer.class);
@@ -103,8 +66,9 @@ public class NotTest {
       verifyNoMoreInteractions(consumer, input);
    }
 
+   @Override
    @Test
-   public final void testReplace() {
+   public void testReplace() {
       // given
       @SuppressWarnings("unchecked")
       Function<LeafExpression, LeafExpression> function = mock(Function.class);

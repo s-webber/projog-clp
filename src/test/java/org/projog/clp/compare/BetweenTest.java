@@ -25,90 +25,44 @@ import static org.testng.Assert.assertNotSame;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.projog.clp.ClpConstraintStore;
-import org.projog.clp.ConstraintResult;
-import org.projog.clp.ConstraintStore;
+import org.projog.clp.AbstractConstraintTest;
 import org.projog.clp.Expression;
 import org.projog.clp.FixedValue;
 import org.projog.clp.LeafExpression;
-import org.projog.clp.Variable;
-import org.projog.clp.test.TestData;
-import org.projog.clp.test.TestDataProvider;
 import org.testng.annotations.Test;
 
-public class BetweenTest {
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"30,40,30,40", "20,42,30,40", "33,38,33,38", "27,39,30,39", "31,42,31,40"})
-   public void testEnforceMatched(Long inputMin, Long inputMax, Long outputMin, Long outputMax) {
-      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
-      Variable e = builder.createVariable();
-      ConstraintStore variables = builder.build();
-      e.setMin(variables, inputMin);
-      e.setMax(variables, inputMax);
+public class BetweenTest extends AbstractConstraintTest {
+   private static final String IGNORE = "MIN:MAX";
 
-      Between b = new Between(e, 30, 40);
+   public BetweenTest() {
+      super((x, y) -> new Between(x, 30, 40), false);
 
-      assertEquals(ConstraintResult.MATCHED, b.enforce(variables));
-      assertEquals(outputMin, e.getMin(variables));
-      assertEquals(outputMax, e.getMax(variables));
+      enforce("30:40", IGNORE).matched();
+      enforce("20:42", IGNORE).matched("30:40", IGNORE);
+      enforce("33:38", IGNORE).matched();
+      enforce("27:39", IGNORE).matched("30:39", IGNORE);
+      enforce("31:42", IGNORE).matched("31:40", IGNORE);
+      enforce("0:29", IGNORE).failed();
+      enforce("41:50", IGNORE).failed();
+
+      reify("30:40", IGNORE).matched();
+      reify("34:36", IGNORE).matched();
+      reify("29:40", IGNORE).unresolved();
+      reify("30:41", IGNORE).unresolved();
+      reify("29:41", IGNORE).unresolved();
+      reify("0:29", IGNORE).failed();
+      reify("41:50", IGNORE).failed();
+
+      prevent("30:40", IGNORE).failed();
+      prevent("34:36", IGNORE).failed();
+      prevent("29:40", IGNORE).unresolved();
+      prevent("30:41", IGNORE).unresolved();
+      prevent("29:41", IGNORE).unresolved();
+      prevent("0:29", IGNORE).matched();
+      prevent("41:50", IGNORE).matched();
    }
 
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({"0,29", "41,50"})
-   public void testEnforceFailed(Long inputMin, Long inputMax) {
-      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
-      Variable e = builder.createVariable();
-      ConstraintStore variables = builder.build();
-      e.setMin(variables, inputMin);
-      e.setMax(variables, inputMax);
-
-      Between b = new Between(e, 30, 40);
-
-      assertEquals(ConstraintResult.FAILED, b.enforce(variables));
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({ //
-               "30,40,MATCHED",
-               "34,36,MATCHED",
-               "29,40,UNRESOLVED",
-               "30,41,UNRESOLVED",
-               "29,41,UNRESOLVED",
-               "0,29,FAILED",
-               "41,50,FAILED"})
-   public void testReify(Long inputMin, Long inputMax, ConstraintResult expected) {
-      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
-      Variable e = builder.createVariable();
-      ConstraintStore variables = builder.build();
-      e.setMin(variables, inputMin);
-      e.setMax(variables, inputMax);
-
-      Between b = new Between(e, 30, 40);
-
-      assertEquals(expected, b.reify(variables));
-   }
-
-   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
-   @TestData({ //
-               "30,40,FAILED",
-               "34,36,FAILED",
-               "29,40,UNRESOLVED",
-               "30,41,UNRESOLVED",
-               "29,41,UNRESOLVED",
-               "0,29,MATCHED",
-               "41,50,MATCHED"})
-   public void testPrevent(Long inputMin, Long inputMax, ConstraintResult expected) {
-      ClpConstraintStore.Builder builder = new ClpConstraintStore.Builder();
-      Variable e = builder.createVariable();
-      ConstraintStore variables = builder.build();
-      e.setMin(variables, inputMin);
-      e.setMax(variables, inputMax);
-
-      Between b = new Between(e, 30, 40);
-
-      assertEquals(expected, b.prevent(variables));
-   }
-
+   @Override
    @Test
    public void testWalk() {
       // given
@@ -125,6 +79,7 @@ public class BetweenTest {
       verifyNoMoreInteractions(consumer, expression);
    }
 
+   @Override
    @Test
    public void testReplace() {
       // given

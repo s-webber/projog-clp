@@ -15,6 +15,8 @@
  */
 package org.projog.clp.compare;
 
+import org.projog.clp.AbstractConstraintTest;
+
 public class EqualToTest extends AbstractConstraintTest {
    public EqualToTest() {
       super(EqualTo::new, true);

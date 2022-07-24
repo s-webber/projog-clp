@@ -15,145 +15,36 @@
  */
 package org.projog.clp.bool;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotSame;
-import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
+import org.projog.clp.AbstractConstraintTest;
 import org.projog.clp.Constraint;
 import org.projog.clp.ConstraintResult;
-import org.projog.clp.Expression;
-import org.projog.clp.FixedValue;
 import org.projog.clp.LeafExpression;
-import org.projog.clp.test.TestUtils;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-abstract class AbstractReificationTest {
+abstract class AbstractReificationTest extends AbstractConstraintTest {
    private final Map<String, Builder> tests = new HashMap<>();
-   private final BiFunction<Constraint, Constraint, Constraint> factory;
-   final org.projog.clp.test.TestUtils.Action enforce;
-   final org.projog.clp.test.TestUtils.Action prevent;
-   final org.projog.clp.test.TestUtils.Action reify;
-   private boolean running;
 
-   AbstractReificationTest(BiFunction<Constraint, Constraint, Constraint> factory) {
-      this.factory = factory;
-      this.enforce = (v, x, y) -> factory.apply(x, y).enforce(v);
-      this.prevent = (v, x, y) -> factory.apply(x, y).prevent(v);
-      this.reify = (v, x, y) -> factory.apply(x, y).reify(v);
-   }
-
-   @BeforeTest
-   public void before() {
-      this.running = true;
-   }
-
-   @DataProvider
-   public Object[] data() {
-      return new Object[] {"1,1", "0,0", "1,0", "0,1", "1,0:1", "0:1,1", "0,0:1", "0:1,0", "0:1,0:1"};
+   AbstractReificationTest(BiFunction<LeafExpression, LeafExpression, Constraint> factory) {
+      super(factory, false);
    }
 
    @Test
-   public final void testConfiguration() {
-      assertEquals(data().length, tests.size());
-   }
-
-   @Test(dataProvider = "data")
-   public final void testEnforce(String key) {
-      Builder b = getBuilder(key);
-
-      TestUtils.When when = TestUtils.given(b.inputLeft, b.inputRight).when(enforce);
-      if (b.enforceResult == ConstraintResult.FAILED) {
-         when.then(b.enforceResult);
-      } else {
-         when.then(b.enforceResult, b.enforceLeftValue, b.enforceRightValue);
+   public final void testReificationConfiguration() {
+      String[] testCases = new String[] {"1,1", "0,0", "1,0", "0,1", "1,0:1", "0:1,1", "0,0:1", "0:1,0", "0:1,0:1"};
+      assertEquals(testCases.length, tests.size());
+      for (String testCase : testCases) {
+         assertTrue(tests.containsKey(testCase));
       }
-   }
-
-   @Test(dataProvider = "data")
-   public final void testPrevent(String key) {
-      Builder b = getBuilder(key);
-
-      TestUtils.When when = TestUtils.given(b.inputLeft, b.inputRight).when(prevent);
-      if (b.preventResult == ConstraintResult.FAILED) {
-         when.then(b.preventResult);
-      } else {
-         when.then(b.preventResult, b.preventLeftValue, b.preventRightValue);
-      }
-   }
-
-   @Test(dataProvider = "data")
-   public final void testReify(String key) {
-      Builder b = getBuilder(key);
-
-      TestUtils.given(b.inputLeft, b.inputRight).when(reify).then(b.reifyResult);
-   }
-
-   @Test
-   public final void testWalk() {
-      // given
-      @SuppressWarnings("unchecked")
-      Consumer<Expression> consumer = mock(Consumer.class);
-      Constraint left = mock(Constraint.class);
-      Constraint right = mock(Constraint.class);
-      Constraint testObject = factory.apply(left, right);
-
-      // when
-      testObject.walk(consumer);
-
-      // then
-      verify(left).walk(consumer);
-      verify(right).walk(consumer);
-      verifyNoMoreInteractions(consumer, left, right);
-   }
-
-   @Test
-   public final void testReplace() {
-      // given
-      @SuppressWarnings("unchecked")
-      Function<LeafExpression, LeafExpression> function = mock(Function.class);
-      Constraint left = mock(Constraint.class);
-      Constraint right = mock(Constraint.class);
-      Constraint testObject = factory.apply(left, right);
-      when(left.replace(function)).thenReturn(new FixedValue(42));
-      when(right.replace(function)).thenReturn(new FixedValue(180));
-
-      // when
-      Constraint replacement = testObject.replace(function);
-      assertSame(testObject.getClass(), replacement.getClass());
-      assertNotSame(testObject, replacement);
-      String name = testObject.getClass().getName();
-      assertEquals(name.substring(name.lastIndexOf('.') + 1) + " [left=FixedValue [value=42], right=FixedValue [value=180]]", replacement.toString());
-
-      // then
-      verify(left).replace(function);
-      verify(right).replace(function);
-      verifyNoMoreInteractions(function, left, right);
-   }
-
-   private Builder getBuilder(String key) {
-      Builder b = tests.get(key);
-      if (b == null) {
-         throw new IllegalStateException(key);
-      }
-      return b;
    }
 
    Builder given(String inputLeft, String inputRight) {
-      assertFalse(running);
-
       String key = inputLeft + "," + inputRight;
       if (tests.containsKey(key)) {
          throw new IllegalStateException(key);
@@ -164,16 +55,9 @@ abstract class AbstractReificationTest {
       return b;
    }
 
-   static class Builder {
+   class Builder {
       private final String inputLeft;
       private final String inputRight;
-      private ConstraintResult enforceResult;
-      private String enforceLeftValue;
-      private String enforceRightValue;
-      private ConstraintResult preventResult;
-      private String preventLeftValue;
-      private String preventRightValue;
-      private ConstraintResult reifyResult;
 
       private Builder(String inputLeft, String inputRight) {
          this.inputLeft = inputLeft;
@@ -189,9 +73,7 @@ abstract class AbstractReificationTest {
       }
 
       Builder enforce(ConstraintResult enforceResult, String enforceLeftValue, String enforceRightValue) {
-         this.enforceResult = enforceResult;
-         this.enforceLeftValue = enforceLeftValue;
-         this.enforceRightValue = enforceRightValue;
+         AbstractReificationTest.this.enforce(inputLeft, inputRight).then(enforceResult, enforceLeftValue, enforceRightValue);
          return this;
       }
 
@@ -204,14 +86,12 @@ abstract class AbstractReificationTest {
       }
 
       Builder prevent(ConstraintResult preventResult, String preventLeftValue, String preventRightValue) {
-         this.preventResult = preventResult;
-         this.preventLeftValue = preventLeftValue;
-         this.preventRightValue = preventRightValue;
+         AbstractReificationTest.this.prevent(inputLeft, inputRight).then(preventResult, preventLeftValue, preventRightValue);
          return this;
       }
 
       Builder reify(ConstraintResult reifyResult) {
-         this.reifyResult = reifyResult;
+         AbstractReificationTest.this.reify(inputLeft, inputRight).then(reifyResult, inputLeft, inputRight);
          return this;
       }
    }

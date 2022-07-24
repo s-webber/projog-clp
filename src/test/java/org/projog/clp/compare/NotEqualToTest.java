@@ -15,6 +15,8 @@
  */
 package org.projog.clp.compare;
 
+import org.projog.clp.AbstractConstraintTest;
+
 public class NotEqualToTest extends AbstractConstraintTest {
    public NotEqualToTest() {
       super(NotEqualTo::new, true);
