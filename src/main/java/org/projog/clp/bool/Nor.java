@@ -26,11 +26,11 @@ import org.projog.clp.Expression;
 import org.projog.clp.LeafExpression;
 import org.projog.clp.ReadConstraintStore;
 
-public final class Or implements Constraint {
+public final class Nor implements Constraint {
    private final Constraint left;
    private final Constraint right;
 
-   public Or(Constraint left, Constraint right) {
+   public Nor(Constraint left, Constraint right) {
       this.left = Objects.requireNonNull(left);
       this.right = Objects.requireNonNull(right);
    }
@@ -43,43 +43,59 @@ public final class Or implements Constraint {
    static ConstraintResult enforce(Constraint left, Constraint right, ConstraintStore constraintStore) {
       ConstraintResult r1 = left.reify(constraintStore);
       if (r1 == ConstraintResult.MATCHED) {
-         return ConstraintResult.MATCHED;
+         return ConstraintResult.FAILED;
       }
 
       ConstraintResult r2 = right.reify(constraintStore);
       if (r2 == ConstraintResult.MATCHED) {
-         return ConstraintResult.MATCHED;
-      }
-
-      if (r1 == ConstraintResult.FAILED && r2 == ConstraintResult.FAILED) {
          return ConstraintResult.FAILED;
       }
 
-      if (r1 == ConstraintResult.FAILED) {
-         return right.enforce(constraintStore);
+      if (r1 == ConstraintResult.FAILED && r2 == ConstraintResult.FAILED) {
+         return ConstraintResult.MATCHED;
       }
 
-      if (r2 == ConstraintResult.FAILED) {
-         return left.enforce(constraintStore);
+      if (r1 == ConstraintResult.UNRESOLVED) {
+         r1 = left.prevent(constraintStore);
+         if (r1 == ConstraintResult.FAILED) {
+            return ConstraintResult.FAILED;
+         }
+         if (r1 == ConstraintResult.MATCHED) {
+            r1 = ConstraintResult.FAILED;
+         }
       }
 
-      return ConstraintResult.UNRESOLVED;
+      if (r2 == ConstraintResult.UNRESOLVED) {
+         r2 = right.prevent(constraintStore);
+         if (r2 == ConstraintResult.FAILED) {
+            return ConstraintResult.FAILED;
+         }
+         if (r2 == ConstraintResult.MATCHED) {
+            r2 = ConstraintResult.FAILED;
+         }
+      }
+
+      if (r1 == ConstraintResult.FAILED && r2 == ConstraintResult.FAILED) {
+         return ConstraintResult.MATCHED;
+      } else {
+         return ConstraintResult.UNRESOLVED;
+      }
    }
 
    @Override
    public ConstraintResult reify(ReadConstraintStore constraintStore) {
       ConstraintResult r1 = left.reify(constraintStore);
       if (r1 == ConstraintResult.MATCHED) {
-         return ConstraintResult.MATCHED;
+         return ConstraintResult.FAILED;
       }
 
       ConstraintResult r2 = right.reify(constraintStore);
       if (r2 == ConstraintResult.MATCHED) {
-         return ConstraintResult.MATCHED;
+         return ConstraintResult.FAILED;
       }
 
       if (r1 == ConstraintResult.FAILED && r2 == ConstraintResult.FAILED) {
-         return ConstraintResult.FAILED;
+         return ConstraintResult.MATCHED;
       }
 
       return ConstraintResult.UNRESOLVED;
@@ -87,7 +103,7 @@ public final class Or implements Constraint {
 
    @Override
    public ConstraintResult prevent(ConstraintStore constraintStore) {
-      return Nor.enforce(left, right, constraintStore);
+      return Or.enforce(left, right, constraintStore);
    }
 
    @Override
@@ -97,12 +113,12 @@ public final class Or implements Constraint {
    }
 
    @Override
-   public Or replace(Function<LeafExpression, LeafExpression> r) {
-      return new Or(left.replace(r), right.replace(r));
+   public Nor replace(Function<LeafExpression, LeafExpression> r) {
+      return new Nor(left.replace(r), right.replace(r));
    }
 
    @Override
    public String toString() {
-      return "Or [left=" + left + ", right=" + right + "]";
+      return "Nor [left=" + left + ", right=" + right + "]";
    }
 }

@@ -406,5 +406,10 @@ public abstract class AbstractConstraintTest {
          flip.set(result, outputRight, outputLeft);
          return flip;
       }
+
+      @Override
+      public String toString() {
+         return "TestCase [inputLeft=" + inputLeft + ", inputRight=" + inputRight + ", result=" + result + ", outputLeft=" + outputLeft + ", outputRight=" + outputRight + "]";
+      }
    }
 }

@@ -37,6 +37,10 @@ public final class And implements Constraint {
 
    @Override
    public ConstraintResult enforce(ConstraintStore constraintStore) {
+      return enforce(left, right, constraintStore);
+   }
+
+   static ConstraintResult enforce(Constraint left, Constraint right, ConstraintStore constraintStore) {
       ConstraintResult r1 = left.enforce(constraintStore);
       if (r1 == ConstraintResult.FAILED) {
          return ConstraintResult.FAILED;
@@ -67,25 +71,7 @@ public final class And implements Constraint {
 
    @Override
    public ConstraintResult prevent(ConstraintStore constraintStore) {
-      ConstraintResult r1 = left.reify(constraintStore);
-      if (r1 == ConstraintResult.FAILED) {
-         return ConstraintResult.MATCHED;
-      }
-
-      ConstraintResult r2 = right.reify(constraintStore);
-      if (r2 == ConstraintResult.FAILED) {
-         return ConstraintResult.MATCHED;
-      }
-
-      if (r1 == ConstraintResult.MATCHED && r2 == ConstraintResult.MATCHED) {
-         return ConstraintResult.FAILED;
-      } else if (r1 == ConstraintResult.MATCHED) {
-         return right.prevent(constraintStore);
-      } else if (r2 == ConstraintResult.MATCHED) {
-         return left.prevent(constraintStore);
-      } else { // must be both UNRESOLVED
-         return ConstraintResult.UNRESOLVED;
-      }
+      return Nand.enforce(left, right, constraintStore);
    }
 
    @Override

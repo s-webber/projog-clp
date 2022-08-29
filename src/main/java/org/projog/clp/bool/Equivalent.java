@@ -37,15 +37,19 @@ public final class Equivalent implements Constraint {
 
    @Override
    public ConstraintResult enforce(ConstraintStore constraintStore) {
-      ConstraintResult r = enforce(constraintStore, left, right);
+      return enforce(left, right, constraintStore);
+   }
+
+   static ConstraintResult enforce(Constraint left, Constraint right, ConstraintStore constraintStore) {
+      ConstraintResult r = internalEnforce(left, right, constraintStore);
       if (r != ConstraintResult.UNRESOLVED) {
          return r;
       } else {
-         return enforce(constraintStore, right, left);
+         return internalEnforce(right, left, constraintStore);
       }
    }
 
-   private static ConstraintResult enforce(ConstraintStore constraintStore, Constraint a, Constraint b) {
+   private static ConstraintResult internalEnforce(Constraint a, Constraint b, ConstraintStore constraintStore) {
       ConstraintResult r = a.reify(constraintStore);
       if (r == ConstraintResult.MATCHED) {
          return b.enforce(constraintStore);
@@ -73,7 +77,7 @@ public final class Equivalent implements Constraint {
 
    @Override
    public ConstraintResult prevent(ConstraintStore constraintStore) {
-      return new Xor(left, right).enforce(constraintStore);
+      return Xor.enforce(left, right, constraintStore);
    }
 
    @Override
