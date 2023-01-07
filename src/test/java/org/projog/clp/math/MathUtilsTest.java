@@ -17,6 +17,10 @@ package org.projog.clp.math;
 
 import static org.projog.clp.test.RangeParser.parseLong;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
+
+import java.math.BigInteger;
 
 import org.projog.clp.test.TestData;
 import org.projog.clp.test.TestDataProvider;
@@ -88,8 +92,16 @@ public class MathUtilsTest {
       assertAdd(parseLong(right), parseLong(left), parseLong(expected));
    }
 
-   private void assertAdd(long left, long right, long expected) {
+   private static void assertAdd(long left, long right, long expected) {
       assertEquals(expected, MathUtils.safeAdd(left, right));
+
+      // if safeAdd produces different result than normal addition then confirm result has the correct sign
+      BigInteger bigInteger = new BigInteger("" + left).add(new BigInteger("" + right));
+      if (expected != left + right) {
+         assertOverflowRounding(expected, bigInteger);
+      } else {
+         assertEquals(bigInteger, new BigInteger("" + expected));
+      }
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
@@ -159,7 +171,19 @@ public class MathUtilsTest {
                "MAX-2,-2,MAX",
                "MAX-2,-3,MAX",})
    public void testSubtract(String left, String right, String expected) {
-      assertEquals(parseLong(expected), MathUtils.safeSubtract(parseLong(left), parseLong(right)));
+      assertSubtract(parseLong(left), parseLong(right), parseLong(expected));
+   }
+
+   private static void assertSubtract(long left, long right, long expected) {
+      assertEquals(expected, MathUtils.safeSubtract(left, right));
+
+      // if safeSubtract produces different result than normal subtraction then confirm result has the correct sign
+      BigInteger bigInteger = new BigInteger("" + left).subtract(new BigInteger("" + right));
+      if (expected != left - right) {
+         assertOverflowRounding(expected, bigInteger);
+      } else {
+         assertEquals(bigInteger, new BigInteger("" + expected));
+      }
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
@@ -182,8 +206,50 @@ public class MathUtilsTest {
       assertMultiply(parseLong(right), parseLong(left), parseLong(expected));
    }
 
-   private void assertMultiply(long left, long right, long expected) {
+   private static void assertMultiply(long left, long right, long expected) {
       assertEquals(expected, MathUtils.safeMultiply(left, right));
+
+      // if safeMultiply produces different result than normal multiplication then confirm result has the correct sign
+      BigInteger bigInteger = new BigInteger("" + left).multiply(new BigInteger("" + right));
+      if (expected != left * right) {
+         assertOverflowRounding(expected, bigInteger);
+      } else {
+         assertEquals(bigInteger, new BigInteger("" + expected));
+      }
+   }
+
+   @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
+   @TestData({
+               "27,9,3", //
+               "35,9,3",
+               "-27,-9,3",
+               "-35,-9,3",
+               "-27,9,-3",
+               "-35,9,-3",
+               "27,-9,-3",
+               "35,-9,-3",
+               "MAX,MAX,1",
+               "MIN,MIN,1",
+               "MAX,MIN,0",
+               "MIN,MAX,-1",
+               "MAX,1,MAX",
+               "MIN,1,MIN",
+               "MAX,-1,MIN+1",
+               "MIN,-1,MAX"})
+   public void testDivide(String left, String right, String expected) {
+      assertDivide(parseLong(left), parseLong(right), parseLong(expected));
+   }
+
+   private static void assertDivide(long left, long right, long expected) {
+      assertEquals(expected, MathUtils.safeDivide(left, right));
+
+      // if safeDivide produces different result than normal division then confirm result has the correct sign
+      BigInteger bigInteger = new BigInteger("" + left).divide(new BigInteger("" + right));
+      if (expected != left / right) {
+         assertOverflowRounding(expected, bigInteger);
+      } else {
+         assertEquals(bigInteger, new BigInteger("" + expected));
+      }
    }
 
    @Test(dataProvider = "process", dataProviderClass = TestDataProvider.class)
@@ -198,5 +264,23 @@ public class MathUtilsTest {
       long input = parseLong(inputString);
       assertEquals(parseLong(expected), MathUtils.safeMinus(input));
       assertEquals(MathUtils.safeSubtract(0, input), MathUtils.safeMinus(input));
+   }
+
+   private static void assertOverflowRounding(long expected, BigInteger bigInteger) {
+      try {
+         bigInteger.longValueExact();
+         fail();
+      } catch (ArithmeticException e) {
+         // expected
+         assertEquals("BigInteger out of long range", e.getMessage());
+      }
+
+      if (expected == Long.MAX_VALUE) {
+         assertTrue(bigInteger.compareTo(new BigInteger("" + expected)) > 0);
+      } else if (expected == Long.MIN_VALUE) {
+         assertTrue(bigInteger.compareTo(new BigInteger("" + expected)) < 0);
+      } else {
+         fail();
+      }
    }
 }

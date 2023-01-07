@@ -28,7 +28,7 @@ public final class RangeParser {
       long min = parseLong(input.substring(0, pos));
       long max = parseLong(input.substring(pos + 1));
       if (min == max) {
-         throw new IllegalArgumentException("Use \"" + input + "\" rather than \"" + input + "\"");
+         throw new IllegalArgumentException("Use \"" + min + "\" rather than \"" + input + "\"");
       }
       return new Range(min, max);
    }

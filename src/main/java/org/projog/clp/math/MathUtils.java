@@ -77,6 +77,17 @@ public final class MathUtils {
    }
 
    /**
+    * Returns the result of dividing the first argument by the second, rounding down if the result overflows a long.
+    */
+   public static long safeDivide(long x, long y) {
+      if (x == Long.MIN_VALUE && y == -1) {
+         return Long.MAX_VALUE;
+      } else {
+         return x / y;
+      }
+   }
+
+   /**
     * Returns the absolute value of a {@code long} value.
     * <p>
     * {@code safeAbs(Long.MIN_VALUE)} returns {@code Long.MAX_VALUE} whereas {@code Math.abs(Long.MIN_Value)} returns

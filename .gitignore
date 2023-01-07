@@ -19,3 +19,4 @@ dont_commit
 /tmp
 /temp
 /target
+/test-output
